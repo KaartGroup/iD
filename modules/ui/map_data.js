@@ -205,6 +205,41 @@ export function uiMapData(context) {
             .append('span')
             .text(t('mapillary_map_features.request_data'));
 
+        // Mapillary date filter
+
+        var mapillaryLabel = labelEnter
+            .filter(function(d) { return d.id === 'mapillary'; })
+            .append('div')
+            .attr('class', 'mapillary-date-filter');
+        
+        var mapillaryFromDate = mapillaryLabel
+            .append('div')
+            .attr('class', 'mapillary-from-date');
+            
+        mapillaryFromDate
+            .append('span')
+            .text('From');
+            // .append('input')
+            // .attr('type', 'date');
+
+        mapillaryFromDate
+            .append('input')
+            .attr('type', 'date');
+
+        var mapillaryToDate = mapillaryLabel
+            .append('div')
+            .attr('class', 'mapillary-to-date');
+        
+        mapillaryToDate
+            .append('span')
+            .text('To');
+            // .append('input')
+            // .attr('type', 'date');
+        
+        mapillaryToDate
+            .append('input')
+            .attr('type', 'date');
+
 
         // Update
         li

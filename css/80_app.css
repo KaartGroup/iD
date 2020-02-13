@@ -3068,6 +3068,36 @@ div.full-screen > button:hover {
     padding-bottom: 10px;
 }
 
+/* Background / Map Data Settings / Mapillary -- date filter additions
+------------------------------------------------------- */
+
+.layer-list > li.list-item-mapillary.active {
+    height: 90px;
+}
+
+.list-item-mapillary > label > input[type=checkbox]:checked~.mapillary-date-filter {
+    display: block;
+}
+
+.mapillary-date-filter {
+    display: none;
+}
+.mapillary-date-filter > div span {
+    padding: 5px;
+}
+
+.mapillary-to-date input[type=date] {
+    margin-left: 15px;
+}
+
+.mapillary-from-date, .mapillary-to-date > input[type=date] {
+    /* margin: 15px; */
+}
+
+/* .mapillary-date-filter > input[type=date] {
+    max-width: 115px;
+} */
+
 
 /* Issues
 ------------------------------------------------------- */
