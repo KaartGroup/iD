@@ -3057,20 +3057,32 @@ div.full-screen > button:hover {
 .mapillary-date-filter {
     display: none;
 }
+
+.mapillary-date-filter > div {
+    padding: 2px;
+}
+
 .mapillary-date-filter > div span {
     padding: 5px;
+}
+
+.mapillary-date-filter input {
+    height: 20px;
 }
 
 .mapillary-to-date input[type=date] {
     margin-left: 15px;
 }
 
-.mapillary-from-date, .mapillary-to-date > input[type=date] {
-    /* margin: 15px; */
+.mapillary-date-filter input[type=button] {
+    flex: 0 0 20px;
+    width: 50px;
+    background: #7092ff;    
+    color: #fff;
 }
 
-/* .mapillary-date-filter > input[type=date] {
-    max-width: 115px;
+/* .mapillary-date-filter input[type=button]:hover {
+    background: #597be7;
 } */
 
 
