@@ -1,0 +1,104 @@
+.simple-preset-list-item {
+    margin-bottom: 10px;
+    width: 100%;
+    padding-left: 10px;
+}
+
+.simple-preset-list-button {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    display: flex;
+}
+
+.simple-preset-list-button-wrap {
+    height: 62px;
+    display: flex;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.simple-preset-icon-container.medium {
+    position: relative;
+    width: 60px;
+    height: 60px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.simple-label {
+    display: flex;
+    width: 100%;
+    flex-flow: row wrap;
+    align-items: center;
+    text-align: left;
+    padding: 5px 10px;
+    border-left-color: rgba(0, 0, 0, 0.1);
+    border-left-style: solid;
+    border-left-width: 1px;
+}
+
+.simple-label-inner {
+    width:100%;
+} 
+
+.simple-namepart {
+    height: 17px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.simple-tag-reference-button {
+    height:100%;
+    width:10%;
+    border-left-color: rgba(0, 0, 0, 0.1);
+    border-left-style: solid;
+    border-left-width: 1px;
+}
+
+.simple-tag-reference-body {
+    flex: 1 1 auto;
+    width: 100%;
+    overflow: hidden;
+    display: none;
+    padding-top: 10px;
+} 
+
+.simple-tag-reference-body.shown {
+    padding-bottom: 10px;
+    display: inline-block;
+}
+
+.simple-proprietary-dialogue.inspector-body {
+    text-align: center;
+    align-items: center;
+    top: 60px;
+}
+
+.simple.qaItem .shadow,
+.simple.point .shadow,
+.simple.note .shadow {
+    fill: none;
+    stroke: green;
+    stroke-width: 16;
+    stroke-opacity: 0;
+}
+
+.simple.qaItem.selected .shadow,
+.simple.note.selected .shadow,
+.simple.point.selected .shadow {
+    stroke-opacity: 0.7;
+}
+
+/* Chrome only: */
+@media all and (-webkit-min-device-pixel-ratio:0) and (min-resolution: .001dpcm) { 
+    .simple-preset-list-button {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        display: contents;
+    }
+}

@@ -9,6 +9,7 @@ import { coreGraph } from '../core/graph';
 import { t } from '../core/localizer';
 import { utilArrayUnion, utilArrayUniq, utilDisplayName, utilDisplayType, utilRebind } from '../util';
 
+import { separatePropFromNonProp, setNonPropUploaded, getPropDataExistence, getNonPropDataExistence } from '../services/proprietary';
 
 export function coreUploader(context) {
 
@@ -18,19 +19,23 @@ export function coreUploader(context) {
         'saveEnded',   // dispatched after the result event has been dispatched
 
         'willAttemptUpload', // dispatched before the actual upload call occurs, if it will
+        'willAttemptPropUpload',
         'progressChanged',
 
         // Each save results in one of these outcomes:
         'resultNoChanges', // upload wasn't attempted since there were no edits
         'resultErrors',    // upload failed due to errors
         'resultConflicts', // upload failed due to data conflicts
-        'resultSuccess'    // upload completed without errors
+        'resultSuccess',    // upload completed without errors
+        'resultPropSuccess'
     );
 
     var _isSaving = false;
 
     var _conflicts = [];
     var _errors = [];
+    var _propFeatures = { created: [], modified: [], deleted: [] }
+    var _nonPropFeatures = { created: [], modified: [], deleted: [] }
     var _origChanges;
 
     var _discardTags = {};
@@ -77,6 +82,9 @@ export function coreUploader(context) {
         // Store original changes, in case user wants to download them as an .osc file
         _origChanges = history.changes(actionDiscardTags(history.difference(), _discardTags));
 
+        if (getPropDataExistence() && getNonPropDataExistence())
+            separatePropFromNonProp(_origChanges,_propFeatures,_nonPropFeatures);
+        
         // First time, `history.perform` a no-op action.
         // Any conflict resolutions will be done as `history.replace`
         // Remember to pop this later if needed
@@ -285,14 +293,23 @@ export function coreUploader(context) {
             didResultInErrors();
 
         } else {
-            var history = context.history();
+            /*var history = context.history();
             var changes = history.changes(actionDiscardTags(history.difference(), _discardTags));
+            
             if (changes.modified.length || changes.created.length || changes.deleted.length) {
 
                 dispatch.call('willAttemptUpload', this);
 
                 osm.putChangeset(changeset, changes, uploadCallback);
 
+            } 
+            */
+            if (getNonPropDataExistence()) {
+                dispatch.call('willAttemptUpload', this);
+                osm.putChangeset(changeset, (getPropDataExistence() && getOSMDataExistence()) ? _osmFeatures : _origChanges, uploadCallback);
+            } else if (getPropDataExistence()) {
+                dispatch.call('willAttemptPropUpload', this);
+                osm.putChangeset(changeset, (_propFeatures.modified.length || _propFeatures.created.length || _propFeatures.deleted.length) ? _propFeatures : _origChanges, uploadCallback);
             } else {
                 // changes were insignificant or reverted by user
                 didResultInNoChanges();
@@ -314,7 +331,10 @@ export function coreUploader(context) {
             }
 
         } else {
-            didResultInSuccess(changeset);
+            if (getNonPropDataExistence() && getPropDataExistence())
+                didResultInSuccessAndUploadingBoth(changeset);
+            else
+                didResultInSuccess(changeset);
         }
     }
 
@@ -346,13 +366,23 @@ export function coreUploader(context) {
         endSave();
     }
 
+    function didResultInSuccessAndUploadingBoth(changeset) {
+        dispatch.call('resultSuccess', this, changeset);
+        setNonPropUploaded(true);
+        window.setTimeout(function() {
+            endSave();
+        }, 2500);
+    }
 
     function didResultInSuccess(changeset) {
 
         // delete the edit stack cached to local storage
         context.history().clearSaved();
-
-        dispatch.call('resultSuccess', this, changeset);
+        
+        if (getNonPropDataExistence())
+            dispatch.call('resultSuccess', this, changeset);
+        else
+        dispatch.call('resultPropSuccess', this, changeset);
 
         // Add delay to allow for postgres replication #1646 #2678
         window.setTimeout(function() {

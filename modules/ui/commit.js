@@ -14,6 +14,8 @@ import { uiCommitWarnings } from './commit_warnings';
 import { uiSectionRawTagEditor } from './sections/raw_tag_editor';
 import { utilArrayGroupBy, utilRebind, utilUniqueDomId } from '../util';
 import { utilDetect } from '../util/detect';
+import { getPropDataExistence, getNonPropDataExistence } from '../services/proprietary';
+import { geoPointInPolygon } from '../geo';
 
 
 var readOnlyTags = [
@@ -130,6 +132,9 @@ export function uiCommit(context) {
         }
 
         context.changeset = new osmChangeset({ tags: tags });
+
+        if (getPropDataExistence() && getNonPropDataExistence())
+            context.changeset.update({ proprietary: true });
     }
 
     // Calculates read-only metadata tags based on the user's editing session and applies
@@ -227,7 +232,7 @@ export function uiCommit(context) {
             .append('div')
             .attr('class', 'header-block')
             .append('h3')
-            .text(t('commit.title'));
+            .text(getPropDataExistence() && getNonPropDataExistence() ? 'Upload to Proprietary' : t('commit.title'));
 
         headerTitle
             .append('div')

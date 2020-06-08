@@ -1,5 +1,6 @@
 import { select as d3_select } from 'd3-selection';
 import { uiModal } from './modal';
+import { getPropDataExistence, getNonPropDataExistence } from '../services/proprietary';
 
 
 export function uiLoading(context) {
@@ -23,7 +24,7 @@ export function uiLoading(context) {
 
     loadertext
       .append('h3')
-      .text(_message);
+      .text((getPropDataExistence() && !getNonPropDataExistence()) ? 'Uploading changes to Proprietary' : _message);
 
     _modalSelection.select('button.close')
       .attr('class', 'hide');

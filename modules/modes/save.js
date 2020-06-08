@@ -8,7 +8,7 @@ import { uiConfirm } from '../ui/confirm';
 import { uiCommit } from '../ui/commit';
 import { uiSuccess } from '../ui/success';
 import { utilKeybinding } from '../util';
-
+import { setNonPropUploaded } from '../services/proprietary';
 
 export function modeSave(context) {
     var mode = { id: 'save' };
@@ -33,7 +33,8 @@ export function modeSave(context) {
         })
         .on('resultErrors.modeSave', showErrors)
         .on('resultConflicts.modeSave', showConflicts)
-        .on('resultSuccess.modeSave', showSuccess);
+        .on('resultSuccess.modeSave', showSuccess)
+        .on('resultPropSuccess.modeSave', showPropSuccess);
 
 
     function cancel() {
@@ -153,6 +154,12 @@ export function modeSave(context) {
             .remove();
     }
 
+
+    function showPropSuccess(changeset) {
+        commit.reset();
+        setNonPropUploaded(false);
+        context.enter(modeBrowse(context));
+    }
 
     function showSuccess(changeset) {
         commit.reset();

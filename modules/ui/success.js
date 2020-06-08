@@ -9,6 +9,8 @@ import { t, localizer } from '../core/localizer';
 import { svgIcon } from '../svg/icon';
 import { uiDisclosure } from '../ui/disclosure';
 import { utilRebind } from '../util/rebind';
+import { getPropDataExistence, getNonPropDataExistence } from '../services/proprietary';
+import { modeSave } from '../modes/save';
 
 
 let _oci = null;
@@ -72,11 +74,13 @@ export function uiSuccess(context) {
       .append('div')
       .attr('class', 'header fillL');
 
-    header
+    if (!getPropDataExistence() && getNonPropDataExistence()) {
+      header
       .append('button')
       .attr('class', 'fr')
       .on('click', () => dispatch.call('cancel'))
       .call(svgIcon('#iD-icon-close'));
+    }
 
     header
       .append('h3')
@@ -85,6 +89,13 @@ export function uiSuccess(context) {
     let body = selection
       .append('div')
       .attr('class', 'body save-success fillL');
+
+    if (getPropDataExistence()) {
+      presetItem(body, {
+        label: ('Continue to Proprietary Upload...'),
+        onClick: function() { context.enter(modeSave(context)); }
+      }, 'osmToPropCommit');
+    }
 
     let summary = body
       .append('div')
@@ -175,6 +186,38 @@ export function uiSuccess(context) {
       });
   }
 
+  // TODO remove this with applicable import
+  function presetItem(selection, p, presetButtonClasses) {
+    var presetItem = selection
+        .append('div')
+        .attr('class', 'simple-preset-list-item')
+        .style('padding-top','10px');
+
+    var presetWrap = presetItem
+        .append('div')
+        .attr('class', 'simple-preset-list-button-wrap')
+        .style('border','none')
+        .style('justify-content','center');
+
+    var presetButton = presetWrap
+        .append('button')
+        .attr('class', 'simple-preset-list-button ' + presetButtonClasses)
+        .style('width','85%')
+        .style('border-color','#ccc')
+        .style('border-width','thin')
+        .style('border-style','solid')
+        .on('click', p.onClick);
+
+    presetButton
+        .append('div')
+        .attr('class', 'simple-label')
+        .style('text-align','center')
+        .append('div')
+        .attr('class', 'simple-label-inner')
+        .append('div')
+        .attr('class', 'simple-namepart')
+        .text(p.label);
+  }
 
   function showCommunityLinks(selection, resources) {
     let communityLinks = selection

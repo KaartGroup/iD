@@ -9,6 +9,7 @@ import { osmChangeset } from '../../osm';
 import { svgIcon } from '../../svg/icon';
 import { utilDetect } from '../../util/detect';
 import { uiSection } from '../section';
+import { fixUiSummary } from '../../services/proprietary';
 
 import {
     utilDisplayName,
@@ -28,15 +29,17 @@ export function uiSectionChanges(context) {
     var section = uiSection('changes-list', context)
         .title(function() {
             var history = context.history();
-            var summary = history.difference().summary();
+            //var summary = history.difference().summary();
+            var summary = fixUiSummary(history);
             return t('commit.changes', { count: summary.length });
         })
         .disclosureContent(renderDisclosureContent);
 
     function renderDisclosureContent(selection) {
         var history = context.history();
-        var summary = history.difference().summary();
-
+        //var summary = history.difference().summary();
+        var summary = fixUiSummary(history);
+        
         var container = selection.selectAll('.commit-section')
             .data([0]);
 
