@@ -10,7 +10,7 @@ import { behaviorSelect } from '../behavior/select';
 import { t } from '../core/localizer';
 
 import { modeBrowse } from './browse';
-import { modeDragNode } from './drag_node';
+import { modeDragNode, modeDragNodeProp } from './drag_node';
 import { modeDragNote } from './drag_note';
 import { services } from '../services';
 import { uiNoteEditor } from '../ui/note_editor';
@@ -39,6 +39,7 @@ export function modeSelectNote(context, selectedNoteID) {
         behaviorSelect(context),
         behaviorLasso(context),
         modeDragNode(context).behavior,
+        modeDragNodeProp(context).behavior,
         modeDragNote(context).behavior
     ];
 

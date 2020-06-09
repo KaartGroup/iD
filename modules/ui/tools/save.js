@@ -26,19 +26,29 @@ export function uiToolSave(context) {
     }
 
     function isDisabled() {
-        return _numChanges === 0 || isSaving();
+        return _numChanges === 0 || isSaving() || propValSet();
+    }
+
+    function propValSet() {
+        var changes = history.difference().summary();
+        for (obj in changes) {
+            if (changes[obj].entity.proprietary === null) {
+                return true;
+            }
+        }
+        return false;
     }
 
     function save(d3_event) {
         d3_event.preventDefault();
-        if (!context.inIntro() && !isSaving() && history.hasChanges()) {
+        if (!context.inIntro() && !isSaving() && history.hasChanges() && !isDisabled()) {
             context.enter(modeSave(context));
         }
     }
 
     function bgColor() {
         var step;
-        if (_numChanges === 0) {
+        if (_numChanges === 0 || propValSet()) {
             return null;
         } else if (_numChanges <= 50) {
             step = _numChanges / 50;
@@ -57,7 +67,7 @@ export function uiToolSave(context) {
 
         if (tooltipBehavior) {
             tooltipBehavior
-                .title(t.html(_numChanges > 0 ? 'save.help' : 'save.no_changes'))
+                .title(t((_numChanges > 0 && !isDisabled()) ? 'save.prop_not_set' : 'save.no_changes'))
                 .keys([key]);
         }
 

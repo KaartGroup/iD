@@ -1,0 +1,304 @@
+.simple-preset-list-item {
+    margin-bottom: 10px;
+    width: 100%;
+    padding-left: 10px;
+}
+
+.simple-preset-list-button {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    display: flex;
+}
+
+.simple-preset-list-button-wrap {
+    height: 62px;
+    display: flex;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.simple-preset-icon-container.medium {
+    position: relative;
+    width: 60px;
+    height: 60px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.simple-label {
+    display: flex;
+    width: 100%;
+    flex-flow: row wrap;
+    align-items: center;
+    text-align: center;
+    padding: 5px 10px;
+    border-left-color: rgba(0, 0, 0, 0.1);
+    border-left-style: solid;
+    border-left-width: 1px;
+}
+
+.simple-label-inner {
+    width:100%;
+} 
+
+.simple-namepart {
+    height: 17px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.simple-tag-reference-button {
+    height:100%;
+    width:10%;
+    border-left-color: rgba(0, 0, 0, 0.1);
+    border-left-style: solid;
+    border-left-width: 1px;
+}
+
+.simple-tag-reference-body {
+    flex: 1 1 auto;
+    width: 100%;
+    overflow: hidden;
+    display: none;
+    padding-top: 10px;
+} 
+
+.simple-tag-reference-body.shown {
+    padding-bottom: 10px;
+    display: inline-block;
+}
+
+.simple-proprietary-dialogue.inspector-body {
+    text-align: center;
+    align-items: center;
+    margin-top: 30px;
+}
+
+button.not_active {
+    background-color: #ececec;
+    text-decoration: line-through;
+    color: red;
+}
+
+/* Chrome only: */
+@media all and (-webkit-min-device-pixel-ratio:0) and (min-resolution: .001dpcm) { 
+    .simple-preset-list-button {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        display: contents;
+    }
+}
+
+
+/* Map render stuff */
+
+/* No interactivity except what we specifically allow */
+.data-layer.prop-features * {
+    pointer-events: none;
+}
+
+
+/* `.active` objects (currently being drawn or dragged) are not interactive */
+/* This is important to allow the events to drop through to whatever is */
+/* below them on the map, so you can still hover and connect to other things. */
+.layer-prop .active {
+    pointer-events: none !important;
+}
+
+
+/* icons */
+.layer-prop.points .icon {
+    stroke: white;
+}
+
+
+/* points */
+.layer-prop g.point .stroke {
+    stroke: #f4753c;
+    stroke-width: 1.75;
+    fill: black;
+}
+.layer-prop g.point ellipse.stroke {
+    fill: #444;
+    display: block;
+    stroke-width: 2;
+}
+.layer-prop g.qaItem .shadow,
+.layer-prop g.point .shadow,
+.layer-prop g.note .shadow {
+    fill: none;
+    stroke: #f4753c;
+    stroke-width: 16;
+    stroke-opacity: 0;
+}
+.layer-prop g.qaItem.hover:not(.selected) .shadow,
+.layer-prop g.note.hover:not(.selected) .shadow,
+.layer-prop g.point.related:not(.selected) .shadow,
+.layer-prop g.point.hover:not(.selected) .shadow {
+    stroke-opacity: 0.5;
+}
+.layer-prop g.qaItem.selected .shadow,
+.layer-prop g.note.selected .shadow,
+.layer-prop g.point.selected .shadow {
+    stroke-opacity: 0.7;
+}
+
+
+/* verticies and midpoints */ 
+.layer-prop g.vertex .stroke {
+    stroke:#f4753c;
+    stroke-width: 1.75;
+    fill: black;
+}
+.layer-prop g.vertex .shadow,
+.layer-prop g.midpoint .shadow {
+    stroke-width: 6;
+    fill: #f4753c;
+    fill-opacity: 0;
+}
+
+
+/* lines */
+.layer-prop path.shadow {
+    stroke: #f4753c;
+    stroke-width: 16;
+    stroke-opacity: 0;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+.layer-prop path.stroke {
+    stroke: #f4753c;
+    stroke-width: 2.5;
+}
+
+.layer-prop path.line.casing.tag-highway {
+    stroke: #f4753c;
+}
+
+.layer-prop path.line.casing.tag-highway {
+    stroke-width: 11;
+}
+
+.layer-prop path.shadow.related:not(.selected),
+.layer-prop path.shadow.hover:not(.selected) {
+    stroke-opacity: 0.4;
+}
+.layer-prop path.shadow.selected {
+    stroke-opacity: 0.7;
+}
+
+
+/* For some reason these are needed
+   otherwise areas will be filled 
+   with black and lines will have a
+   black line between end-vertices  */
+.layer-prop.areas * {
+    fill:none;
+}
+.layer-prop.lines * {
+    fill:none;
+}
+
+.layer-prop.areas path.fill {
+    stroke: #f4753c;
+    opacity: 0.4;
+}
+
+.layer-prop.areas path.area.stroke {
+    stroke: #f4753c;
+    stroke-width: 1;
+}
+
+/* fills */
+.fill-wireframe-osm .data-layer.osm path.stroke,
+.fill-wireframe-prop .data-layer.prop-features path.stroke {
+    stroke-width: 1 !important;
+    stroke-opacity: 0.5 !important;
+    stroke-dasharray: none !important;
+    fill: none !important;
+}
+.fill-wireframe-osm .data-layer.osm path.shadow,
+.fill-wireframe-prop .data-layer.prop-features path.shadow {
+    stroke-width: 12;
+}
+.fill-wireframe-osm .data-layer.osm path.shadow.related:not(.selected),
+.fill-wireframe-osm .data-layer.osm path.shadow.hover:not(.selected),
+.fill-wireframe-prop .data-layer.prop-features path.shadow.related:not(.selected),
+.fill-wireframe-prop .data-layer.prop-features path.shadow.hover:not(.selected) {
+    stroke-opacity: 0.4;
+}
+.fill-wireframe-osm .data-layer.osm path.shadow.selected,
+.fill-wireframe-prop .data-layer.prop-features path.shadow.selected {
+    stroke-opacity: 0.6;
+}
+
+.fill-wireframe-osm .data-layer.osm .point,
+.fill-wireframe-osm .data-layer.osm .areaicon,
+.fill-wireframe-osm .data-layer.osm .areaicon-halo,
+.fill-wireframe-osm .data-layer.osm path.casing,
+.fill-wireframe-osm .data-layer.osm path.fill,
+.fill-wireframe-osm .data-layer.osm path.oneway,
+.fill-wireframe-prop .data-layer.prop-features .point,
+.fill-wireframe-prop .data-layer.prop-features .areaicon,
+.fill-wireframe-prop .data-layer.prop-features .areaicon-halo,
+.fill-wireframe-prop .data-layer.prop-features path.casing,
+.fill-wireframe-prop .data-layer.prop-features path.fill,
+.fill-wireframe-prop .data-layer.prop-features path.oneway {
+    display: none !important;
+}
+
+.fill-wireframe-osm .data-layer.prop-features path.area.fill,
+.fill-wireframe-prop .data-layer.osm path.area.fill {
+    fill-opacity: 0;
+    stroke-width: 60px;
+    pointer-events: none;
+}
+.fill-wireframe-osm .data-layer.prop-features path.area.fill.tag-building_part,
+.fill-wireframe-prop .data-layer.osm path.area.fill.tag-building_part {
+    stroke-width: 40px;
+}
+.fill-wireframe-osm .data-layer.prop-features path.area.fill.tag-indoor,
+.fill-wireframe-prop .data-layer.osm path.area.fill.tag-indoor {
+    stroke-width: 20px;
+}
+
+/* Prop = null style */
+
+/* Points */
+.layer-osm .prop-missing .stroke,
+.layer-osm .prop-missing .shadow {
+    fill: red;
+    opacity: 0.8;
+    stroke: white;
+} 
+
+/* Lines */
+.layer-osm path.prop-missing.line.shadow {
+    stroke: white;
+    stroke-width: 16;
+    stroke-opacity: 0;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.layer-osm path.prop-missing.stroke {
+    stroke: red;
+    stroke-width: 2.5;
+}
+
+.layer-osm path.prop-missing.shadow.related:not(.selected),
+.layer-osm path.prop-missing.shadow.hover:not(.selected) {
+    stroke-opacity: 0.4;
+}
+.layer-osm path.prop-missing.shadow.selected {
+    stroke-opacity: 0.7;
+}
+
+.pane:nth-child(2) {
+    left: 0;
+}

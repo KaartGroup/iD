@@ -1,7 +1,8 @@
 import _throttle from 'lodash-es/throttle';
 
 import { dispatch as d3_dispatch } from 'd3-dispatch';
-import { json as d3_json, xml as d3_xml } from 'd3-fetch';
+import { xml as d3_xml } from 'd3-fetch';
+import { json as d3_json } from 'd3-fetch';
 
 import osmAuth from 'osm-auth';
 import RBush from 'rbush';
@@ -14,16 +15,16 @@ import { utilArrayChunk, utilArrayGroupBy, utilArrayUniq, utilRebind, utilTiler,
 
 var tiler = utilTiler();
 var dispatch = d3_dispatch('apiStatusChange', 'authLoading', 'authDone', 'change', 'loading', 'loaded', 'loadedNotes');
-var urlroot = 'https://www.openstreetmap.org';
+var urlroot = /* 'http://161.35.57.219';*/'https://map.simple.kaart.com';
 var oauth = osmAuth({
     url: urlroot,
-    oauth_consumer_key: 'X0kWuoeztgIIDZVjRLqBwP7S9YiFrW1qTyDMbzv0',
-    oauth_secret: 'OvpJQ7m7C0wkQRUszdqltY0mpbspCkaMNGcpqhB3',
+    oauth_consumer_key: 'GvvYIeQ3tUJJurhlsaqYy855VWJwJetqJ2oqznQd',
+    oauth_secret: 'OJ88LNdDcmVIVXK35CEztfRx5SwlyCtPoCMeGbjU',
     loading: authLoading,
     done: authDone
 });
-// hardcode default block of Google Maps
-var _imageryBlocklists = [/.*\.google(apis)?\..*\/(vt|kh)[\?\/].*([xyz]=.*){3}.*/];
+
+var _blacklists = ['.*\.google(apis)?\..*/(vt|kh)[\?/].*([xyz]=.*){3}.*'];
 var _tileCache = { toLoad: {}, loaded: {}, inflight: {}, seen: {}, rtree: new RBush() };
 var _noteCache = { toLoad: {}, loaded: {}, inflight: {}, inflightPost: {}, note: {}, closed: {}, rtree: new RBush() };
 var _userCache = { toLoad: {}, user: {} };
@@ -196,14 +197,14 @@ var jsonparsers = {
         return new osmNode({
             id:  uid,
             visible: typeof obj.visible === 'boolean' ? obj.visible : true,
-            version: obj.version && obj.version.toString(),
-            changeset: obj.changeset && obj.changeset.toString(),
+            version: obj.version.toString(),
+            changeset: obj.changeset.toString(),
             timestamp: obj.timestamp,
             user: obj.user,
-            uid: obj.uid && obj.uid.toString(),
+            uid: obj.uid.toString(),
             loc: [parseFloat(obj.lon), parseFloat(obj.lat)],
             tags: obj.tags,
-            proprietary: false
+            proprietary: true
         });
     },
 
@@ -211,14 +212,14 @@ var jsonparsers = {
         return new osmWay({
             id:  uid,
             visible: typeof obj.visible === 'boolean' ? obj.visible : true,
-            version: obj.version && obj.version.toString(),
-            changeset: obj.changeset && obj.changeset.toString(),
+            version: obj.version.toString(),
+            changeset: obj.changeset.toString(),
             timestamp: obj.timestamp,
             user: obj.user,
-            uid: obj.uid && obj.uid.toString(),
+            uid: obj.uid.toString(),
             tags: obj.tags,
             nodes: getNodesJSON(obj),
-            proprietary: false
+            proprietary: true
         });
     },
 
@@ -226,26 +227,15 @@ var jsonparsers = {
         return new osmRelation({
             id:  uid,
             visible: typeof obj.visible === 'boolean' ? obj.visible : true,
-            version: obj.version && obj.version.toString(),
-            changeset: obj.changeset && obj.changeset.toString(),
+            version: obj.version.toString(),
+            changeset: obj.changeset.toString(),
             timestamp: obj.timestamp,
             user: obj.user,
-            uid: obj.uid && obj.uid.toString(),
+            uid: obj.uid.toString(),
             tags: obj.tags,
             members: getMembersJSON(obj),
-            proprietary: false
+            proprietary: true
         });
-    },
-
-    user: function parseUser(obj, uid) {
-        return {
-            id: uid,
-            display_name: obj.display_name,
-            account_created: obj.account_created,
-            image_url: obj.img && obj.img.href,
-            changesets_count: obj.changesets && obj.changesets.count && obj.changesets.count.toString() || '0',
-            active_blocks: obj.blocks && obj.blocks.received && obj.blocks.received.active && obj.blocks.received.active.toString() || '0'
-        };
     }
 };
 
@@ -256,14 +246,15 @@ function parseJSON(payload, callback, options) {
     }
 
     var json = payload;
-    if (typeof json !== 'object') json = JSON.parse(payload);
+    if (typeof json !== 'object')
+       json = JSON.parse(payload);
 
-    if (!json.elements) return callback({ message: 'No JSON', status: -1 });
+    if (!json.elements)
+        return callback({ message: 'No JSON', status: -1 });
 
     var children = json.elements;
 
     var handle = window.requestIdleCallback(function() {
-        _deferred.delete(handle);
         var results = [];
         var result;
         for (var i = 0; i < children.length; i++) {
@@ -272,6 +263,7 @@ function parseJSON(payload, callback, options) {
         }
         callback(null, results);
     });
+
     _deferred.add(handle);
 
     function parseChild(child) {
@@ -287,44 +279,6 @@ function parseJSON(payload, callback, options) {
         }
 
         return parser(child, uid);
-    }
-}
-
-function parseUserJSON(payload, callback, options) {
-    options = Object.assign({ skipSeen: true }, options);
-    if (!payload)  {
-        return callback({ message: 'No JSON', status: -1 });
-    }
-
-    var json = payload;
-    if (typeof json !== 'object') json = JSON.parse(payload);
-
-    if (!json.users && !json.user) return callback({ message: 'No JSON', status: -1 });
-
-    var objs = json.users || [json];
-
-    var handle = window.requestIdleCallback(function() {
-        _deferred.delete(handle);
-        var results = [];
-        var result;
-        for (var i = 0; i < objs.length; i++) {
-            result = parseObj(objs[i]);
-            if (result) results.push(result);
-        }
-        callback(null, results);
-    });
-    _deferred.add(handle);
-
-    function parseObj(obj) {
-        var uid = obj.user.id && obj.user.id.toString();
-        if (options.skipSeen && _userCache.user[uid]) {
-            delete _userCache.toLoad[uid];
-            return null;
-        }
-        var user = jsonparsers.user(obj.user, uid);
-        _userCache.user[uid] = user;
-        delete _userCache.toLoad[uid];
-        return user;
     }
 }
 
@@ -460,7 +414,6 @@ function parseXML(xml, callback, options) {
     var children = root.childNodes;
 
     var handle = window.requestIdleCallback(function() {
-        _deferred.delete(handle);
         var results = [];
         var result;
         for (var i = 0; i < children.length; i++) {
@@ -469,6 +422,7 @@ function parseXML(xml, callback, options) {
         }
         callback(null, results);
     });
+
     _deferred.add(handle);
 
 
@@ -663,14 +617,9 @@ export default {
         } else {
             var url = urlroot + path;
             var controller = new AbortController();
-            var fn;
-            if (path.indexOf('.json') !== -1) {
-                fn = d3_json;
-            } else {
-                fn = d3_xml;
-            }
 
-            fn(url, { signal: controller.signal })
+            // Download Proprietary OSM data
+            d3_json(url, { signal: controller.signal })
                 .then(function(data) {
                     done(null, data);
                 })
@@ -686,13 +635,13 @@ export default {
                         done(err.message);
                     }
                 });
+
             return controller;
         }
     },
 
 
-    // Load a single entity by id (ways and relations use the `/full` call to include
-    // nodes and members). Parent relations are not included, see `loadEntityRelations`.
+    // Load a single entity by id (ways and relations use the `/full` call)
     // GET /api/0.6/node/#id
     // GET /api/0.6/[way|relation]/#id/full
     loadEntity: function(id, callback) {
@@ -719,23 +668,6 @@ export default {
 
         this.loadFromAPI(
             '/api/0.6/' + type + '/' + osmID + '/' + version + '.json',
-            function(err, entities) {
-                if (callback) callback(err, { data: entities });
-            },
-            options
-        );
-    },
-
-
-    // Load the relations of a single entity with the given.
-    // GET /api/0.6/[node|way|relation]/#id/relations
-    loadEntityRelations: function(id, callback) {
-        var type = osmEntity.id.type(id);
-        var osmID = osmEntity.id.toOSM(id);
-        var options = { skipSeen: false };
-
-        this.loadFromAPI(
-            '/api/0.6/' + type + '/' + osmID + '/relations.json',
             function(err, entities) {
                 if (callback) callback(err, { data: entities });
             },
@@ -803,7 +735,7 @@ export default {
 
             _changeset.open = changesetID;
             changeset = changeset.update({ id: changesetID });
-            delete changeset.proprietary;
+            //delete changeset.proprietary;
 
             // Upload the changeset..
             var options = {
@@ -865,18 +797,21 @@ export default {
 
         utilArrayChunk(toLoad, 150).forEach(function(arr) {
             oauth.xhr(
-                { method: 'GET', path: '/api/0.6/users.json?users=' + arr.join() },
+                { method: 'GET', path: '/api/0.6/users?users=' + arr.join() },
                 wrapcb(this, done, _connectionID)
             );
         }.bind(this));
 
-        function done(err, payload) {
-            if (err) return callback(err);
+        function done(err, xml) {
+            if (err) { return callback(err); }
 
             var options = { skipSeen: true };
-            return parseUserJSON(payload, function(err, results) {
-                if (err) return callback(err);
-                return callback(undefined, results);
+            return parseXML(xml, function(err, results) {
+                if (err) {
+                    return callback(err);
+                } else {
+                    return callback(undefined, results);
+                }
             }, options);
         }
     },
@@ -891,17 +826,20 @@ export default {
         }
 
         oauth.xhr(
-            { method: 'GET', path: '/api/0.6/user/' + uid + '.json' },
+            { method: 'GET', path: '/api/0.6/user/' + uid },
             wrapcb(this, done, _connectionID)
         );
 
-        function done(err, payload) {
-            if (err) return callback(err);
+        function done(err, xml) {
+            if (err) { return callback(err); }
 
             var options = { skipSeen: true };
-            return parseUserJSON(payload, function(err, results) {
-                if (err) return callback(err);
-                return callback(undefined, results[0]);
+            return parseXML(xml, function(err, results) {
+                if (err) {
+                    return callback(err);
+                } else {
+                    return callback(undefined, results[0]);
+                }
             }, options);
         }
     },
@@ -915,18 +853,21 @@ export default {
         }
 
         oauth.xhr(
-            { method: 'GET', path: '/api/0.6/user/details.json' },
+            { method: 'GET', path: '/api/0.6/user/details' },
             wrapcb(this, done, _connectionID)
         );
 
-        function done(err, payload) {
-            if (err) return callback(err);
+        function done(err, xml) {
+            if (err) { return callback(err); }
 
             var options = { skipSeen: false };
-            return parseUserJSON(payload, function(err, results) {
-                if (err) return callback(err);
-                _userDetails = results[0];
-                return callback(undefined, _userDetails);
+            return parseXML(xml, function(err, results) {
+                if (err) {
+                    return callback(err);
+                } else {
+                    _userDetails = results[0];
+                    return callback(undefined, _userDetails);
+                }
             }, options);
         }
     },
@@ -984,22 +925,17 @@ export default {
                 return callback(err, null);
             }
 
-            // update blocklists
+            // update blacklists
             var elements = xml.getElementsByTagName('blacklist');
             var regexes = [];
             for (var i = 0; i < elements.length; i++) {
-                var regexString = elements[i].getAttribute('regex');  // needs unencode?
-                if (regexString) {
-                    try {
-                        var regex = new RegExp(regexString);
-                        regexes.push(regex);
-                    } catch (e) {
-                        /* noop */
-                    }
+                var regex = elements[i].getAttribute('regex');  // needs unencode?
+                if (regex) {
+                    regexes.push(regex);
                 }
             }
             if (regexes.length) {
-                _imageryBlocklists = regexes;
+                _blacklists = regexes;
             }
 
             if (_rateLimitError) {
@@ -1019,7 +955,7 @@ export default {
     // Calls `status` and dispatches an `apiStatusChange` event if the returned
     // status differs from the cached status.
     reloadApiStatus: function() {
-        // throttle to avoid unnecessary API calls
+        // throttle to avoid unncessary API calls
         if (!this.throttledReloadApiStatus) {
             var that = this;
             this.throttledReloadApiStatus = _throttle(function() {
@@ -1391,8 +1327,8 @@ export default {
     },
 
 
-    imageryBlocklists: function() {
-        return _imageryBlocklists;
+    imageryBlacklists: function() {
+        return _blacklists;
     },
 
 

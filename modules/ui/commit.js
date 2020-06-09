@@ -14,6 +14,8 @@ import { uiCommitWarnings } from './commit_warnings';
 import { uiSectionRawTagEditor } from './sections/raw_tag_editor';
 import { utilArrayGroupBy, utilRebind, utilUniqueDomId } from '../util';
 import { utilDetect } from '../util/detect';
+import { getPropDataExistence, getNonPropDataExistence } from '../services/simple_internal_fcns';
+import { geoPointInPolygon } from '../geo';
 
 
 var readOnlyTags = [
@@ -128,6 +130,9 @@ export function uiCommit(context) {
         }
 
         context.changeset = new osmChangeset({ tags: tags });
+
+        if (getPropDataExistence(context) && getNonPropDataExistence(context))
+            context.changeset.update({ proprietary: true });
     }
 
     // Calculates read-only metadata tags based on the user's editing session and applies
@@ -135,7 +140,8 @@ export function uiCommit(context) {
     function loadDerivedChangesetTags() {
 
         var osm = context.connection();
-        if (!osm) return;
+        var prop = context.connectionProp();
+        if (!osm || !prop) return;
 
         var tags = Object.assign({}, context.changeset.tags);   // shallow copy
 
@@ -206,7 +212,8 @@ export function uiCommit(context) {
     function render(selection) {
 
         var osm = context.connection();
-        if (!osm) return;
+        var prop = context.connectionProp();
+        if (!osm || !prop) return;
 
         var header = selection.selectAll('.header')
             .data([0]);
@@ -218,7 +225,7 @@ export function uiCommit(context) {
         headerTitle
             .append('div')
             .append('h3')
-            .html(t.html('commit.title'));
+            .text((getPropDataExistence(context) && !getNonPropDataExistence(context)) ? 'Upload to Proprietary' : t('commit.title'));
 
         headerTitle
             .append('button')
@@ -281,32 +288,59 @@ export function uiCommit(context) {
 
         // always check if this has changed, but only update prose.html()
         // if needed, because it can trigger a style recalculation
-        osm.userDetails(function(err, user) {
-            if (err) return;
-
-            if (_userDetails === user) return;  // no change
-            _userDetails = user;
-
-            var userLink = d3_select(document.createElement('div'));
-
-            if (user.image_url) {
+        if (getPropDataExistence(context) && !getNonPropDataExistence(context)) {
+            prop.userDetails(function(err, user) {
+                if (err) return;
+    
+                if (_userDetails === user) return;  // no change
+                _userDetails = user;
+    
+                var userLink = d3_select(document.createElement('div'));
+    
+                if (user.image_url) {
+                    userLink
+                        .append('img')
+                        .attr('src', user.image_url)
+                        .attr('class', 'icon pre-text user-icon');
+                }
+    
                 userLink
-                    .append('img')
-                    .attr('src', user.image_url)
-                    .attr('class', 'icon pre-text user-icon');
-            }
-
-            userLink
-                .append('a')
-                .attr('class', 'user-info')
-                .html(user.display_name)
-                .attr('href', osm.userURL(user.display_name))
-                .attr('target', '_blank');
-
-            prose
-                .html(t.html('commit.upload_explanation_with_user', { user: userLink.html() }));
-        });
-
+                    .append('a')
+                    .attr('class', 'user-info')
+                    .text(user.display_name)
+                    .attr('href', prop.userURL(user.display_name))
+                    .attr('target', '_blank');
+    
+                prose
+                    .html(t('commit.upload_explanation_with_user_prop', { user: userLink.html() }));
+            });
+        } else {
+            osm.userDetails(function(err, user) {
+                if (err) return;
+    
+                if (_userDetails === user) return;  // no change
+                _userDetails = user;
+    
+                var userLink = d3_select(document.createElement('div'));
+    
+                if (user.image_url) {
+                    userLink
+                        .append('img')
+                        .attr('src', user.image_url)
+                        .attr('class', 'icon pre-text user-icon');
+                }
+    
+                userLink
+                    .append('a')
+                    .attr('class', 'user-info')
+                    .text(user.display_name)
+                    .attr('href', osm.userURL(user.display_name))
+                    .attr('target', '_blank');
+    
+                prose
+                    .html(t('commit.upload_explanation_with_user', { user: userLink.html() }));
+            });
+        }
 
         // Request Review
         var requestReview = saveSection.selectAll('.request-review')

@@ -52,7 +52,6 @@ export function behaviorDrawWay(context, wayID, mode, startGraph) {
                 .replace(way.addNode(_drawNode.id, _nodeIndex));
         }, _annotation);
         context.resumeChangeDispatch();
-
         setActiveElements();
     }
 
@@ -335,7 +334,6 @@ export function behaviorDrawWay(context, wayID, mode, startGraph) {
 
 
     function attemptAdd(d, loc, doAdd) {
-
         if (_drawNode) {
             // move the node to the final loc in case move wasn't called
             // consistently (e.g. on touch devices)
@@ -386,7 +384,6 @@ export function behaviorDrawWay(context, wayID, mode, startGraph) {
 
     // Connect the way to an existing node
     drawWay.addNode = function(node, d) {
-
         // finish drawing if the mapper targets the prior node
         if (node.id === _headNodeID ||
             // or the first node when drawing an area

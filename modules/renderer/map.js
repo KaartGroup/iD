@@ -38,6 +38,7 @@ export function rendererMap(context) {
     );
     var projection = context.projection;
     var curtainProjection = context.curtainProjection;
+    
     var drawLayers;
     var drawPoints;
     var drawVertices;
@@ -45,6 +46,13 @@ export function rendererMap(context) {
     var drawAreas;
     var drawMidpoints;
     var drawLabels;
+
+    var drawPropPoints;
+    var drawPropVertices;
+    var drawPropLines;
+    var drawPropAreas;
+    var drawPropMidpoints;
+    var drawPropLabels;
 
     var _selection = d3_select(null);
     var supersurface = d3_select(null);
@@ -116,8 +124,13 @@ export function rendererMap(context) {
             .on('change.map', immediateRedraw);
 
         var osm = context.connection();
+        var prop = context.connectionProp();
         if (osm) {
             osm.on('change.map', immediateRedraw);
+        }
+
+        if (prop) {
+            prop.on('change.map', immediateRedraw);
         }
 
         function didUndoOrRedo(targetTransform) {
@@ -191,17 +204,25 @@ export function rendererMap(context) {
             .on(_pointerPrefix + 'move.map', function(d3_event) {
                 _lastPointerEvent = d3_event;
             })
-            .on(_pointerPrefix + 'over.vertices', function(d3_event) {
-                if (map.editableDataEnabled() && !_isTransformed) {
+            .on(_pointerPrefix + 'over.vertices', function() {
+                if ((map.editableDataEnabled() || map.editablePropDataEnabled()) && !_isTransformed) {
                     var hover = d3_event.target.__data__;
-                    surface.call(drawVertices.drawHover, context.graph(), hover, map.extent());
+                    var doesExistAndHasPropVal = hover && hover.properties && hover.properties.entity && hover.properties.entity.proprietary;
+                    if (doesExistAndHasPropVal)
+                        surface.call(drawPropVertices.drawHover, context.graph(), hover, map.extent());
+                    else
+                        surface.call(drawVertices.drawHover, context.graph(), hover, map.extent());
                     dispatch.call('drawn', this, { full: false });
                 }
             })
-            .on(_pointerPrefix + 'out.vertices', function(d3_event) {
-                if (map.editableDataEnabled() && !_isTransformed) {
+            .on(_pointerPrefix + 'out.vertices', function() {
+                if ((map.editableDataEnabled() || map.editablePropDataEnabled()) && !_isTransformed) {
                     var hover = d3_event.relatedTarget && d3_event.relatedTarget.__data__;
-                    surface.call(drawVertices.drawHover, context.graph(), hover, map.extent());
+                    var doesExistAndHasPropVal = hover && hover.properties && hover.properties.entity && hover.properties.entity.proprietary;
+                    if (doesExistAndHasPropVal)
+                        surface.call(drawPropVertices.drawHover, context.graph(), hover, map.extent());
+                    else
+                        surface.call(drawVertices.drawHover, context.graph(), hover, map.extent());
                     dispatch.call('drawn', this, { full: false });
                 }
             });
@@ -226,6 +247,7 @@ export function rendererMap(context) {
 
         // must call after surface init
         updateAreaFill();
+        updateAreaFill(true);
 
         _doubleUpHandler.on('doubleUp.map', function(d3_event, p0) {
             if (!_dblClickZoomEnabled) return;
@@ -250,7 +272,7 @@ export function rendererMap(context) {
         });
 
         context.on('enter.map',  function() {
-            if (!map.editableDataEnabled(true /* skip zoom check */)) return;
+            if (!map.editableDataEnabled(true /* skip zoom check */) || !map.editablePropDataEnabled(true /* skip zoom check */)) return;
 
             // redraw immediately any objects affected by a change in selectedIDs.
             var graph = context.graph();
@@ -271,14 +293,21 @@ export function rendererMap(context) {
 
             data = context.features().filter(data, graph);
 
-            surface
-                .call(drawVertices.drawSelected, graph, map.extent())
-                .call(drawLines, graph, data, filter)
-                .call(drawAreas, graph, data, filter)
-                .call(drawMidpoints, graph, data, filter, map.trimmedExtent());
+            if (data && data[0] && data[0].proprietary) {
+                surface
+                    .call(drawPropVertices.drawSelected, graph, map.extent())
+                    .call(drawPropLines, graph, data, filter)
+                    .call(drawPropAreas, graph, data, filter)
+                    .call(drawPropMidpoints, graph, data, filter, map.trimmedExtent());
+            } else {
+                surface
+                    .call(drawVertices.drawSelected, graph, map.extent())
+                    .call(drawLines, graph, data, filter)
+                    .call(drawAreas, graph, data, filter)
+                    .call(drawMidpoints, graph, data, filter, map.trimmedExtent());
+            }
 
             dispatch.call('drawn', this, { full: false });
-
             // redraw everything else later
             scheduleRedraw();
         });
@@ -383,18 +412,33 @@ export function rendererMap(context) {
         if (mode && mode.id === 'select') {
             // update selected vertices - the user might have just double-clicked a way,
             // creating a new vertex, triggering a partial redraw without a mode change
-            surface.call(drawVertices.drawSelected, graph, map.extent());
+            if (map.editableDataEnabled() && !map.editablePropDataEnabled()) {
+                surface
+                    .call(drawVertices.drawSelected, graph, map.extent());
+            } else if (!map.editableDataEnabled() && map.editablePropDataEnabled()) {
+                surface
+                    .call(drawPropVertices.drawSelected, graph, map.extent());
+            } else {
+                surface
+                    .call(drawVertices.drawSelected, graph, map.extent());
+            }
         }
 
         surface
-            .call(drawVertices, graph, data, filter, map.extent(), fullRedraw)
-            .call(drawLines, graph, data, filter)
-            .call(drawAreas, graph, data, filter)
-            .call(drawMidpoints, graph, data, filter, map.trimmedExtent())
-            .call(drawLabels, graph, data, filter, _dimensions, fullRedraw)
-            .call(drawPoints, graph, data, filter);
-
-        dispatch.call('drawn', this, {full: true});
+            .call(drawVertices, graph, data.length > 1 ? data.filter(function(e) { return !e.proprietary; }) : data, filter, map.extent(), fullRedraw)
+            .call(drawPropVertices, graph, data.length > 1 ? data.filter(function(e) { return e.proprietary; }) : data, filter, map.extent(), fullRedraw)
+            .call(drawLines, graph, data.length > 1 ? data.filter(function(e) { return !e.proprietary; }) : data, filter)
+            .call(drawPropLines, graph, data.length > 1 ? data.filter(function(e) { return e.proprietary; }) : data, filter)
+            .call(drawAreas, graph, data.length > 1 ? data.filter(function(e) { return !e.proprietary; }) : data, filter)
+            .call(drawPropAreas, graph, data.length > 1 ? data.filter(function (e) { return e.proprietary; }) : data, filter)
+            .call(drawMidpoints, graph, data.length > 1 ? data.filter(function (e) { return !e.proprietary; }) : data, filter, map.trimmedExtent())
+            .call(drawPropMidpoints, graph, data.length > 1 ? data.filter(function (e) { return e.proprietary; }) : data, filter, map.trimmedExtent())
+            .call(drawLabels, graph, data.length > 1 ? data.filter(function(e) { return !e.proprietary; }) : data, filter, _dimensions, fullRedraw)
+            .call(drawPropLabels, graph, data.length > 1 ? data.filter(function(e) { return e.proprietary; }) : data, filter, _dimensions, fullRedraw)
+            .call(drawPoints, graph, data.length > 1 ? data.filter(function(e) { return !e.proprietary; }) : data, filter)
+            .call(drawPropPoints, graph, data.length > 1 ? data.filter(function(e) { return e.proprietary; }) : data, filter);
+            
+            dispatch.call('drawn', this, {full: true}); 
     }
 
     map.init = function() {
@@ -405,12 +449,19 @@ export function rendererMap(context) {
         drawAreas = svgAreas(projection, context);
         drawMidpoints = svgMidpoints(projection, context);
         drawLabels = svgLabels(projection, context);
+        
+        drawPropPoints = svgPoints(projection, context, true);
+        drawPropVertices = svgVertices(projection, context, true);
+        drawPropLines = svgLines(projection, context, true);
+        drawPropAreas = svgAreas(projection, context, true);
+        drawPropMidpoints = svgMidpoints(projection, context, true);
+        drawPropLabels = svgLabels(projection, context, true);
     };
 
-    function editOff() {
+    function editOff(propLayer=false) {
         context.features().resetStats();
-        surface.selectAll('.layer-osm *').remove();
-        surface.selectAll('.layer-touch:not(.markers) *').remove();
+        surface.selectAll(propLayer ? '.layer-prop *' : '.layer-osm *').remove();
+        surface.selectAll(propLayer ? '.layer-touch-prop:not(.markers) *' : '.layer-touch:not(.markers) *').remove();
 
         var allowed = {
             'browse': true,
@@ -683,11 +734,20 @@ export function rendererMap(context) {
             wrapper.call(drawLayers);
         }
 
-        // OSM
-        if (map.editableDataEnabled() || map.isInWideSelection()) {
+        // OSM & Prop Data 
+        if ((map.editableDataEnabled() && map.editablePropDataEnabled()) || map.isInWideSelection()) {
             context.loadTiles(projection);
             drawEditable(difference, extent);
+        } else if ((!map.editablePropDataEnabled() && map.editableDataEnabled()) || map.isInWideSelection()) {
+            context.loadTiles(projection);
+            drawEditable(difference, extent);
+            editOff(true);
+        } else if ((!map.editableDataEnabled() && map.editablePropDataEnabled()) || map.isInWideSelection()) {
+            context.loadTiles(projection);
+            drawEditable(difference, extent);
+            editOff();
         } else {
+            editOff(true);
             editOff();
         }
 
@@ -1054,6 +1114,14 @@ export function rendererMap(context) {
         return skipZoomCheck || map.withinEditableZoom();
     };
 
+    map.editablePropDataEnabled = function(skipZoomCheck) {
+
+        var layer = context.layers().layer('prop-features');
+        if (!layer || !layer.enabled()) return false;
+
+        return skipZoomCheck || map.withinEditableZoom();
+    };
+
 
     map.notesEditable = function() {
         var layer = context.layers().layer('notes');
@@ -1077,13 +1145,13 @@ export function rendererMap(context) {
     };
 
 
-    map.areaFillOptions = ['wireframe', 'partial', 'full'];
+    map.areaFillOptions = [ 'wireframe', 'wireframe-osm', 'wireframe-prop', 'partial', 'full'];
 
     map.activeAreaFill = function(val) {
         if (!arguments.length) return prefs('area-fill') || 'partial';
 
         prefs('area-fill', val);
-        if (val !== 'wireframe') {
+        if (!val.match(/wireframe.*/)) {
             prefs('area-fill-toggle', val);
         }
         updateAreaFill();
@@ -1092,17 +1160,24 @@ export function rendererMap(context) {
         return map;
     };
 
-    map.toggleWireframe = function() {
+    map.toggleWireframe = function(prop=false) {
 
         var activeFill = map.activeAreaFill();
+        var origFill = activeFill;
 
-        if (activeFill === 'wireframe') {
-            activeFill = prefs('area-fill-toggle') || 'partial';
-        } else {
-            activeFill = 'wireframe';
-        }
+        if (activeFill.match(/wireframe.*/)) {
+            if (activeFill === 'wireframe-osm' && prop)
+                activeFill = 'wireframe';
+            else if (activeFill === 'wireframe-prop' && !prop)
+                activeFill = 'wireframe';
+            else 
+                activeFill = prefs('area-fill-toggle') || 'partial';
+        } else activeFill = prop ? 'wireframe-prop' : 'wireframe-osm';
 
-        map.activeAreaFill(activeFill);
+        if (origFill === 'wireframe' && activeFill.match(/partial|full/))
+            activeFill = prop ? 'wireframe-osm' : 'wireframe-prop';
+
+        map.activeAreaFill(activeFill);    
     };
 
     function updateAreaFill() {

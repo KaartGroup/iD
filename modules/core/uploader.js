@@ -9,6 +9,7 @@ import { coreGraph } from '../core/graph';
 import { t } from '../core/localizer';
 import { utilArrayUnion, utilArrayUniq, utilDisplayName, utilDisplayType, utilRebind } from '../util';
 
+import { separatePropFromNonProp, setNonPropUploaded, getPropDataExistence, getNonPropDataExistence } from '../services/simple_internal_fcns';
 
 export function coreUploader(context) {
 
@@ -18,19 +19,23 @@ export function coreUploader(context) {
         'saveEnded',   // dispatched after the result event has been dispatched
 
         'willAttemptUpload', // dispatched before the actual upload call occurs, if it will
+        'willAttemptPropUpload',
         'progressChanged',
 
         // Each save results in one of these outcomes:
         'resultNoChanges', // upload wasn't attempted since there were no edits
         'resultErrors',    // upload failed due to errors
         'resultConflicts', // upload failed due to data conflicts
-        'resultSuccess'    // upload completed without errors
+        'resultSuccess',    // upload completed without errors
+        'resultPropSuccess'
     );
 
     var _isSaving = false;
 
     var _conflicts = [];
     var _errors = [];
+    var _propFeatures = { created: [], modified: [], deleted: [] };
+    var _nonPropFeatures = { created: [], modified: [], deleted: [] };
     var _origChanges;
 
     var _discardTags = {};
@@ -51,10 +56,21 @@ export function coreUploader(context) {
         }
 
         var osm = context.connection();
-        if (!osm) return;
+        var prop = context.connectionProp();
+
+        if (!osm || !prop) return;
 
         // If user somehow got logged out mid-save, try to reauthenticate..
         // This can happen if they were logged in from before, but the tokens are no longer valid.
+        if (!prop.authenticated()) {
+            prop.authenticate(function(err) {
+                if (!err) {
+                    uploader.save(changeset, tryAgain, checkConflicts);  // continue where we left off..
+                }
+            });
+            return;
+        }
+        
         if (!osm.authenticated()) {
             osm.authenticate(function(err) {
                 if (!err) {
@@ -77,6 +93,9 @@ export function coreUploader(context) {
         // Store original changes, in case user wants to download them as an .osc file
         _origChanges = history.changes(actionDiscardTags(history.difference(), _discardTags));
 
+        if (getPropDataExistence(context) && getNonPropDataExistence(context))
+            separatePropFromNonProp(_origChanges,_propFeatures,_nonPropFeatures);
+        
         // First time, `history.perform` a no-op action.
         // Any conflict resolutions will be done as `history.replace`
         // Remember to pop this later if needed
@@ -99,7 +118,8 @@ export function coreUploader(context) {
     function performFullConflictCheck(changeset) {
 
         var osm = context.connection();
-        if (!osm) return;
+        var prop = context.connectionProp();
+        if (!osm || !prop) return;
 
         var history = context.history();
 
@@ -274,8 +294,11 @@ export function coreUploader(context) {
 
     function upload(changeset) {
         var osm = context.connection();
+        var prop = context.connectionProp();
         if (!osm) {
             _errors.push({ msg: 'No OSM Service' });
+        } else if (!prop) {
+            _errors.push({ msg: 'No Prop Service' });
         }
 
         if (_conflicts.length) {
@@ -285,14 +308,23 @@ export function coreUploader(context) {
             didResultInErrors();
 
         } else {
-            var history = context.history();
+            /*var history = context.history();
             var changes = history.changes(actionDiscardTags(history.difference(), _discardTags));
+            
             if (changes.modified.length || changes.created.length || changes.deleted.length) {
 
                 dispatch.call('willAttemptUpload', this);
 
                 osm.putChangeset(changeset, changes, uploadCallback);
 
+            } 
+            */
+            if (getNonPropDataExistence(context)) {
+                dispatch.call('willAttemptUpload', this);
+                osm.putChangeset(changeset, (getPropDataExistence(context) && getNonPropDataExistence(context)) ? _nonPropFeatures : _origChanges, uploadCallback);
+            } else if (getPropDataExistence(context)) {
+                dispatch.call('willAttemptPropUpload', this);
+                prop.putChangeset(changeset, (_propFeatures.modified.length || _propFeatures.created.length || _propFeatures.deleted.length) ? _propFeatures : _origChanges, uploadCallback);
             } else {
                 // changes were insignificant or reverted by user
                 didResultInNoChanges();
@@ -314,7 +346,10 @@ export function coreUploader(context) {
             }
 
         } else {
-            didResultInSuccess(changeset);
+            if (getNonPropDataExistence(context) && getPropDataExistence(context))
+                didResultInSuccessAndUploadingBoth(changeset);
+            else
+                didResultInSuccess(changeset);
         }
     }
 
@@ -346,13 +381,23 @@ export function coreUploader(context) {
         endSave();
     }
 
+    function didResultInSuccessAndUploadingBoth(changeset) {
+        dispatch.call('resultSuccess', this, changeset);
+        setNonPropUploaded(true);
+        window.setTimeout(function() {
+            endSave();
+        }, 2500);
+    }
 
     function didResultInSuccess(changeset) {
 
         // delete the edit stack cached to local storage
         context.history().clearSaved();
-
-        dispatch.call('resultSuccess', this, changeset);
+        
+        if (getNonPropDataExistence(context))
+            dispatch.call('resultSuccess', this, changeset);
+        else
+        dispatch.call('resultPropSuccess', this, changeset);
 
         // Add delay to allow for postgres replication #1646 #2678
         window.setTimeout(function() {

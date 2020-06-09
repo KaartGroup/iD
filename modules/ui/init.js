@@ -381,12 +381,17 @@ export function uiInit(context) {
                     context.background().baseLayerSource(previousBackground);
                 }
             })
-            .on(t('area_fill.wireframe.key'), function toggleWireframe(d3_event) {
+            .on(t('area_fill.wireframe-osm.key'), function toggleWireframe() {
                 d3_event.preventDefault();
                 d3_event.stopPropagation();
                 context.map().toggleWireframe();
             })
-            .on(uiCmd('⌥' + t('area_fill.wireframe.key')), function toggleOsmData(d3_event) {
+            .on(t('area_fill.wireframe-prop.key'), function toggleWireframeProp() {
+                d3_event.preventDefault();
+                d3_event.stopPropagation();
+                context.map().toggleWireframe(true);
+            })
+            .on(uiCmd('⌥' + t('area_fill.wireframe-osm.key')), function toggleOsmData() {
                 d3_event.preventDefault();
                 d3_event.stopPropagation();
 
@@ -397,6 +402,24 @@ export function uiInit(context) {
                 var layer = context.layers().layer('osm');
                 if (layer) {
                     layer.enabled(!layer.enabled());
+                    d3_select('.osm.add-button.bar-button').classed('disabled', !layer.enabled());
+                    if (!layer.enabled()) {
+                        context.enter(modeBrowse(context));
+                    }
+                }
+            })
+            .on(uiCmd('⌥' + t('area_fill.wireframe-prop.key')), function togglePropData() {
+                d3_event.preventDefault();
+                d3_event.stopPropagation();
+
+                // Don't allow layer changes while drawing - #6584
+                var mode = context.mode();
+                if (mode && /^draw/.test(mode.id)) return;
+
+                var layer = context.layers().layer('prop-features');
+                if (layer) {
+                    layer.enabled(!layer.enabled());
+                    d3_select('.prop-features.add-button.bar-button').classed('disabled', !layer.enabled());
                     if (!layer.enabled()) {
                         context.enter(modeBrowse(context));
                     }

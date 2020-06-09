@@ -18,12 +18,14 @@ import { svgNotes } from './notes';
 import { svgTouch } from './touch';
 import { utilArrayDifference, utilRebind } from '../util';
 import { utilGetDimensions, utilSetDimensions } from '../util/dimensions';
+import { svgPropFeatures } from './prop_features';
 
 
 export function svgLayers(projection, context) {
     var dispatch = d3_dispatch('change');
     var svg = d3_select(null);
     var _layers = [
+        { id: 'prop-features', layer: svgPropFeatures(projection, context, dispatch) },
         { id: 'osm', layer: svgOsm(projection, context, dispatch) },
         { id: 'notes', layer: svgNotes(projection, context, dispatch) },
         { id: 'data', layer: svgData(projection, context, dispatch) },
@@ -38,6 +40,7 @@ export function svgLayers(projection, context) {
         { id: 'openstreetcam', layer: svgOpenstreetcamImages(projection, context, dispatch) },
         { id: 'debug', layer: svgDebug(projection, context, dispatch) },
         { id: 'geolocate', layer: svgGeolocate(projection, context, dispatch) },
+        { id: 'prop-touch', layer: svgTouch(projection, context, dispatch, true) },
         { id: 'touch', layer: svgTouch(projection, context, dispatch) }
     ];
 

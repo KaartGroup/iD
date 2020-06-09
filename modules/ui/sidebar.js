@@ -238,7 +238,8 @@ export function uiSidebar(context) {
                     inspector
                         .state('hover')
                         .entityIDs([datum.id])
-                        .newFeature(false);
+                        .newFeature(false)
+                        .propChosen(false);
 
                     inspectorWrap
                         .call(inspector);

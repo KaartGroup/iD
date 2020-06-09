@@ -6,7 +6,7 @@ import { geoScaleToZoom } from '../geo';
 import { osmEntity } from '../osm';
 import { svgPassiveVertex, svgPointTransform } from './helpers';
 
-export function svgVertices(projection, context) {
+export function svgVertices(projection, context, isProp=false) {
     var radiuses = {
         //       z16-, z17,   z18+,  w/icon
         shadow: [6,    7.5,   7.5,   12],
@@ -41,7 +41,8 @@ export function svgVertices(projection, context) {
 
         var icons = {};
         var directions = {};
-        var wireframe = context.surface().classed('fill-wireframe');
+        var wireframe_osm = context.surface().classed('fill-wireframe-osm');
+        var wireframe_prop = context.surface().classed('fill-wireframe-prop');
         var zoom = geoScaleToZoom(projection.scale());
         var z = (zoom < 17 ? 0 : zoom < 18 ? 1 : 2);
         var activeID = context.activeID();
@@ -134,6 +135,9 @@ export function svgVertices(projection, context) {
             .classed('added', function(d) {
                 return !base.entities[d.id]; // if it doesn't exist in the base graph, it's new
             })
+            .classed('prop-missing', function(d) {
+                return d.proprietary==null;
+            })
             .classed('moved', function(d) {
                 return base.entities[d.id] && !deepEqual(graph.entities[d.id].loc, base.entities[d.id].loc);
             })
@@ -193,7 +197,7 @@ export function svgVertices(projection, context) {
             .attr('class', 'viewfield')
             .attr('d', 'M0,0H0')
             .merge(viewfields)
-            .attr('marker-start', 'url(#ideditor-viewfield-marker' + (wireframe ? '-wireframe' : '') + ')')
+            .attr('marker-start', 'url(#ideditor-viewfield-marker' + ((wireframe_osm || wireframe_prop) ? '-wireframe' : '') + ')')
             .attr('transform', function(d) { return 'rotate(' + d + ')'; });
     }
 
@@ -315,6 +319,9 @@ export function svgVertices(projection, context) {
                     for (i = 0; i < entity.nodes.length; i++) {
                         var child = graph.hasEntity(entity.nodes[i]);
                         if (child) {
+                            if (child.proprietary === null) {
+                                child.proprietary = entity.proprietary;
+                            }
                             addChildVertices(child);
                         }
                     }
@@ -352,15 +359,16 @@ export function svgVertices(projection, context) {
 
 
     function drawVertices(selection, graph, entities, filter, extent, fullRedraw) {
-        var wireframe = context.surface().classed('fill-wireframe');
+        var wireframe_osm = context.surface().classed('fill-wireframe-osm');
+        var wireframe_prop = context.surface().classed('fill-wireframe-prop');
         var visualDiff = context.surface().classed('highlight-edited');
         var zoom = geoScaleToZoom(projection.scale());
         var mode = context.mode();
         var isMoving = mode && /^(add|draw|drag|move|rotate)/.test(mode.id);
         var base = context.history().base();
 
-        var drawLayer = selection.selectAll('.layer-osm.points .points-group.vertices');
-        var touchLayer = selection.selectAll('.layer-touch.points');
+        var drawLayer = selection.selectAll(isProp ? '.layer-prop.points .points-group.vertices' : '.layer-osm.points .points-group.vertices');
+        var touchLayer = selection.selectAll(isProp ? '.layer-touch-prop.points' : '.layer-touch.points');
 
         if (fullRedraw) {
             _currPersistent = {};
@@ -375,7 +383,7 @@ export function svgVertices(projection, context) {
             var keep = false;
 
             // a point that looks like a vertex..
-            if ((geometry === 'point') && renderAsVertex(entity, graph, wireframe, zoom)) {
+            if ((geometry === 'point') && renderAsVertex(entity, graph, (wireframe_osm || wireframe_prop), zoom)) {
                 _currPersistent[entity.id] = entity;
                 keep = true;
 
@@ -430,7 +438,8 @@ export function svgVertices(projection, context) {
 
     // partial redraw - only update the selected items..
     drawVertices.drawSelected = function(selection, graph, extent) {
-        var wireframe = context.surface().classed('fill-wireframe');
+        var wireframe_osm = context.surface().classed('fill-wireframe-osm');
+        var wireframe_prop = context.surface().classed('fill-wireframe-prop');
         var zoom = geoScaleToZoom(projection.scale());
 
         _prevSelected = _currSelected || {};
@@ -441,14 +450,14 @@ export function svgVertices(projection, context) {
                 if (!entity) return;
 
                 if (entity.type === 'node') {
-                    if (renderAsVertex(entity, graph, wireframe, zoom)) {
+                    if (renderAsVertex(entity, graph, (wireframe_osm || wireframe_prop), zoom)) {
                         _currSelected[entity.id] = entity;
                     }
                 }
             });
 
         } else {
-            _currSelected = getSiblingAndChildVertices(context.selectedIDs(), graph, wireframe, zoom);
+            _currSelected = getSiblingAndChildVertices(context.selectedIDs(), graph, (wireframe_osm || wireframe_prop), zoom);
         }
 
         // note that drawVertices will add `_currSelected` automatically if needed..
@@ -461,7 +470,8 @@ export function svgVertices(projection, context) {
     drawVertices.drawHover = function(selection, graph, target, extent) {
         if (target === _currHoverTarget) return;  // continue only if something changed
 
-        var wireframe = context.surface().classed('fill-wireframe');
+        var wireframe_osm = context.surface().classed('fill-wireframe-osm');
+        var wireframe_prop = context.surface().classed('fill-wireframe-prop');
         var zoom = geoScaleToZoom(projection.scale());
 
         _prevHover = _currHover || {};
@@ -469,7 +479,7 @@ export function svgVertices(projection, context) {
         var entity = target && target.properties && target.properties.entity;
 
         if (entity) {
-            _currHover = getSiblingAndChildVertices([entity.id], graph, wireframe, zoom);
+            _currHover = getSiblingAndChildVertices([entity.id], graph, (wireframe_osm || wireframe_prop), zoom);
         } else {
             _currHover = {};
         }

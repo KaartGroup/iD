@@ -15,7 +15,7 @@ import { utilDisplayName, utilDisplayNameForPath, utilEntitySelector } from '../
 
 
 
-export function svgLabels(projection, context) {
+export function svgLabels(projection, context, isProp=false) {
     var path = d3_geoPath(projection);
     var detected = utilDetect();
     var baselineHack = (detected.ie ||
@@ -246,7 +246,8 @@ export function svgLabels(projection, context) {
 
 
     function drawLabels(selection, graph, entities, filter, dimensions, fullRedraw) {
-        var wireframe = context.surface().classed('fill-wireframe');
+        var wireframe_osm = context.surface().classed('fill-wireframe-osm');
+        var wireframe_prop = context.surface().classed('fill-wireframe-prop');
         var zoom = geoScaleToZoom(projection.scale());
 
         var labelable = [];
@@ -286,7 +287,7 @@ export function svgLabels(projection, context) {
                 var hasDirections = entity.directions(graph, projection).length;
                 var markerPadding;
 
-                if (!wireframe && geometry === 'point' && !(zoom >= 18 && hasDirections)) {
+                if ((!wireframe_osm || !wireframe_prop) && geometry === 'point' && !(zoom >= 18 && hasDirections)) {
                     renderNodeAs[entity.id] = 'point';
                     markerPadding = 20;   // extra y for marker height
                 } else {
@@ -358,7 +359,7 @@ export function svgLabels(projection, context) {
                 if (geometry === 'point' || geometry === 'vertex') {
                     // no point or vertex labels in wireframe mode
                     // no vertex labels at low zooms (vertices have no icons)
-                    if (wireframe) continue;
+                    if (wireframe_osm || wireframe_prop) continue;
                     var renderAs = renderNodeAs[entity.id];
                     if (renderAs === 'vertex' && zoom < 17) continue;
 
@@ -550,7 +551,8 @@ export function svgLabels(projection, context) {
 
 
         function getAreaLabel(entity, width, height) {
-            var centroid = path.centroid(entity.asGeoJSON(graph));
+            isObjProp = entity.proprietary;
+            var centroid = path.centroid(entity.asGeoJSON(graph, true));
             var extent = entity.extent(graph);
             var areaWidth = projection(extent[1])[0] - projection(extent[0])[0];
 
@@ -661,7 +663,7 @@ export function svgLabels(projection, context) {
         }
 
 
-        var layer = selection.selectAll('.layer-osm.labels');
+        var layer = selection.selectAll(isProp ? '.layer-prop.labels' : '.layer-osm.labels');
         layer.selectAll('.labels-group')
             .data(['halo', 'label', 'debug'])
             .enter()

@@ -70,13 +70,18 @@
             "text": "shortcuts.browsing.display_options.sidebar"
           },
           {
-            "shortcuts": ["area_fill.wireframe.key"],
-            "text": "shortcuts.browsing.display_options.wireframe"
+            "shortcuts": ["area_fill.wireframe-osm.key"],
+            "text": "shortcuts.browsing.display_options.osm_data"
           },
           {
             "modifiers": ["⌥"],
-            "shortcuts": ["area_fill.wireframe.key"],
+            "shortcuts": ["area_fill.wireframe-osm.key"],
             "text": "shortcuts.browsing.display_options.osm_data"
+          },
+          {
+            "modifiers": ["⌥"],
+            "shortcuts": ["area_fill.wireframe-prop.key"],
+            "text": "shortcuts.browsing.display_options.prop_data"
           },
           {
             "shortcuts": ["background.minimap.key"],

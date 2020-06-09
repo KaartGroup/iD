@@ -47,7 +47,7 @@ export function uiSectionMapStyleOptions(context) {
                     return t.html(name + '.' + d + '.tooltip');
                 })
                 .keys(function(d) {
-                    var key = (d === 'wireframe' ? t('area_fill.wireframe.key') : null);
+                    var key = (d === 'wireframe-osm' ? t('area_fill.wireframe-osm.key') : null);
                     if (d === 'highlight_edits') key = t('map_data.highlight_edits.key');
                     return key ? [key] : null;
                 })

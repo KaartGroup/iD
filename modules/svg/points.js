@@ -5,7 +5,7 @@ import { svgPointTransform } from './helpers';
 import { svgTagClasses } from './tag_classes';
 import { presetManager } from '../presets';
 
-export function svgPoints(projection, context) {
+export function svgPoints(projection, context, isProp=false) {
 
     function markerPath(selection, klass) {
         selection
@@ -70,7 +70,8 @@ export function svgPoints(projection, context) {
 
 
     function drawPoints(selection, graph, entities, filter) {
-        var wireframe = context.surface().classed('fill-wireframe');
+        var wireframe_osm = context.surface().classed('fill-wireframe-osm');
+        var wireframe_prop = context.surface().classed('fill-wireframe-prop');
         var zoom = geoScaleToZoom(projection.scale());
         var base = context.history().base();
 
@@ -81,12 +82,12 @@ export function svgPoints(projection, context) {
         }
 
         // All points will render as vertices in wireframe mode too..
-        var points = wireframe ? [] : entities.filter(renderAsPoint);
+        var points = (wireframe_osm || wireframe_prop) ? [] : entities.filter(renderAsPoint);
         points.sort(sortY);
 
 
-        var drawLayer = selection.selectAll('.layer-osm.points .points-group.points');
-        var touchLayer = selection.selectAll('.layer-touch.points');
+        var drawLayer = selection.selectAll(isProp ? '.layer-prop.points .points-group.points' : '.layer-osm.points .points-group.points');
+        var touchLayer = selection.selectAll(isProp ? '.layer-touch-prop.points' : '.layer-touch.points');
 
         // Draw points..
         var groups = drawLayer.selectAll('g.point')
@@ -129,6 +130,9 @@ export function svgPoints(projection, context) {
             .attr('transform', svgPointTransform(projection))
             .classed('added', function(d) {
                 return !base.entities[d.id]; // if it doesn't exist in the base graph, it's new
+            })
+            .classed('prop-missing', function(d) {
+                return d.proprietary==null;
             })
             .classed('moved', function(d) {
                 return base.entities[d.id] && !deepEqual(graph.entities[d.id].loc, base.entities[d.id].loc);

@@ -41,7 +41,7 @@ export function uiToolUndoRedo(context) {
 
 
     function editable() {
-        return context.mode() && context.mode().id !== 'save' && context.map().editableDataEnabled(true /* ignore min zoom */);
+        return context.mode() && context.mode().id !== 'save' && (context.map().editableDataEnabled(true /* ignore min zoom */) || context.map().editablePropDataEnabled(true /* ignore min zoom */));
     }
 
 

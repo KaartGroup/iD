@@ -8,7 +8,7 @@ import { uiConfirm } from '../ui/confirm';
 import { uiCommit } from '../ui/commit';
 import { uiSuccess } from '../ui/success';
 import { utilKeybinding } from '../util';
-
+import { setNonPropUploaded } from '../services/simple_internal_fcns';
 
 export function modeSave(context) {
     var mode = { id: 'save' };
@@ -33,7 +33,8 @@ export function modeSave(context) {
         })
         .on('resultErrors.modeSave', showErrors)
         .on('resultConflicts.modeSave', showConflicts)
-        .on('resultSuccess.modeSave', showSuccess);
+        .on('resultSuccess.modeSave', showSuccess)
+        .on('resultPropSuccess.modeSave', showPropSuccess);
 
 
     function cancel() {
@@ -154,6 +155,12 @@ export function modeSave(context) {
     }
 
 
+    function showPropSuccess() {
+        commit.reset();
+        setNonPropUploaded(false);
+        context.enter(modeBrowse(context));
+    }
+
     function showSuccess(changeset) {
         commit.reset();
 
@@ -220,21 +227,46 @@ export function modeSave(context) {
             .classed('inactive', true);
 
         var osm = context.connection();
-        if (!osm) {
+        var prop = context.connectionProp();
+        if (!osm || !prop) {
             cancel();
             return;
         }
 
-        if (osm.authenticated()) {
+        if (osm.authenticated() && prop.authenticated()) {
             done();
         } else {
-            osm.authenticate(function(err) {
-                if (err) {
-                    cancel();
-                } else {
-                    done();
-                }
-            });
+            if (!osm.authenticated() && !prop.authenticated()) {
+                osm.authenticate(function(err) {
+                    if (err) {
+                        cancel();
+                    } else {
+                        prop.authenticate(function(err) {
+                            if (err) {
+                                cancel();
+                            } else {
+                                done();
+                            }
+                        });
+                    }    
+                });
+            } else if (!prop.authenticated()) {
+                prop.authenticate(function(err) {
+                    if (err) {
+                        cancel();
+                    } else {
+                        done();
+                    }
+                });
+            } else {
+                osm.authenticate(function(err) {
+                    if (err) {
+                        cancel();
+                    } else {
+                        done();
+                    }
+                });
+            }
         }
     };
 

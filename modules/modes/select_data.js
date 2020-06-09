@@ -13,7 +13,7 @@ import { t } from '../core/localizer';
 
 import { geoExtent } from '../geo';
 import { modeBrowse } from './browse';
-import { modeDragNode } from './drag_node';
+import { modeDragNode, modeDragNodeProp } from './drag_node';
 import { modeDragNote } from './drag_note';
 import { uiDataEditor } from '../ui/data_editor';
 import { utilKeybinding } from '../util';
@@ -34,6 +34,7 @@ export function modeSelectData(context, selectedDatum) {
         behaviorSelect(context),
         behaviorLasso(context),
         modeDragNode(context).behavior,
+        modeDragNodeProp(context).behavior,
         modeDragNote(context).behavior
     ];
 

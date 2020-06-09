@@ -44,6 +44,10 @@ osmEntity.id.type = function(id) {
     return { 'c': 'changeset', 'n': 'node', 'w': 'way', 'r': 'relation' }[id[0]];
 };
 
+osmEntity.id.proprietary = function(entity) {
+    return entity.proprietary;
+};
+
 
 // A function suitable for use as the second argument to d3.selection#data().
 osmEntity.key = function(entity) {
@@ -99,6 +103,9 @@ osmEntity.prototype = {
         if (!this.hasOwnProperty('visible')) {
             this.visible = true;
         }
+        if (!this.hasOwnProperty('proprietary')) {
+            this.proprietary = null;
+        }
 
         if (debug) {
             Object.freeze(this);
@@ -135,6 +142,10 @@ osmEntity.prototype = {
 
     update: function(attrs) {
         return osmEntity(this, attrs, { v: 1 + (this.v || 0) });
+    },
+
+    proprietary: function () {
+        return osmEntity.id.proprietary;
     },
 
 

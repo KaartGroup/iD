@@ -91,10 +91,12 @@ export function coreContext() {
   // Instantiate the connection here because it doesn't require passing in
   // `context` and it's needed for pre-init calls like `preauth`
   let _connection = services.osm;
+  let _connectionProp = services.propFeatures;
   let _history;
   let _validator;
   let _uploader;
   context.connection = () => _connection;
+  context.connectionProp = () => _connectionProp;
   context.history = () => _history;
   context.validator = () => _validator;
   context.uploader = () => _uploader;
@@ -129,8 +131,9 @@ export function coreContext() {
       if (err) {
         // 400 Bad Request, 401 Unauthorized, 403 Forbidden..
         if (err.status === 400 || err.status === 401 || err.status === 403) {
-          if (_connection) {
+          if (_connection || _connectionProp) {
             _connection.logout();
+            _connectionProp.logout();
           }
         }
         if (typeof callback === 'function') {
@@ -138,7 +141,7 @@ export function coreContext() {
         }
         return;
 
-      } else if (_connection && _connection.getConnectionId() !== cid) {
+      } else if ((_connection && _connection.getConnectionId() !== cid) || (_connectionProp && _connectionProp.getConnectionId() !== cid)) {
         if (typeof callback === 'function') {
           callback({ message: 'Connection Switched', status: -1 });
         }
@@ -162,6 +165,10 @@ export function coreContext() {
         const cid = _connection.getConnectionId();
         _connection.loadTiles(projection, afterLoad(cid, callback));
       }
+      if (_connectionProp && context.editablePropDataEnabled()) {
+        const cid = _connectionProp.getConnectionId();
+        _connectionProp.loadTiles(projection, afterLoad(cid, callback));
+      }
     });
     _deferred.add(handle);
   };
@@ -173,12 +180,20 @@ export function coreContext() {
         const cid = _connection.getConnectionId();
         _connection.loadTileAtLoc(loc, afterLoad(cid, callback));
       }
+      if (_connectionProp && context.editablePropDataEnabled()) {
+        const cid = _connectionProp.getConnectionId();
+        _connectionProp.loadTileAtLoc(loc, afterLoad(cid, callback));
+      }
     });
     _deferred.add(handle);
   };
 
   // Download the full entity and its parent relations. The callback may be called multiple times.
   context.loadEntity = (entityID, callback) => {
+    if (_connectionProp) {
+      const cid = _connectionProp.getConnectionId();
+      _connectionProp.loadEntity(entityID, afterLoad(cid, callback));
+    }
     if (_connection) {
       const cid = _connection.getConnectionId();
       _connection.loadEntity(entityID, afterLoad(cid, callback));
@@ -393,12 +408,13 @@ export function coreContext() {
   context.layers = () => _map.layers();
   context.surface = () => _map.surface;
   context.editableDataEnabled = () => _map.editableDataEnabled();
+  context.editablePropDataEnabled = () => _map.editablePropDataEnabled();
   context.surfaceRect = () => _map.surface.node().getBoundingClientRect();
   context.editable = () => {
     // don't allow editing during save
     const mode = context.mode();
     if (!mode || mode.id === 'save') return false;
-    return _map.editableDataEnabled();
+    return _map.editableDataEnabled() && _map.editablePropDataEnabled();
   };
 
 

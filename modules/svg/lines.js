@@ -10,7 +10,7 @@ import { osmEntity, osmOldMultipolygonOuterMember } from '../osm';
 import { utilArrayFlatten, utilArrayGroupBy } from '../util';
 import { utilDetect } from '../util/detect';
 
-export function svgLines(projection, context) {
+export function svgLines(projection, context, isProp=false) {
     var detected = utilDetect();
 
     var highway_stack = {
@@ -160,6 +160,9 @@ export function svgLines(projection, context) {
                 .classed('added', function(d) {
                     return !base.entities[d.id];
                 })
+                .classed('prop-missing', function(d) {
+                    return d.proprietary==null;
+                })
                 .classed('geometry-edited', function(d) {
                     return graph.entities[d.id] &&
                         base.entities[d.id] &&
@@ -269,10 +272,9 @@ export function svgLines(projection, context) {
             sideddata[k] = utilArrayFlatten(sidedArr.map(sidedSegments));
         });
 
-
-        var covered = selection.selectAll('.layer-osm.covered');     // under areas
-        var uncovered = selection.selectAll('.layer-osm.lines');     // over areas
-        var touchLayer = selection.selectAll('.layer-touch.lines');
+        var covered = selection.selectAll(isProp ? '.layer-prop.covered' : '.layer-osm.covered'); // under areas
+        var uncovered = selection.selectAll(isProp ? '.layer-prop.lines' : '.layer-osm.lines'); // over areas
+        var touchLayer = selection.selectAll(isProp ? '.layer-touch-prop.lines' : '.layer-touch.lines');
 
         // Draw lines..
         [covered, uncovered].forEach(function(selection) {
