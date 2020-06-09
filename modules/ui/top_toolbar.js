@@ -5,7 +5,7 @@ import {
 } from 'd3-selection';
 
 import _debounce from 'lodash-es/debounce';
-import { uiToolOldDrawModes, uiToolNotes, uiToolSave, uiToolSidebarToggle, uiToolUndoRedo } from './tools';
+import { uiToolOldDrawModes, uiToolNotes, uiToolSave, uiToolSidebarToggle, uiToolUndoRedo, uiToolToggle } from './tools';
 
 
 export function uiTopToolbar(context) {
@@ -13,6 +13,7 @@ export function uiTopToolbar(context) {
     var sidebarToggle = uiToolSidebarToggle(context),
         modes = uiToolOldDrawModes(context),
         notes = uiToolNotes(context),
+        toggleLayers = uiToolToggle(context),
         undoRedo = uiToolUndoRedo(context),
         save = uiToolSave(context);
 
@@ -41,6 +42,8 @@ export function uiTopToolbar(context) {
 
             var tools = [
                 sidebarToggle,
+                'spacer',
+                toggleLayers,
                 'spacer',
                 modes
             ];
