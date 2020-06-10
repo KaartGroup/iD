@@ -15,19 +15,11 @@ import { utilArrayChunk, utilArrayGroupBy, utilArrayUniq, utilRebind, utilTiler,
 
 var tiler = utilTiler();
 var dispatch = d3_dispatch('apiStatusChange', 'authLoading', 'authDone', 'change', 'loading', 'loaded', 'loadedNotes');
-/*var urlroot = 'https://www.openstreetmap.org';
+var urlroot = 'https://www.openstreetmap.org';
 var oauth = osmAuth({
     url: urlroot,
     oauth_consumer_key: '5A043yRSEugj4DJ5TljuapfnrflWDte8jTOcWLlT',
     oauth_secret: 'aB3jKq1TRsCOUrfOIZ6oQMEDmv2ptV76PA54NGLL',
-    loading: authLoading,
-    done: authDone
-});*/
-var urlroot = 'http://161.35.57.219';
-var oauth = osmAuth({
-    url: urlroot,
-    oauth_consumer_key: '0fOsXTrJQ9a9DxOO3Li68FHWSP0qwSLhVUx2J2iq',
-    oauth_secret: 'WyZaj4W1RXjTX0B9OzjqUhLuVD8Ha9YiQgJTYso5',
     loading: authLoading,
     done: authDone
 });
@@ -201,7 +193,7 @@ function encodeNoteRtree(note) {
 
 var jsonparsers = {
 
-    node: function nodeData(obj, uid, propFlag) {
+    node: function nodeData(obj, uid) {
         return new osmNode({
             id:  uid,
             visible: typeof obj.visible === 'boolean' ? obj.visible : true,
@@ -212,11 +204,11 @@ var jsonparsers = {
             uid: obj.uid.toString(),
             loc: [parseFloat(obj.lon), parseFloat(obj.lat)],
             tags: obj.tags,
-            proprietary: propFlag
+            proprietary: false
         });
     },
 
-    way: function wayData(obj, uid, propFlag) {
+    way: function wayData(obj, uid) {
         return new osmWay({
             id:  uid,
             visible: typeof obj.visible === 'boolean' ? obj.visible : true,
@@ -227,11 +219,11 @@ var jsonparsers = {
             uid: obj.uid.toString(),
             tags: obj.tags,
             nodes: getNodesJSON(obj),
-            proprietary: propFlag
+            proprietary: false
         });
     },
 
-    relation: function relationData(obj, uid, propFlag) {
+    relation: function relationData(obj, uid) {
         return new osmRelation({
             id:  uid,
             visible: typeof obj.visible === 'boolean' ? obj.visible : true,
@@ -242,12 +234,12 @@ var jsonparsers = {
             uid: obj.uid.toString(),
             tags: obj.tags,
             members: getMembersJSON(obj),
-            proprietaryL: propFlag
+            proprietary: false
         });
     }
 };
 
-function parseJSON(payload, callback, options, propFlag) {
+function parseJSON(payload, callback, options) {
     options = Object.assign({ skipSeen: true }, options);
     if (!payload)  {
         return callback({ message: 'No JSON', status: -1 });
@@ -286,7 +278,7 @@ function parseJSON(payload, callback, options, propFlag) {
             _tileCache.seen[uid] = true;
         }
 
-        return parser(child, uid, propFlag);
+        return parser(child, uid);
     }
 }
 
@@ -574,8 +566,7 @@ export default {
         options = Object.assign({ skipSeen: true }, options);
         var that = this;
         var cid = _connectionID;
-        var propFlag = true;
-        function done(err, payload, pFlag=propFlag) {
+        function done(err, payload) {
             if (that.getConnectionId() !== cid) {
                 if (callback) callback({ message: 'Connection Switched', status: -1 });
                 return;
@@ -612,7 +603,7 @@ export default {
                         return callback(err);
                     } else {
                         if (path.indexOf('.json') !== -1) {
-                            return parseJSON(payload, callback, options, pFlag);
+                            return parseJSON(payload, callback, options);
                         } else {
                             return parseXML(payload, callback, options);
                         }
@@ -626,33 +617,11 @@ export default {
             return oauth.xhr({ method: 'GET', path: path }, done);
         } else {*/
             var url = urlroot + path;
-            var urlOSM = 'https://www.openstreetmap.org' + path;
             var controller = new AbortController();
-            var controllerOSM = new AbortController();
-
-            // Download Proprietary OSM data
-            d3_json(url, { signal: controller.signal })
-                .then(function(data) {
-                    propFlag = true;
-                    done(null, data);
-                })
-                .catch(function(err) {
-                    if (err.name === 'AbortError') return;
-                    // d3-fetch includes status in the error message,
-                    // but we can't access the response itself
-                    // https://github.com/d3/d3-fetch/issues/27
-                    var match = err.message.match(/^\d{3}/);
-                    if (match) {
-                        done({ status: +match[0], statusText: err.message });
-                    } else {
-                        done(err.message);
-                    }
-                });
 
             // Download Generic OSM data
-            d3_json(urlOSM, { signal: controller.signal })
+            d3_json(url, { signal: controller.signal })
             .then(function(data) {
-                propFlag = false;
                 done(null, data);
             })
             .catch(function(err) {
@@ -667,7 +636,7 @@ export default {
                     done(err.message);
                 }
             });
-            return [controller, controllerOSM];
+            return controller;
         //}
     },
 
