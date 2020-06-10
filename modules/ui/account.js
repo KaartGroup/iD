@@ -6,24 +6,50 @@ import { svgIcon } from '../svg/icon';
 
 export function uiAccount(context) {
     var osm = context.connection();
-
+    var prop = context.connectionProp();
 
     function update(selection) {
-        if (!osm) return;
+        if (!osm || !prop) return;
 
-        if (!osm.authenticated()) {
+        if (!osm.authenticated() && !prop.authenticated()) {
             selection.selectAll('.userLink, .logoutLink')
                 .classed('hide', true);
             return;
         }
 
+        var userLink = selection.select('.userLink'),
+            logoutLink = selection.select('.logoutLink');
+        userLink.html('');
+        logoutLink.html('');
+
+        prop.userDetails(function(err, details) {
+            if (err || !details) return;
+
+            selection.selectAll('.userLink, .logoutLink')
+                .classed('hide', false);
+
+            // Link
+            userLink.append('a')
+                .attr('href', prop.userURL(details.display_name))
+                .attr('target', '_blank');
+
+            // Add thumbnail or dont
+            if (details.image_url) {
+                userLink.append('img')
+                    .attr('class', 'icon pre-text user-icon')
+                    .attr('src', details.image_url);
+            } else {
+                userLink
+                    .call(svgIcon('#iD-icon-avatar', 'pre-text light'));
+            }
+
+            // Add user name
+            userLink.append('span')
+                .attr('class', 'label')
+                .text(details.display_name);
+        });
+
         osm.userDetails(function(err, details) {
-            var userLink = selection.select('.userLink'),
-                logoutLink = selection.select('.logoutLink');
-
-            userLink.html('');
-            logoutLink.html('');
-
             if (err || !details) return;
 
             selection.selectAll('.userLink, .logoutLink')
@@ -48,16 +74,17 @@ export function uiAccount(context) {
             userLink.append('span')
                 .attr('class', 'label')
                 .text(details.display_name);
+        });
 
-            logoutLink.append('a')
+        logoutLink.append('a')
                 .attr('class', 'logout')
                 .attr('href', '#')
                 .text(t('logout'))
                 .on('click.logout', function() {
                     d3_event.preventDefault();
                     osm.logout();
+                    prop.logout();
                 });
-        });
     }
 
 
@@ -70,9 +97,13 @@ export function uiAccount(context) {
             .attr('class', 'userLink')
             .classed('hide', true);
 
-        if (osm) {
+        if (osm && prop) {
             osm.on('change.account', function() { update(selection); });
-            update(selection);
-        }
+            prop.on('change.account', function() { update(selection); });
+        } else if (osm)
+            osm.on('change.account', function() { update(selection); });
+          else
+            prop.on('change.account', function() { update(selection); });
+        update(selection);
     };
 }
