@@ -115,8 +115,13 @@ export function rendererMap(context) {
             .on('change.map', immediateRedraw);
 
         var osm = context.connection();
+        var prop = context.connectionProp();
         if (osm) {
             osm.on('change.map', immediateRedraw);
+        }
+
+        if (prop) {
+            prop.on('change.map', immediateRedraw);
         }
 
         function didUndoOrRedo(targetTransform) {
