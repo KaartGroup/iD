@@ -56,10 +56,22 @@ export function coreUploader(context) {
         }
 
         var osm = context.connection();
+        var prop = context.connectionProp();
+
         if (!osm) return;
+        if (!prop) return;
 
         // If user somehow got logged out mid-save, try to reauthenticate..
         // This can happen if they were logged in from before, but the tokens are no longer valid.
+        if (!prop.authenticated()) {
+            prop.authenticate(function(err) {
+                if (!err) {
+                    uploader.save(changeset, tryAgain, checkConflicts);  // continue where we left off..
+                }
+            });
+            return;
+        }
+        
         if (!osm.authenticated()) {
             osm.authenticate(function(err) {
                 if (!err) {

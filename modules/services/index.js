@@ -12,9 +12,10 @@ import serviceTaginfo from './taginfo';
 import serviceVectorTile from './vector_tile';
 import serviceWikidata from './wikidata';
 import serviceWikipedia from './wikipedia';
-
+import servicePropFeatures from './simple_prop_features';
 
 export var services = {
+    propFeatures: servicePropFeatures,
     geocoder: serviceNominatim,
     keepRight: serviceKeepRight,
     improveOSM: serviceImproveOSM,
@@ -32,6 +33,7 @@ export var services = {
 };
 
 export {
+    servicePropFeatures,
     serviceKeepRight,
     serviceImproveOSM,
     serviceOsmose,

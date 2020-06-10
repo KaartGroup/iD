@@ -227,21 +227,46 @@ export function modeSave(context) {
             .classed('inactive', true);
 
         var osm = context.connection();
-        if (!osm) {
+        var prop = context.connectionProp();
+        if (!osm || !prop) {
             cancel();
             return;
         }
 
-        if (osm.authenticated()) {
+        if (osm.authenticated() && prop.authenticated()) {
             done();
         } else {
-            osm.authenticate(function(err) {
-                if (err) {
-                    cancel();
-                } else {
-                    done();
-                }
-            });
+            if (!osm.authenticated() && !prop.authenticated()) {
+                osm.authenticate(function(err) {
+                    if (err) {
+                        cancel();
+                    } else {
+                        prop.authenticate(function(err) {
+                            if (err) {
+                                cancel();
+                            } else {
+                                done();
+                            }
+                        });
+                    }    
+                });
+            } else if (!prop.authenticated()) {
+                prop.authenticate(function(err) {
+                    if (err) {
+                        cancel();
+                    } else {
+                        done();
+                    }
+                });
+            } else {
+                osm.authenticate(function(err) {
+                    if (err) {
+                        cancel();
+                    } else {
+                        done();
+                    }
+                });
+            }
         }
     };
 
