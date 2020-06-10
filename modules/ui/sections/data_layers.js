@@ -34,6 +34,7 @@ export function uiSectionDataLayers(context) {
             .attr('class', 'data-layer-container')
             .merge(container)
             .call(drawOsmItems)
+            .call(drawPropItems)
             .call(drawQAItems)
             .call(drawCustomDataItems)
             .call(drawVectorItems);      // Beta - Detroit mapping challenge
@@ -116,6 +117,66 @@ export function uiSectionDataLayers(context) {
         labelEnter
             .append('span')
             .text(function(d) { return t('map_data.layers.' + d.id + '.title'); });
+
+
+        // Update
+        li
+            .merge(liEnter)
+            .classed('active', function (d) { return d.layer.enabled(); })
+            .selectAll('input')
+            .property('checked', function (d) { return d.layer.enabled(); });
+    }
+
+    function drawPropItems(selection) {
+        var propKeys = ['prop-features'];
+        var propLayers = layers.all().filter(function(obj) { return propKeys.indexOf(obj.id) !== -1; });
+
+        var ul = selection
+            .selectAll('.layer-list-prop')
+            .data([0]);
+
+        ul = ul.enter()
+            .append('ul')
+            .attr('class', 'layer-list layer-list-prop')
+            .merge(ul);
+
+        var li = ul.selectAll('.list-item')
+            .data(propLayers);
+
+        li.exit()
+            .remove();
+
+        var liEnter = li.enter()
+            .append('li')
+            .attr('class', function(d) { return 'list-item list-item-' + d.id; });
+
+        var labelEnter = liEnter
+            .append('label')
+            .each(function(d) {
+                if (d.id === 'prop-features') {
+                    d3_select(this)
+                        .call(uiTooltip()
+                            .title('Map data from our private server')//t('map_data.layers.' + d.id + '.tooltip'))
+                            .keys([uiCmd('⌥Q')])// + t('area_fill.wireframe.key'))])
+                            .placement('bottom')
+                        );
+                } else {
+                    d3_select(this)
+                        .call(uiTooltip()
+                            .title('Map data from our private server')//t('map_data.layers.' + d.id + '.tooltip'))
+                            .placement('bottom')
+                        );
+                }
+            });
+
+        labelEnter
+            .append('input')
+            .attr('type', 'checkbox')
+            .on('change', function(d) { toggleLayer(d.id); });
+
+        labelEnter
+            .append('span')
+            .text(function(d) { return 'Proprietary data'; });//t('map_data.layers.' + d.id + '.title'); });
 
 
         // Update

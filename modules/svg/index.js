@@ -15,6 +15,7 @@ export { svgNotes } from './notes.js';
 export { svgMarkerSegments } from './helpers.js';
 export { svgOpenstreetcamImages } from './openstreetcam_images.js';
 export { svgOsm } from './osm.js';
+export { svgPropFeatures } from './prop_features.js';
 export { svgPassiveVertex } from './helpers.js';
 export { svgPath } from './helpers.js';
 export { svgPointTransform } from './helpers.js';
