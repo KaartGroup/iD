@@ -25,7 +25,6 @@ export function svgLabels(projection, context) {
     var _rskipped = new RBush();
     var _textWidthCache = {};
     var _entitybboxes = {};
-    var isObjProp = undefined;
 
     // Listed from highest to lowest priority
     var labelStack = [
@@ -552,7 +551,6 @@ export function svgLabels(projection, context) {
 
 
         function getAreaLabel(entity, width, height) {
-            isObjProp = entity.proprietary;
             var centroid = path.centroid(entity.asGeoJSON(graph, true));
             var extent = entity.extent(graph);
             var areaWidth = projection(extent[1])[0] - projection(extent[0])[0];
@@ -664,7 +662,7 @@ export function svgLabels(projection, context) {
         }
 
 
-        var layer = selection.selectAll(isObjProp ? '.layer-prop.labels' : '.layer-osm.labels');
+        var layer = selection.selectAll('.layer-osm.labels');
         layer.selectAll('.labels-group')
             .data(['halo', 'label', 'debug'])
             .enter()
@@ -699,7 +697,7 @@ export function svgLabels(projection, context) {
 
 
     function filterLabels(selection) {
-        var drawLayer = selection.selectAll(isObjProp ? '.layer-prop.labels' : '.layer-osm.labels');
+        var drawLayer = selection.selectAll('.layer-osm.labels');
         var layers = drawLayer.selectAll('.labels-group.halo, .labels-group.label');
 
         layers.selectAll('.nolabel')

@@ -117,7 +117,6 @@ export function svgAreas(projection, context) {
 
         var strokes = fills.filter(function(area) { return area.type === 'way'; });
 
-        var isObjProp = undefined;
         var data = {
             clip: fills,
             shadow: strokes,
@@ -125,8 +124,7 @@ export function svgAreas(projection, context) {
             fill: fills
         };
 
-        // TODO check if obj is prop beforehand and assign clipPath-prop or clipPath-osm respectively
-        var clipPaths = context.surface().selectAll('defs').selectAll('clipPath-prop') 
+        var clipPaths = context.surface().selectAll('defs').selectAll('clipPath-osm') 
            .filter(filter)
            .data(data.clip, osmEntity.key);
 
@@ -135,7 +133,7 @@ export function svgAreas(projection, context) {
 
         var clipPathsEnter = clipPaths.enter()
            .append('clipPath')
-           .attr('class', function(entity) { isObjProp = entity.proprietary; return (entity.proprietary ? 'clipPath-prop' : 'clipPath-osm'); })
+           .attr('class', 'clipPath-osm')
            .attr('id', function(entity) { return 'ideditor-' + entity.id + '-clippath'; });
 
         clipPathsEnter
@@ -145,8 +143,7 @@ export function svgAreas(projection, context) {
            .selectAll('path')
            .attr('d', path);
 
-        //console.log('prop:', isObjProp);
-        var drawLayer = selection.selectAll(isObjProp ? '.layer-prop.areas' : '.layer-osm.areas');
+        var drawLayer = selection.selectAll('.layer-osm.areas');
         var touchLayer = selection.selectAll('.layer-touch.areas');
 
         // Draw areas..

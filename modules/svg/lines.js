@@ -28,7 +28,6 @@ export function svgLines(projection, context) {
         footway: 11
     };
 
-    var isObjProp = undefined;
 
     function drawTargets(selection, graph, entities, filter) {
         var targetClass = context.getDebug('target') ? 'pink ' : 'nocolor ';
@@ -59,7 +58,6 @@ export function svgLines(projection, context) {
 
         var segmentWasEdited = function(d) {
             var wayID = d.properties.entity.id;
-            isObjProp = d.properties.entity.proprietary;
             // if the whole line was edited, don't draw segment changes
             if (!base.entities[wayID] ||
                 !deepEqual(graph.entities[wayID].nodes, base.entities[wayID].nodes)) {
@@ -270,10 +268,8 @@ export function svgLines(projection, context) {
             sideddata[k] = utilArrayFlatten(sidedArr.map(sidedSegments));
         });
 
-        // Check w/ multiple objs
-        //console.log(isObjProp);
-        var covered = selection.selectAll('.layer-osm.covered'); //isObjProp ? '.layer-prop.covered' : '.layer-osm.covered');     // under areas
-        var uncovered = selection.selectAll('.layer-osm.lines'); //isObjProp ? '.layer-prop.lines' : '.layer-osm.lines');     // over areas
+        var covered = selection.selectAll('.layer-osm.covered'); // under areas
+        var uncovered = selection.selectAll('.layer-osm.lines'); // over areas
         var touchLayer = selection.selectAll('.layer-touch.lines');
 
         // Draw lines..
