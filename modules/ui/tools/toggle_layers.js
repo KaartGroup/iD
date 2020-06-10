@@ -24,14 +24,14 @@ export function uiToolToggle(context) {
             id: 'toggle-osm',
             button: 'line',
             description: 'Toggle OSM Features On/Off',
-            key: '⌘⇧O'
+            key: '⌥W'
         },
         {
             title: 'Prop Layers',
             id: 'toggle-prop',
             button: 'line',
             description: 'Toggle Proprietary Features On/Off',
-            key: '⌘⇧P'
+            key: '⌥Q'
         }
     ];
 
