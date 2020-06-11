@@ -142,7 +142,8 @@ export function uiCommit(context) {
     function loadDerivedChangesetTags() {
 
         var osm = context.connection();
-        if (!osm) return;
+        var prop = context.connectionProp();
+        if (!osm || !prop) return;
 
         var tagCharLimit = context.maxCharsForTagValue();
 
@@ -215,7 +216,8 @@ export function uiCommit(context) {
     function render(selection) {
 
         var osm = context.connection();
-        if (!osm) return;
+        var prop = context.connectionProp();
+        if (!osm || !prop) return;
 
         var header = selection.selectAll('.header')
             .data([0]);
@@ -232,7 +234,7 @@ export function uiCommit(context) {
             .append('div')
             .attr('class', 'header-block')
             .append('h3')
-            .text(getPropDataExistence() && getNonPropDataExistence() ? 'Upload to Proprietary' : t('commit.title'));
+            .text((getPropDataExistence() && !getNonPropDataExistence()) ? 'Upload to Proprietary' : t('commit.title'));
 
         headerTitle
             .append('div')
@@ -297,32 +299,59 @@ export function uiCommit(context) {
 
         // always check if this has changed, but only update prose.html()
         // if needed, because it can trigger a style recalculation
-        osm.userDetails(function(err, user) {
-            if (err) return;
-
-            if (_userDetails === user) return;  // no change
-            _userDetails = user;
-
-            var userLink = d3_select(document.createElement('div'));
-
-            if (user.image_url) {
+        if (getPropDataExistence() && !getNonPropDataExistence()) {
+            prop.userDetails(function(err, user) {
+                if (err) return;
+    
+                if (_userDetails === user) return;  // no change
+                _userDetails = user;
+    
+                var userLink = d3_select(document.createElement('div'));
+    
+                if (user.image_url) {
+                    userLink
+                        .append('img')
+                        .attr('src', user.image_url)
+                        .attr('class', 'icon pre-text user-icon');
+                }
+    
                 userLink
-                    .append('img')
-                    .attr('src', user.image_url)
-                    .attr('class', 'icon pre-text user-icon');
-            }
-
-            userLink
-                .append('a')
-                .attr('class', 'user-info')
-                .text(user.display_name)
-                .attr('href', osm.userURL(user.display_name))
-                .attr('target', '_blank');
-
-            prose
-                .html(t('commit.upload_explanation_with_user', { user: userLink.html() }));
-        });
-
+                    .append('a')
+                    .attr('class', 'user-info')
+                    .text(user.display_name)
+                    .attr('href', prop.userURL(user.display_name))
+                    .attr('target', '_blank');
+    
+                prose
+                    .html("The changes you upload as " + userLink.html() + " will be visible only to you and those in your organization.");//t('commit.upload_explanation_with_user', { user: userLink.html() }));
+            });
+        } else {
+            osm.userDetails(function(err, user) {
+                if (err) return;
+    
+                if (_userDetails === user) return;  // no change
+                _userDetails = user;
+    
+                var userLink = d3_select(document.createElement('div'));
+    
+                if (user.image_url) {
+                    userLink
+                        .append('img')
+                        .attr('src', user.image_url)
+                        .attr('class', 'icon pre-text user-icon');
+                }
+    
+                userLink
+                    .append('a')
+                    .attr('class', 'user-info')
+                    .text(user.display_name)
+                    .attr('href', osm.userURL(user.display_name))
+                    .attr('target', '_blank');
+    
+                prose
+                    .html(t('commit.upload_explanation_with_user', { user: userLink.html() }));
+            });
+        }
 
         // Request Review
         var requestReview = saveSection.selectAll('.request-review')
