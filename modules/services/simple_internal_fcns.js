@@ -2,15 +2,6 @@ import { actionDiscardTags } from '../actions/discard_tags';
 
 var propDbToggle = true;
 var nonPropUploaded = false;
-var propFlag = false; 
-
-export function getPropFlag() {
-    return propFlag;
-}
-
-export function setPropFlag(val) {
-    propFlag = val;
-}
 
 export function setNonPropUploaded(val) {
     nonPropUploaded = val;
@@ -50,31 +41,31 @@ export function getNonPropDataExistence() {
     return objs.some(function(element) { return element.proprietary == false;});
 }
 
-export function separatePropFromNonProp(changes,_propFeatures, _nonPropFeatures) {
+export function separatePropFromNonProp(changes,_pFeat, _npFeat) {
     if (changes.modified.length) {
         for (obj in changes.modified) {
             if (changes.modified[obj].proprietary == true)
-                _propFeatures.modified.push(changes.modified[obj]);
+                _pFeat.modified.push(changes.modified[obj]);
             else 
-                _nonPropFeatures.modified.push(changes.modified[obj]);
+                _npFeat.modified.push(changes.modified[obj]);
         }
     } 
     
     if (changes.created.length) {
         for (obj in changes.created) {
             if (changes.created[obj].proprietary == true) 
-                _propFeatures.created.push(changes.created[obj]);
+                _pFeat.created.push(changes.created[obj]);
             else 
-                _nonPropFeatures.created.push(changes.created[obj]);
+                _npFeat.created.push(changes.created[obj]);
         }
     } 
     
     if (changes.deleted.length) {
         for (obj in changes.deleted) {
             if (changes.deleted[obj].proprietary == true) 
-                _propFeatures.deleted.push(changes.deleted[obj]);
+                _pFeat.deleted.push(changes.deleted[obj]);
             else 
-                _nonPropFeatures.deleted.push(changes.deleted[obj]);
+                _npFeat.deleted.push(changes.deleted[obj]);
         }
     }
 }
