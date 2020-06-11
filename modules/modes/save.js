@@ -8,7 +8,7 @@ import { uiConfirm } from '../ui/confirm';
 import { uiCommit } from '../ui/commit';
 import { uiSuccess } from '../ui/success';
 import { utilKeybinding } from '../util';
-import { setNonPropUploaded } from '../services/proprietary';
+import { setNonPropUploaded } from '../services/simple_internal_fcns';
 
 export function modeSave(context) {
     var mode = { id: 'save' };

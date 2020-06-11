@@ -9,7 +9,7 @@ import { t, localizer } from '../core/localizer';
 import { svgIcon } from '../svg/icon';
 import { uiDisclosure } from '../ui/disclosure';
 import { utilRebind } from '../util/rebind';
-import { getPropDataExistence, getNonPropDataExistence } from '../services/proprietary';
+import { getPropDataExistence, getNonPropDataExistence } from '../services/simple_internal_fcns';
 import { modeSave } from '../modes/save';
 
 

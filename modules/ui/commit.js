@@ -14,7 +14,7 @@ import { uiCommitWarnings } from './commit_warnings';
 import { uiSectionRawTagEditor } from './sections/raw_tag_editor';
 import { utilArrayGroupBy, utilRebind, utilUniqueDomId } from '../util';
 import { utilDetect } from '../util/detect';
-import { getPropDataExistence, getNonPropDataExistence } from '../services/proprietary';
+import { getPropDataExistence, getNonPropDataExistence } from '../services/simple_internal_fcns';
 import { geoPointInPolygon } from '../geo';
 
 

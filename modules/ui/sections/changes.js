@@ -9,7 +9,7 @@ import { osmChangeset } from '../../osm';
 import { svgIcon } from '../../svg/icon';
 import { utilDetect } from '../../util/detect';
 import { uiSection } from '../section';
-import { fixUiSummary } from '../../services/proprietary';
+import { fixUiSummary } from '../../services/simple_internal_fcns';
 
 import {
     utilDisplayName,

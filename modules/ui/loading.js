@@ -1,6 +1,6 @@
 import { select as d3_select } from 'd3-selection';
 import { uiModal } from './modal';
-import { getPropDataExistence, getNonPropDataExistence } from '../services/proprietary';
+import { getPropDataExistence, getNonPropDataExistence } from '../services/simple_internal_fcns';
 
 
 export function uiLoading(context) {

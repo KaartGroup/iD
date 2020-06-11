@@ -16,7 +16,7 @@ import { geoExtent } from '../geo/extent';
 import { uiPresetIcon } from './preset_icon';
 import { uiTagReference } from './tag_reference';
 import { utilKeybinding, utilNoAuto, utilRebind } from '../util';
-import { setObjAndChildren, getPropDbStatus, objProprietaryState } from '../services/proprietary';
+import { setObjAndChildren, getPropDbStatus, objProprietaryState } from '../services/simple_internal_fcns';
 
 
 export function uiPresetList(context) {
