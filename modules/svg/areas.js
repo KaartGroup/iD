@@ -6,7 +6,7 @@ import { svgPath, svgSegmentWay } from './helpers';
 import { svgTagClasses } from './tag_classes';
 import { svgTagPattern } from './tag_pattern';
 
-export function svgAreas(projection, context) {
+export function svgAreas(projection, context, isProp=false) {
 
 
     function getPatternStyle(tags) {
@@ -124,7 +124,7 @@ export function svgAreas(projection, context) {
             fill: fills
         };
 
-        var clipPaths = context.surface().selectAll('defs').selectAll('clipPath-osm') 
+        var clipPaths = context.surface().selectAll('defs').selectAll(isProp ? 'clipPath-prop' : 'clipPath-osm') 
            .filter(filter)
            .data(data.clip, osmEntity.key);
 
@@ -133,7 +133,7 @@ export function svgAreas(projection, context) {
 
         var clipPathsEnter = clipPaths.enter()
            .append('clipPath')
-           .attr('class', 'clipPath-osm')
+           .attr('class', isProp ? 'clipPath-prop' : 'clipPath-osm')
            .attr('id', function(entity) { return 'ideditor-' + entity.id + '-clippath'; });
 
         clipPathsEnter
@@ -143,7 +143,7 @@ export function svgAreas(projection, context) {
            .selectAll('path')
            .attr('d', path);
 
-        var drawLayer = selection.selectAll('.layer-osm.areas');
+        var drawLayer = selection.selectAll(isProp ? '.layer-prop.areas' : '.layer-osm.areas');
         var touchLayer = selection.selectAll('.layer-touch.areas');
 
         // Draw areas..

@@ -38,6 +38,7 @@ export function rendererMap(context) {
     );
     var projection = context.projection;
     var curtainProjection = context.curtainProjection;
+    
     var drawLayers;
     var drawPoints;
     var drawVertices;
@@ -45,6 +46,13 @@ export function rendererMap(context) {
     var drawAreas;
     var drawMidpoints;
     var drawLabels;
+
+    var drawPropPoints;
+    var drawPropVertices;
+    var drawPropLines;
+    var drawPropAreas;
+    var drawPropMidpoints;
+    var drawPropLabels;
 
     var _selection = d3_select(null);
     var supersurface = d3_select(null);
@@ -373,16 +381,24 @@ export function rendererMap(context) {
         if (mode && mode.id === 'select') {
             // update selected vertices - the user might have just double-clicked a way,
             // creating a new vertex, triggering a partial redraw without a mode change
-            surface.call(drawVertices.drawSelected, graph, map.extent());
+            surface
+                .call(drawVertices.drawSelected, graph, map.extent());
+            //    .call(drawPropVertices.drawSelected, graph, map.extent());
         }
 
         surface
-            .call(drawVertices, graph, data, filter, map.extent(), fullRedraw)
-            .call(drawLines, graph, data, filter)
-            .call(drawAreas, graph, data, filter)
-            .call(drawMidpoints, graph, data, filter, map.trimmedExtent())
-            .call(drawLabels, graph, data, filter, _dimensions, fullRedraw)
-            .call(drawPoints, graph, data, filter);
+            .call(drawVertices, graph, data.length > 1 ? data.filter(function(e) { return !e.proprietary; }) : data, filter, map.extent(), fullRedraw)
+            .call(drawPropVertices, graph, data.length > 1 ? data.filter(function(e) { return e.proprietary; }) : data, filter, map.extent(), fullRedraw)
+            .call(drawLines, graph, data.length > 1 ? data.filter(function(e) { return !e.proprietary; }) : data, filter)
+            .call(drawPropLines, graph, data.length > 1 ? data.filter(function(e) { return e.proprietary; }) : data, filter)
+            .call(drawAreas, graph, data, filter) //data.length > 1 ? data.filter(function(e) { return !e.proprietary; }) : data, filter)
+            //.call(drawPropAreas, graph, data.length > 1 ? data.filter(function (e) { return e.proprietary; }) : data, filter)
+            .call(drawMidpoints, graph, data.length > 1 ? data.filter(function (e) { return !e.proprietary; }) : data, filter, map.trimmedExtent())
+            .call(drawPropMidpoints, graph, data.length > 1 ? data.filter(function (e) { return e.proprietary; }) : data, filter, map.trimmedExtent())
+            .call(drawLabels, graph, data.length > 1 ? data.filter(function(e) { return !e.proprietary; }) : data, filter, _dimensions, fullRedraw)
+            //.call(drawPropLabels, graph, data.length > 1 ? data.filter(function(e) { return e.proprietary; }) : data, filter, _dimensions, fullRedraw)
+            .call(drawPoints, graph, data.length > 1 ? data.filter(function(e) { return !e.proprietary; }) : data, filter)
+            .call(drawPropPoints, graph, data.length > 1 ? data.filter(function(e) { return e.proprietary; }) : data, filter);
 
         dispatch.call('drawn', this, {full: true});
     }
@@ -395,11 +411,18 @@ export function rendererMap(context) {
         drawAreas = svgAreas(projection, context);
         drawMidpoints = svgMidpoints(projection, context);
         drawLabels = svgLabels(projection, context);
+        
+        //drawPropPoints = svgPoints(projection, context, true);
+       // drawPropVertices = svgVertices(projection, context, true);
+        //drawPropLines = svgLines(projection, context, true);
+        //drawPropAreas = svgAreas(projection, context, true);
+        //drawPropMidpoints = svgMidpoints(projection, context, true);
+        //drawPropLabels = svgLabels(projection, context, true);
     };
 
-    function editOff() {
+    function editOff(propLayer=false) {
         context.features().resetStats();
-        surface.selectAll('.layer-osm *').remove();
+        surface.selectAll(propLayer ? '.layer-prop *' : '.layer-osm *').remove();
         surface.selectAll('.layer-touch:not(.markers) *').remove();
 
         var allowed = {
@@ -675,12 +698,22 @@ export function rendererMap(context) {
             wrapper.call(drawLayers);
         }
 
-        // OSM
-        if (map.editableDataEnabled() || map.isInWideSelection()) {
+        // OSM & Prop Data 
+        // TODO/BUG there is an issue where the layers do not correctly load if you toggle them in this order:
+        // Either toggle osm or prop layer (for example, osm was toggled first)
+        // Then toggle the other (for example, then toggle prop)
+        // If I then toggle the prop button it displays fine, but if I attempt to toggle osm it displays incorrectly 
+        // BUT, it I toggled osm then I toggle prop, it works just fine, so I have no idea...
+        // Hopefully when I come back to this I can figure it out...
+        if ((map.editableDataEnabled() && map.editablePropDataEnabled()) || map.isInWideSelection()) {
             context.loadTiles(projection);
             drawEditable(difference, extent);
-        } else {
+        } else if ((!map.editablePropDataEnabled()) && map.editableDataEnabled()) {
+            editOff(true);
+        } else if ((!map.editableDataEnabled()) && map.editablePropDataEnabled()) {
             editOff();
+        } else {
+            // do nothing for now...
         }
 
         _transformStart = projection.transform();
@@ -1041,6 +1074,14 @@ export function rendererMap(context) {
     map.editableDataEnabled = function(skipZoomCheck) {
 
         var layer = context.layers().layer('osm');
+        if (!layer || !layer.enabled()) return false;
+
+        return skipZoomCheck || map.withinEditableZoom();
+    };
+
+    map.editablePropDataEnabled = function(skipZoomCheck) {
+
+        var layer = context.layers().layer('prop-features');
         if (!layer || !layer.enabled()) return false;
 
         return skipZoomCheck || map.withinEditableZoom();

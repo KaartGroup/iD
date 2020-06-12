@@ -15,7 +15,7 @@ import { utilDisplayName, utilDisplayNameForPath, utilEntitySelector } from '../
 
 
 
-export function svgLabels(projection, context) {
+export function svgLabels(projection, context, isProp=false) {
     var path = d3_geoPath(projection);
     var detected = utilDetect();
     var baselineHack = (detected.ie ||
@@ -662,7 +662,7 @@ export function svgLabels(projection, context) {
         }
 
 
-        var layer = selection.selectAll('.layer-osm.labels');
+        var layer = selection.selectAll(isProp ? '.layer-prop.labels' : '.layer-osm.labels');
         layer.selectAll('.labels-group')
             .data(['halo', 'label', 'debug'])
             .enter()

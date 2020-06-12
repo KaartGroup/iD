@@ -3,7 +3,7 @@ import { svgTagClasses } from './tag_classes';
 import { geoAngle, geoLineIntersection, geoVecInterp, geoVecLength } from '../geo';
 
 
-export function svgMidpoints(projection, context) {
+export function svgMidpoints(projection, context, isProp=false) {
     var targetRadius = 8;
 
     function drawTargets(selection, graph, entities, filter) {
@@ -44,7 +44,7 @@ export function svgMidpoints(projection, context) {
 
 
     function drawMidpoints(selection, graph, entities, filter, extent) {
-        var drawLayer = selection.selectAll('.layer-osm.points .points-group.midpoints');
+        var drawLayer = selection.selectAll(isProp ? '.layer-prop.points .points-group.midpoints' : '.layer-osm.points .points-group.midpoints');
         var touchLayer = selection.selectAll('.layer-touch.points');
 
         var mode = context.mode();

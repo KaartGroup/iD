@@ -5,7 +5,7 @@ import { svgPointTransform } from './helpers';
 import { svgTagClasses } from './tag_classes';
 import { presetManager } from '../presets';
 
-export function svgPoints(projection, context) {
+export function svgPoints(projection, context, isProp=false) {
 
     function markerPath(selection, klass) {
         selection
@@ -85,7 +85,7 @@ export function svgPoints(projection, context) {
         points.sort(sortY);
 
 
-        var drawLayer = selection.selectAll('.layer-osm.points .points-group.points');
+        var drawLayer = selection.selectAll(isProp ? '.layer-prop.points .points-group.points' : '.layer-osm.points .points-group.points');
         var touchLayer = selection.selectAll('.layer-touch.points');
 
         // Draw points..
@@ -111,7 +111,7 @@ export function svgPoints(projection, context) {
             .attr('cy', 1)
             .attr('rx', 6.5)
             .attr('ry', 3)
-            .attr('class', 'stroke');
+            .attr('class', isProp ? 'stroke-prop' : 'stroke');
 
         enter
             .append('path')

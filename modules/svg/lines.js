@@ -10,7 +10,7 @@ import { osmEntity, osmOldMultipolygonOuterMember } from '../osm';
 import { utilArrayFlatten, utilArrayGroupBy } from '../util';
 import { utilDetect } from '../util/detect';
 
-export function svgLines(projection, context) {
+export function svgLines(projection, context, isProp=false) {
     var detected = utilDetect();
 
     var highway_stack = {
@@ -268,8 +268,8 @@ export function svgLines(projection, context) {
             sideddata[k] = utilArrayFlatten(sidedArr.map(sidedSegments));
         });
 
-        var covered = selection.selectAll('.layer-osm.covered'); // under areas
-        var uncovered = selection.selectAll('.layer-osm.lines'); // over areas
+        var covered = selection.selectAll(isProp ? '.layer-prop.covered' : '.layer-osm.covered'); // under areas
+        var uncovered = selection.selectAll(isProp ? '.layer-prop.lines' : '.layer-osm.lines'); // over areas
         var touchLayer = selection.selectAll('.layer-touch.lines');
 
         // Draw lines..

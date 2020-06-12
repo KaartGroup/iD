@@ -32,6 +32,7 @@
 
 /* No interactivity except what we specifically allow */
 .data-layer.osm *,
+.data-layer.prop-features *,
 .data-layer.notes *,
 .data-layer.keepRight *,
 .data-layer.improveOSM * {
@@ -113,6 +114,12 @@ g.note.active .stroke {
 g.point .stroke {
     stroke: #444;
     stroke-width: 1;
+    fill: #fff;
+}
+
+g.point .stroke-prop {
+    stroke: #f4753c;
+    stroke-width: 5;
     fill: #fff;
 }
 

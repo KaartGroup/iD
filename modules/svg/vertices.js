@@ -6,7 +6,7 @@ import { geoScaleToZoom } from '../geo';
 import { osmEntity } from '../osm';
 import { svgPassiveVertex, svgPointTransform } from './helpers';
 
-export function svgVertices(projection, context) {
+export function svgVertices(projection, context, isProp=false) {
     var radiuses = {
         //       z16-, z17,   z18+,  w/icon
         shadow: [6,    7.5,   7.5,   12],
@@ -117,7 +117,7 @@ export function svgVertices(projection, context) {
 
         enter
             .append('circle')
-            .attr('class', 'stroke');
+            .attr('class', isProp ? 'stroke-prop' : 'stroke');
 
         // Vertices with tags get a fill.
         enter.filter(function(d) { return d.hasInterestingTags(); })
@@ -352,7 +352,7 @@ export function svgVertices(projection, context) {
         var isMoving = mode && /^(add|draw|drag|move|rotate)/.test(mode.id);
         var base = context.history().base();
 
-        var drawLayer = selection.selectAll('.layer-osm.points .points-group.vertices');
+        var drawLayer = selection.selectAll(isProp ? '.layer-prop.points .points-group.vertices' : '.layer-osm.points .points-group.vertices');
         var touchLayer = selection.selectAll('.layer-touch.points');
 
         if (fullRedraw) {
