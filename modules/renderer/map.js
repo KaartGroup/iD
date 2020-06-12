@@ -388,13 +388,13 @@ export function rendererMap(context) {
 
         surface
             .call(drawVertices, graph, data.length > 1 ? data.filter(function(e) { return !e.proprietary; }) : data, filter, map.extent(), fullRedraw)
-            .call(drawPropVertices, graph, data.length > 1 ? data.filter(function(e) { return e.proprietary; }) : data, filter, map.extent(), fullRedraw)
+            //.call(drawPropVertices, graph, data.length > 1 ? data.filter(function(e) { return e.proprietary; }) : data, filter, map.extent(), fullRedraw)
             .call(drawLines, graph, data.length > 1 ? data.filter(function(e) { return !e.proprietary; }) : data, filter)
-            .call(drawPropLines, graph, data.length > 1 ? data.filter(function(e) { return e.proprietary; }) : data, filter)
+            //.call(drawPropLines, graph, data.length > 1 ? data.filter(function(e) { return e.proprietary; }) : data, filter)
             .call(drawAreas, graph, data, filter) //data.length > 1 ? data.filter(function(e) { return !e.proprietary; }) : data, filter)
             //.call(drawPropAreas, graph, data.length > 1 ? data.filter(function (e) { return e.proprietary; }) : data, filter)
             .call(drawMidpoints, graph, data.length > 1 ? data.filter(function (e) { return !e.proprietary; }) : data, filter, map.trimmedExtent())
-            .call(drawPropMidpoints, graph, data.length > 1 ? data.filter(function (e) { return e.proprietary; }) : data, filter, map.trimmedExtent())
+            //.call(drawPropMidpoints, graph, data.length > 1 ? data.filter(function (e) { return e.proprietary; }) : data, filter, map.trimmedExtent())
             .call(drawLabels, graph, data.length > 1 ? data.filter(function(e) { return !e.proprietary; }) : data, filter, _dimensions, fullRedraw)
             //.call(drawPropLabels, graph, data.length > 1 ? data.filter(function(e) { return e.proprietary; }) : data, filter, _dimensions, fullRedraw)
             .call(drawPoints, graph, data.length > 1 ? data.filter(function(e) { return !e.proprietary; }) : data, filter)
@@ -412,8 +412,8 @@ export function rendererMap(context) {
         drawMidpoints = svgMidpoints(projection, context);
         drawLabels = svgLabels(projection, context);
         
-        //drawPropPoints = svgPoints(projection, context, true);
-       // drawPropVertices = svgVertices(projection, context, true);
+        drawPropPoints = svgPoints(projection, context, true);
+        //drawPropVertices = svgVertices(projection, context, true);
         //drawPropLines = svgLines(projection, context, true);
         //drawPropAreas = svgAreas(projection, context, true);
         //drawPropMidpoints = svgMidpoints(projection, context, true);
