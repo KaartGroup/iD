@@ -136,10 +136,10 @@ export function coreContext() {
         const cid = _connection.getConnectionId();
         _connection.loadTiles(projection, afterLoad(cid, callback));
       }
-      /*if (_connectionProp && context.editableDataEnabled()) {
+      if (_connectionProp && context.editableDataEnabled()) {
         const cid = _connectionProp.getConnectionId();
         _connectionProp.loadTiles(projection, afterLoad(cid, callback));
-      }*/
+      }
     });
     _deferred.add(handle);
   };

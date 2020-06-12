@@ -9,7 +9,7 @@ import { coreGraph } from '../core/graph';
 import { t } from '../core/localizer';
 import { utilArrayUnion, utilArrayUniq, utilDisplayName, utilDisplayType, utilRebind } from '../util';
 
-import { separatePropFromNonProp, setNonPropUploaded, getPropDataExistence, getNonPropDataExistence } from '../services/proprietary';
+import { separatePropFromNonProp, setNonPropUploaded, getPropDataExistence, getNonPropDataExistence } from '../services/simple_internal_fcns';
 
 export function coreUploader(context) {
 
@@ -58,8 +58,7 @@ export function coreUploader(context) {
         var osm = context.connection();
         var prop = context.connectionProp();
 
-        if (!osm) return;
-        if (!prop) return;
+        if (!osm || !prop) return;
 
         // If user somehow got logged out mid-save, try to reauthenticate..
         // This can happen if they were logged in from before, but the tokens are no longer valid.
@@ -119,7 +118,8 @@ export function coreUploader(context) {
     function performFullConflictCheck(changeset) {
 
         var osm = context.connection();
-        if (!osm) return;
+        var prop = context.connectionProp();
+        if (!osm || !prop) return;
 
         var history = context.history();
 
@@ -294,8 +294,11 @@ export function coreUploader(context) {
 
     function upload(changeset) {
         var osm = context.connection();
+        var prop = context.connectionProp();
         if (!osm) {
             _errors.push({ msg: 'No OSM Service' });
+        } else if (!prop) {
+            _errors.push({ msg: 'No Prop Service' });
         }
 
         if (_conflicts.length) {
@@ -321,7 +324,7 @@ export function coreUploader(context) {
                 osm.putChangeset(changeset, (getPropDataExistence() && getOSMDataExistence()) ? _osmFeatures : _origChanges, uploadCallback);
             } else if (getPropDataExistence()) {
                 dispatch.call('willAttemptPropUpload', this);
-                osm.putChangeset(changeset, (_propFeatures.modified.length || _propFeatures.created.length || _propFeatures.deleted.length) ? _propFeatures : _origChanges, uploadCallback);
+                prop.putChangeset(changeset, (_propFeatures.modified.length || _propFeatures.created.length || _propFeatures.deleted.length) ? _propFeatures : _origChanges, uploadCallback);
             } else {
                 // changes were insignificant or reverted by user
                 didResultInNoChanges();

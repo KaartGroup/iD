@@ -204,7 +204,7 @@ var jsonparsers = {
             uid: obj.uid.toString(),
             loc: [parseFloat(obj.lon), parseFloat(obj.lat)],
             tags: obj.tags,
-            proprietary: false
+            proprietary: true
         });
     },
 
@@ -219,7 +219,7 @@ var jsonparsers = {
             uid: obj.uid.toString(),
             tags: obj.tags,
             nodes: getNodesJSON(obj),
-            proprietary: false
+            proprietary: true
         });
     },
 
@@ -234,7 +234,7 @@ var jsonparsers = {
             uid: obj.uid.toString(),
             tags: obj.tags,
             members: getMembersJSON(obj),
-            proprietary: false
+            proprietary: true
         });
     }
 };
