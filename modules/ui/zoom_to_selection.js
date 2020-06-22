@@ -1,4 +1,4 @@
-import { select as d3_select } from 'd3-selection';
+import { event as d3_event } from 'd3-selection';
 
 import { t, localizer } from '../core/localizer';
 import { uiTooltip } from './tooltip';
@@ -6,36 +6,65 @@ import { svgIcon } from '../svg/icon';
 
 export function uiZoomToSelection(context) {
 
-    var _button = d3_select(null);
+    function isDisabled() {
+        var mode = context.mode();
+        return !mode || !mode.zoomToSelected;
+    }
+
+    var _lastPointerUpType;
+
+    function pointerup() {
+        _lastPointerUpType = d3_event.pointerType;
+    }
 
     function click() {
-        if (d3_select(this).classed('disabled')) return;
+        d3_event.preventDefault();
 
-        var mode = context.mode();
-        if (mode && mode.zoomToSelected) {
-            mode.zoomToSelected();
+        if (isDisabled()) {
+            if (_lastPointerUpType === 'touch' || _lastPointerUpType === 'pen') {
+                context.ui().flash
+                    .duration(2000)
+                    .iconName('#iD-icon-framed-dot')
+                    .iconClass('disabled')
+                    .text(t('inspector.zoom_to.no_selection'))();
+            }
+        } else {
+            var mode = context.mode();
+            if (mode && mode.zoomToSelected) {
+                mode.zoomToSelected();
+            }
         }
-    }
 
-    function setEnabledState() {
-        var mode = context.mode();
-        var isEnabled = mode && !!mode.zoomToSelected;
-        _button.classed('disabled', !isEnabled);
+        _lastPointerUpType = null;
     }
-
-    context.on('enter.uiZoomToSelection', setEnabledState);
 
     return function(selection) {
 
-        _button = selection
+        var tooltipBehavior = uiTooltip()
+            .placement((localizer.textDirection() === 'rtl') ? 'right' : 'left')
+            .title(function() {
+                if (isDisabled()) {
+                    return t('inspector.zoom_to.no_selection');
+                }
+                return t('inspector.zoom_to.title');
+            })
+            .keys([t('inspector.zoom_to.key')]);
+
+        var button = selection
             .append('button')
+            .on('pointerup', pointerup)
             .on('click', click)
             .call(svgIcon('#iD-icon-framed-dot', 'light'))
-            .call(uiTooltip()
-                .placement((localizer.textDirection() === 'rtl') ? 'right' : 'left')
-                .title(t('inspector.zoom_to.title'))
-                .keys([t('inspector.zoom_to.key')])
-            );
+            .call(tooltipBehavior);
+
+        function setEnabledState() {
+            button.classed('disabled', isDisabled());
+            if (!button.select('.tooltip.in').empty()) {
+                button.call(tooltipBehavior.updateContent);
+            }
+        }
+
+        context.on('enter.uiZoomToSelection', setEnabledState);
 
         setEnabledState();
     };

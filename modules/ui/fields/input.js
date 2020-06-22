@@ -5,8 +5,7 @@ import * as countryCoder from '@ideditor/country-coder';
 import { presetManager } from '../../presets';
 import { fileFetcher } from '../../core/file_fetcher';
 import { t, localizer } from '../../core/localizer';
-import { geoExtent } from '../../geo';
-import { utilGetSetValue, utilNoAuto, utilRebind } from '../../util';
+import { utilGetSetValue, utilNoAuto, utilRebind, utilTotalExtent } from '../../util';
 import { svgIcon } from '../../svg/icon';
 
 export {
@@ -56,7 +55,6 @@ export function uiFieldText(field, context) {
             .append('input')
             .attr('type', field.type === 'identifier' ? 'text' : field.type)
             .attr('id', field.domId)
-            .attr('maxlength', context.maxCharsForTagValue())
             .classed(field.type, true)
             .call(utilNoAuto)
             .merge(input);
@@ -167,13 +165,14 @@ export function uiFieldText(field, context) {
     function change(onInput) {
         return function() {
             var t = {};
-            var val = utilGetSetValue(input).trim() || undefined;
+            var val = utilGetSetValue(input);
+            if (!onInput) val = context.cleanTagValue(val);
 
             // don't override multiple values with blank string
             if (!val && Array.isArray(_tags[field.key])) return;
 
             if (!onInput) {
-                if (field.type === 'number' && val !== undefined) {
+                if (field.type === 'number' && val) {
                     var vals = val.split(';');
                     vals = vals.map(function(v) {
                         var num = parseFloat(v.trim(), 10);
@@ -181,9 +180,9 @@ export function uiFieldText(field, context) {
                     });
                     val = vals.join(';');
                 }
-                utilGetSetValue(input, val || '');
+                utilGetSetValue(input, val);
             }
-            t[field.key] = val;
+            t[field.key] = val || undefined;
             dispatch.call('change', this, t, onInput);
         };
     }
@@ -219,10 +218,7 @@ export function uiFieldText(field, context) {
     };
 
     function combinedEntityExtent() {
-        return _entityIDs && _entityIDs.length && _entityIDs.reduce(function(extent, entityID) {
-            var entity = context.graph().entity(entityID);
-            return extent.extend(entity.extent(context.graph()));
-        }, geoExtent());
+        return _entityIDs && _entityIDs.length && utilTotalExtent(_entityIDs, context.graph());
     }
 
     return utilRebind(i, dispatch, 'on');

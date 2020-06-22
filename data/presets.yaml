@@ -229,6 +229,11 @@ en:
       artwork_type:
         # artwork_type=*
         label: Type
+      ascent:
+        # ascent=*
+        label: Total Ascent
+        # 'terms: ascent,climb,cumulative elevation gain'
+        terms: '[translate with synonyms or related terms for ''Total Ascent'', separated by commas]'
       atm:
         # atm=*
         label: ATM
@@ -646,6 +651,11 @@ en:
       depth:
         # depth=*
         label: Depth (Meters)
+      descent:
+        # descent=*
+        label: Total Descent
+        # 'terms: descent,cumulative elevation'
+        terms: '[translate with synonyms or related terms for ''Total Descent'', separated by commas]'
       description:
         # description=*
         label: Description
@@ -1638,6 +1648,18 @@ en:
       operator/type:
         # 'operator:type=*'
         label: Operator Type
+      organic:
+        # organic=*
+        label: Organic Products
+        options:
+          # organic=no
+          'no': None
+          # organic=only
+          only: Only
+          # organic=yes
+          'yes': Some
+        # 'terms: natural,non-gmo'
+        terms: '[translate with synonyms or related terms for ''Organic Products'', separated by commas]'
       outdoor_seating:
         # outdoor_seating=*
         label: Outdoor Seating
@@ -2044,6 +2066,11 @@ en:
       rooms:
         # rooms=*
         label: Rooms
+      roundtrip:
+        # roundtrip=*
+        label: Forms Loop
+        # 'terms: circular,closed,looping,roundtrip'
+        terms: '[translate with synonyms or related terms for ''Forms Loop'', separated by commas]'
       route:
         # route=*
         label: Type
@@ -8202,10 +8229,6 @@ en:
         name: Optician
         # 'terms: eye,glasses'
         terms: '<translate with synonyms or related terms for ''Optician'', separated by commas>'
-      shop/organic:
-        # 'shop=supermarket, organic=only'
-        name: Organic Goods Store
-        terms: '<translate with synonyms or related terms for ''Organic Goods Store'', separated by commas>'
       shop/outdoor:
         # shop=outdoor
         name: Outdoors Store
@@ -8342,6 +8365,11 @@ en:
         name: Supermarket
         # 'terms: grocery,store,shop'
         terms: '<translate with synonyms or related terms for ''Supermarket'', separated by commas>'
+      shop/supermarket/organic:
+        # 'shop=supermarket, organic=only'
+        name: Organic Supermarket
+        # 'terms: natural foods'
+        terms: '<translate with synonyms or related terms for ''Organic Supermarket'', separated by commas>'
       shop/swimming_pool:
         # shop=swimming_pool
         name: Pool Supply Store

@@ -2,10 +2,9 @@ import { dispatch as d3_dispatch } from 'd3-dispatch';
 import { select as d3_select } from 'd3-selection';
 import * as countryCoder from '@ideditor/country-coder';
 
-import { geoExtent } from '../../geo';
 import { uiCombobox } from '../combobox';
 import { t } from '../../core/localizer';
-import { utilGetSetValue, utilNoAuto, utilRebind } from '../../util';
+import { utilGetSetValue, utilNoAuto, utilRebind, utilTotalExtent } from '../../util';
 
 
 export function uiFieldMaxspeed(field, context) {
@@ -43,7 +42,6 @@ export function uiFieldMaxspeed(field, context) {
             .attr('type', 'text')
             .attr('class', 'maxspeed-number')
             .attr('id', field.domId)
-            .attr('maxlength', context.maxCharsForTagValue() - 4)
             .call(utilNoAuto)
             .call(speedCombo)
             .merge(input);
@@ -95,7 +93,7 @@ export function uiFieldMaxspeed(field, context) {
 
     function change() {
         var tag = {};
-        var value = utilGetSetValue(input);
+        var value = utilGetSetValue(input).trim();
 
         // don't override multiple values with blank string
         if (!value && Array.isArray(_tags[field.key])) return;
@@ -103,9 +101,9 @@ export function uiFieldMaxspeed(field, context) {
         if (!value) {
             tag[field.key] = undefined;
         } else if (isNaN(value) || !_isImperial) {
-            tag[field.key] = value;
+            tag[field.key] = context.cleanTagValue(value);
         } else {
-            tag[field.key] = value + ' mph';
+            tag[field.key] = context.cleanTagValue(value + ' mph');
         }
 
         dispatch.call('change', this, tag);
@@ -147,10 +145,7 @@ export function uiFieldMaxspeed(field, context) {
 
 
     function combinedEntityExtent() {
-        return _entityIDs && _entityIDs.length && _entityIDs.reduce(function(extent, entityID) {
-            var entity = context.graph().entity(entityID);
-            return extent.extend(entity.extent(context.graph()));
-        }, geoExtent());
+        return _entityIDs && _entityIDs.length && utilTotalExtent(_entityIDs, context.graph());
     }
 
 

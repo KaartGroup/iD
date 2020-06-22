@@ -115,7 +115,6 @@ export function uiFieldWikipedia(field, context) {
       .attr('type', 'text')
       .attr('class', 'wiki-title')
       .attr('id', field.domId)
-      .attr('maxlength', context.maxCharsForTagValue() - 4)
       .call(utilNoAuto)
       .call(titleCombo)
       .merge(_titleInput);
@@ -192,7 +191,7 @@ export function uiFieldWikipedia(field, context) {
     }
 
     if (value) {
-      syncTags.wikipedia = (language()[2] + ':' + value).substr(0, context.maxCharsForTagValue());
+      syncTags.wikipedia = context.cleanTagValue(language()[2] + ':' + value);
     } else {
       syncTags.wikipedia = undefined;
     }

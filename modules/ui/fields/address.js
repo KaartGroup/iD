@@ -6,7 +6,7 @@ import { presetManager } from '../../presets';
 import { fileFetcher } from '../../core/file_fetcher';
 import { geoExtent, geoChooseEdge, geoSphericalDistance } from '../../geo';
 import { uiCombobox } from '../combobox';
-import { utilArrayUniqBy, utilGetSetValue, utilNoAuto, utilRebind } from '../../util';
+import { utilArrayUniqBy, utilGetSetValue, utilNoAuto, utilRebind, utilTotalExtent } from '../../util';
 import { t } from '../../core/localizer';
 
 
@@ -186,7 +186,6 @@ export function uiFieldAddress(field, context) {
             .append('input')
             .property('type', 'text')
             .call(updatePlaceholder)
-            .attr('maxlength', context.maxCharsForTagValue())
             .attr('class', function (d) { return 'addr-' + d.id; })
             .call(utilNoAuto)
             .each(addDropdown)
@@ -259,10 +258,13 @@ export function uiFieldAddress(field, context) {
                 .each(function (subfield) {
                     var key = field.key + ':' + subfield.id;
 
-                    // don't override multiple values with blank string
-                    if (Array.isArray(_tags[key]) && !this.value) return;
+                    var value = this.value;
+                    if (!onInput) value = context.cleanTagValue(value);
 
-                    tags[key] = this.value || undefined;
+                    // don't override multiple values with blank string
+                    if (Array.isArray(_tags[key]) && !value) return;
+
+                    tags[key] = value || undefined;
                 });
 
             dispatch.call('change', this, tags, onInput);
@@ -300,10 +302,7 @@ export function uiFieldAddress(field, context) {
 
 
     function combinedEntityExtent() {
-        return _entityIDs && _entityIDs.length && _entityIDs.reduce(function(extent, entityID) {
-            var entity = context.graph().entity(entityID);
-            return extent.extend(entity.extent(context.graph()));
-        }, geoExtent());
+        return _entityIDs && _entityIDs.length && utilTotalExtent(_entityIDs, context.graph());
     }
 
 

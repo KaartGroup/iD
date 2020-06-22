@@ -13,15 +13,23 @@ export function uiZoom(context) {
 
     var zooms = [{
         id: 'zoom-in',
-        icon: 'plus',
+        icon: 'iD-icon-plus',
         title: t('zoom.in'),
         action: zoomIn,
+        disabled: function() {
+            return !context.map().canZoomIn();
+        },
+        disabledTitle: t('zoom.disabled.in'),
         key: '+'
     }, {
         id: 'zoom-out',
-        icon: 'minus',
+        icon: 'iD-icon-minus',
         title: t('zoom.out'),
         action: zoomOut,
+        disabled: function() {
+            return !context.map().canZoomOut();
+        },
+        disabledTitle: t('zoom.disabled.out'),
         key: '-'
     }];
 
@@ -46,29 +54,45 @@ export function uiZoom(context) {
     }
 
     return function(selection) {
-        var button = selection.selectAll('button')
+        var tooltipBehavior = uiTooltip()
+            .placement((localizer.textDirection() === 'rtl') ? 'right' : 'left')
+            .title(function(d) {
+                if (d.disabled()) {
+                    return d.disabledTitle;
+                }
+                return d.title;
+            })
+            .keys(function(d) {
+                return [d.key];
+            });
+
+        var lastPointerUpType;
+
+        var buttons = selection.selectAll('button')
             .data(zooms)
             .enter()
             .append('button')
             .attr('class', function(d) { return d.id; })
-            .on('click.editor', function(d) {
-                if (!d3_select(this).classed('disabled')) {
-                    d.action();
-                }
+            .on('pointerup.editor', function() {
+                lastPointerUpType = d3_event.pointerType;
             })
-            .call(uiTooltip()
-                .placement((localizer.textDirection() === 'rtl') ? 'right' : 'left')
-                .title(function(d) {
-                    return d.title;
-                })
-                .keys(function(d) {
-                    return [d.key];
-                })
-            );
+            .on('click.editor', function(d) {
+                if (!d.disabled()) {
+                    d.action();
+                } else if (lastPointerUpType === 'touch' || lastPointerUpType === 'pen') {
+                    context.ui().flash
+                        .duration(2000)
+                        .iconName('#' + d.icon)
+                        .iconClass('disabled')
+                        .text(d.disabledTitle)();
+                }
+                lastPointerUpType = null;
+            })
+            .call(tooltipBehavior);
 
-        button.each(function(d) {
+        buttons.each(function(d) {
             d3_select(this)
-                .call(svgIcon('#iD-icon-' + d.icon, 'light'));
+                .call(svgIcon('#' + d.icon, 'light'));
         });
 
         ['plus', 'ffplus', '=', 'ffequals'].forEach(function(key) {
@@ -82,13 +106,16 @@ export function uiZoom(context) {
         });
 
         function updateButtonStates() {
-            var canZoomIn = context.map().canZoomIn();
-            selection.select('button.zoom-in')
-                .classed('disabled', !canZoomIn);
-
-            var canZoomOut = context.map().canZoomOut();
-            selection.select('button.zoom-out')
-                .classed('disabled', !canZoomOut);
+            buttons
+                .classed('disabled', function(d) {
+                    return d.disabled();
+                })
+                .each(function() {
+                    var selection = d3_select(this);
+                    if (!selection.select('.tooltip.in').empty()) {
+                        selection.call(tooltipBehavior.updateContent);
+                    }
+                });
         }
 
         updateButtonStates();

@@ -236,7 +236,7 @@ export function uiFieldWikidata(field, context) {
             }
 
             if (newWikipediaValue) {
-                newWikipediaValue = newWikipediaValue.substr(0, context.maxCharsForTagValue());
+                newWikipediaValue = context.cleanTagValue(newWikipediaValue);
             }
 
             if (typeof newWikipediaValue === 'undefined') return;

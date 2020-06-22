@@ -18,7 +18,7 @@ import { presetManager } from '../presets';
 import { rendererBackground, rendererFeatures, rendererMap, rendererPhotos } from '../renderer';
 import { services } from '../services';
 import { uiInit } from '../ui/init';
-import { utilKeybinding, utilRebind, utilStringQs } from '../util';
+import { utilKeybinding, utilRebind, utilStringQs, utilUnicodeCharsTruncated } from '../util';
 
 
 export function coreContext() {
@@ -55,6 +55,24 @@ export function coreContext() {
   context.defaultChangesetHashtags = function(val) {
     if (!arguments.length) return _defaultChangesetHashtags;
     _defaultChangesetHashtags = val;
+    return context;
+  };
+
+  /* Document title */
+  /* (typically shown as the label for the browser window/tab) */
+
+  // If true, iD will update the title based on what the user is doing
+  let _setsDocumentTitle = true;
+  context.setsDocumentTitle = function(val) {
+    if (!arguments.length) return _setsDocumentTitle;
+    _setsDocumentTitle = val;
+    return context;
+  };
+  // The part of the title that is always the same
+  let _documentTitleBase = document.title;
+  context.documentTitleBase = function(val) {
+    if (!arguments.length) return _documentTitleBase;
+    _documentTitleBase = val;
     return context;
   };
 
@@ -206,12 +224,31 @@ export function coreContext() {
     return context;
   };
 
-
+  // String length limits in Unicode characters, not JavaScript UTF-16 code units
   context.maxCharsForTagKey = () => 255;
-
   context.maxCharsForTagValue = () => 255;
-
   context.maxCharsForRelationRole = () => 255;
+
+  function cleanOsmString(val, maxChars) {
+    // be lenient with input
+    if (val === undefined || val === null) {
+      val = '';
+    } else {
+      val = val.toString();
+    }
+
+    // remove whitespace
+    val = val.trim();
+
+    // use the canonical form of the string
+    if (val.normalize) val = val.normalize('NFC');
+
+    // trim to the number of allowed characters
+    return utilUnicodeCharsTruncated(val, maxChars);
+  }
+  context.cleanTagKey = (val) => cleanOsmString(val, context.maxCharsForTagKey());
+  context.cleanTagValue = (val) => cleanOsmString(val, context.maxCharsForTagValue());
+  context.cleanRelationRole = (val) => cleanOsmString(val, context.maxCharsForRelationRole());
 
 
   /* History */

@@ -65,8 +65,6 @@ export function uiCommit(context) {
 
     function initChangeset() {
 
-        var tagCharLimit = context.maxCharsForTagValue();
-
         // expire stored comment, hashtags, source after cutoff datetime - #3947 #4899
         var commentDate = +prefs('commentDate') || 0;
         var currDate = Date.now();
@@ -94,9 +92,9 @@ export function uiCommit(context) {
         var detected = utilDetect();
         var tags = {
             comment: prefs('comment') || '',
-            created_by: ('iD ' + context.version).substr(0, tagCharLimit),
-            host: detected.host.substr(0, tagCharLimit),
-            locale: localizer.localeCode().substr(0, tagCharLimit)
+            created_by: context.cleanTagValue('iD ' + context.version),
+            host: context.cleanTagValue(detected.host),
+            locale: context.cleanTagValue(localizer.localeCode())
         };
 
         // call findHashtags initially - this will remove stored
@@ -128,7 +126,7 @@ export function uiCommit(context) {
                 }
             });
 
-            tags.source = sources.join(';').substr(0, tagCharLimit);
+            tags.source = context.cleanTagValue(sources.join(';'));
         }
 
         context.changeset = new osmChangeset({ tags: tags });
@@ -145,36 +143,34 @@ export function uiCommit(context) {
         var prop = context.connectionProp();
         if (!osm || !prop) return;
 
-        var tagCharLimit = context.maxCharsForTagValue();
-
         var tags = Object.assign({}, context.changeset.tags);   // shallow copy
 
         // assign tags for imagery used
-        var imageryUsed = context.history().imageryUsed().join(';').substr(0, tagCharLimit);
+        var imageryUsed = context.cleanTagValue(context.history().imageryUsed().join(';'));
         tags.imagery_used = imageryUsed || 'None';
 
         // assign tags for closed issues and notes
         var osmClosed = osm.getClosedIDs();
         var itemType;
         if (osmClosed.length) {
-            tags['closed:note'] = osmClosed.join(';').substr(0, tagCharLimit);
+            tags['closed:note'] = context.cleanTagValue(osmClosed.join(';'));
         }
         if (services.keepRight) {
             var krClosed = services.keepRight.getClosedIDs();
             if (krClosed.length) {
-                tags['closed:keepright'] = krClosed.join(';').substr(0, tagCharLimit);
+                tags['closed:keepright'] = context.cleanTagValue(krClosed.join(';'));
             }
         }
         if (services.improveOSM) {
             var iOsmClosed = services.improveOSM.getClosedCounts();
             for (itemType in iOsmClosed) {
-                tags['closed:improveosm:' + itemType] = iOsmClosed[itemType].toString().substr(0, tagCharLimit);
+                tags['closed:improveosm:' + itemType] = context.cleanTagValue(iOsmClosed[itemType].toString());
             }
         }
         if (services.osmose) {
             var osmoseClosed = services.osmose.getClosedCounts();
             for (itemType in osmoseClosed) {
-                tags['closed:osmose:' + itemType] = osmoseClosed[itemType].toString().substr(0, tagCharLimit);
+                tags['closed:osmose:' + itemType] = context.cleanTagValue(osmoseClosed[itemType].toString());
             }
         }
 
@@ -193,10 +189,10 @@ export function uiCommit(context) {
                     var issuesBySubtype = utilArrayGroupBy(issuesOfType, 'subtype');
                     for (var issueSubtype in issuesBySubtype) {
                         var issuesOfSubtype = issuesBySubtype[issueSubtype];
-                        tags[prefix + ':' + issueType + ':' + issueSubtype] = issuesOfSubtype.length.toString().substr(0, tagCharLimit);
+                        tags[prefix + ':' + issueType + ':' + issueSubtype] = context.cleanTagValue(issuesOfSubtype.length.toString());
                     }
                 } else {
-                    tags[prefix + ':' + issueType] = issuesOfType.length.toString().substr(0, tagCharLimit);
+                    tags[prefix + ':' + issueType] = context.cleanTagValue(issuesOfType.length.toString());
                 }
             }
         }
@@ -580,18 +576,16 @@ export function uiCommit(context) {
     function updateChangeset(changed, onInput) {
         var tags = Object.assign({}, context.changeset.tags);   // shallow copy
 
-        var tagCharLimit = context.maxCharsForTagValue();
-
         Object.keys(changed).forEach(function(k) {
             var v = changed[k];
-            k = k.trim().substr(0, tagCharLimit);
+            k = context.cleanTagKey(k);
             if (readOnlyTags.indexOf(k) !== -1) return;
 
             if (k !== '' && v !== undefined) {
                 if (onInput) {
                     tags[k] = v;
                 } else {
-                    tags[k] = v.trim().substr(0, tagCharLimit);
+                    tags[k] = context.cleanTagValue(v);
                 }
             } else {
                 delete tags[k];
@@ -603,7 +597,7 @@ export function uiCommit(context) {
             var commentOnly = changed.hasOwnProperty('comment') && (changed.comment !== '');
             var arr = findHashtags(tags, commentOnly);
             if (arr.length) {
-                tags.hashtags = arr.join(';').substr(0, tagCharLimit);
+                tags.hashtags = context.cleanTagValue(arr.join(';'));
                 prefs('hashtags', tags.hashtags);
             } else {
                 delete tags.hashtags;

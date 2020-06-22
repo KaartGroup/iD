@@ -759,7 +759,8 @@
         "inspector": {
             "zoom_to": {
                 "key": "Z",
-                "title": "Zoom To Selection"
+                "title": "Zoom To Selection",
+                "no_selection": "Nothing to zoom to."
             },
             "show_more": "Show More",
             "view_on_osm": "View on openstreetmap.org",
@@ -997,7 +998,29 @@
             "custom_background": {
                 "tooltip": "Edit custom background",
                 "header": "Custom Background Settings",
-                "instructions": "Enter a tile URL template below.\n\nSupported WMS tokens:\n  `{proj}`: requested projection (`EPSG:3857` only)\n  `{wkid}`: same as proj, but without the EPSG (`3857` only)\n  `{width}`, `{height}`: requested image dimensions (`256` only)\n  `{bbox}`: requested bounding box (e.g. `minX,minY,maxX,maxY`)\n\nSupported TMS tokens:\n  `{zoom}` or `{z}, `{x}`, `{y}`: Z/X/Y tile coordinates\n  `{-y}` or `{ty}`: flipped TMS-style Y coordinates\n  `{switch:a,b,c}`: DNS server multiplexing\n  `{u}`: quadtile (Bing) scheme\n\nExample:\n{example}",
+                "instructions": {
+                    "info": "Enter a tile URL template below.",
+                    "wms": {
+                        "tokens_label": "Supported WMS tokens:",
+                        "tokens": {
+                            "proj": "`{proj}`: requested projection (`EPSG:3857` only)",
+                            "wkid": "`{wkid}`: same as proj, but without the EPSG (`3857` only)",
+                            "dimensions": "`{width}`, `{height}`: requested image dimensions (`256` only)",
+                            "bbox": "`{bbox}`: requested bounding box (e.g. `minX,minY,maxX,maxY`)"
+                        }
+                    },
+                    "tms": {
+                        "tokens_label": "Supported TMS tokens:",
+                        "tokens": {
+                            "xyz": "`{zoom}` or `{z}`, `{x}`, `{y}`: Z/X/Y tile coordinates",
+                            "flipped_y": "`{-y}` or `{ty}`: flipped TMS-style Y coordinates",
+                            "switch": "`{switch:a,b,c}`: DNS server multiplexing",
+                            "quadtile": "`{u}`: quadtile (Bing) scheme",
+                            "scale_factor": "`{@2x}` or `{r}`: resolution scale factor"
+                        }
+                    },
+                    "example": "Example:"
+                },
                 "template": {
                     "placeholder": "Enter a url template"
                 }
@@ -1116,7 +1139,11 @@
         },
         "zoom": {
             "in": "Zoom In",
-            "out": "Zoom Out"
+            "out": "Zoom Out",
+            "disabled": {
+                "in": "Cannot zoom in further.",
+                "out": "Cannot zoom out further."
+            }
         },
         "cannot_zoom": "Cannot zoom out further in current mode.",
         "full_screen": "Toggle Full Screen",
@@ -2857,6 +2884,10 @@
                 "artwork_type": {
                     "label": "Type"
                 },
+                "ascent": {
+                    "label": "Total Ascent",
+                    "terms": "ascent,climb,cumulative elevation gain"
+                },
                 "atm": {
                     "label": "ATM"
                 },
@@ -3232,6 +3263,10 @@
                 },
                 "depth": {
                     "label": "Depth (Meters)"
+                },
+                "descent": {
+                    "label": "Total Descent",
+                    "terms": "descent,cumulative elevation"
                 },
                 "description": {
                     "label": "Description",
@@ -4076,6 +4111,15 @@
                 "operator/type": {
                     "label": "Operator Type"
                 },
+                "organic": {
+                    "label": "Organic Products",
+                    "terms": "natural,non-gmo",
+                    "options": {
+                        "no": "None",
+                        "yes": "Some",
+                        "only": "Only"
+                    }
+                },
                 "outdoor_seating": {
                     "label": "Outdoor Seating",
                     "terms": ""
@@ -4406,6 +4450,10 @@
                 },
                 "rooms": {
                     "label": "Rooms"
+                },
+                "roundtrip": {
+                    "label": "Forms Loop",
+                    "terms": "circular,closed,looping,roundtrip"
                 },
                 "route_master": {
                     "label": "Type"
@@ -9642,10 +9690,6 @@
                     "name": "Optician",
                     "terms": "eye,glasses"
                 },
-                "shop/organic": {
-                    "name": "Organic Goods Store",
-                    "terms": ""
-                },
                 "shop/outdoor": {
                     "name": "Outdoors Store",
                     "terms": "camping,climbing,hiking,outfitter,outdoor equipment,outdoor supplies"
@@ -9757,6 +9801,10 @@
                 "shop/supermarket": {
                     "name": "Supermarket",
                     "terms": "grocery,store,shop"
+                },
+                "shop/supermarket/organic": {
+                    "name": "Organic Supermarket",
+                    "terms": "natural foods"
                 },
                 "shop/swimming_pool": {
                     "name": "Pool Supply Store",

@@ -18,7 +18,7 @@ import { svgIcon } from '../../svg/icon';
 import { uiCombobox } from '../combobox';
 import { uiSection } from '../section';
 import { uiTooltip } from '../tooltip';
-import { utilArrayGroupBy, utilDisplayName, utilNoAuto, utilHighlightEntities } from '../../util';
+import { utilArrayGroupBy, utilDisplayName, utilNoAuto, utilHighlightEntities, utilUniqueDomId } from '../../util';
 
 
 export function uiSectionRawMembershipEditor(context) {
@@ -67,7 +67,7 @@ export function uiSectionRawMembershipEditor(context) {
         if (_inChange) return;  // avoid accidental recursive call #5731
 
         var oldRole = d.member.role;
-        var newRole = d3_select(this).property('value');
+        var newRole = context.cleanRelationRole(d3_select(this).property('value'));
 
         if (oldRole !== newRole) {
             _inChange = true;
@@ -190,7 +190,12 @@ export function uiSectionRawMembershipEditor(context) {
         parents.slice(0, _maxMemberships).forEach(function(relation) {
             relation.members.forEach(function(member, index) {
                 if (member.id === entity.id) {
-                    memberships.push({ relation: relation, member: member, index: index });
+                    memberships.push({
+                        relation: relation,
+                        member: member,
+                        index: index,
+                        domId: utilUniqueDomId(entityID + '-membership-' + relation.id + '-' + index)
+                    });
                 }
             });
         });
@@ -229,6 +234,9 @@ export function uiSectionRawMembershipEditor(context) {
         var labelEnter = itemsEnter
             .append('label')
             .attr('class', 'field-label')
+            .attr('for', function(d) {
+                return d.domId;
+            })
             .append('span')
             .attr('class', 'label-text')
             .append('a')
@@ -255,8 +263,10 @@ export function uiSectionRawMembershipEditor(context) {
         wrapEnter
             .append('input')
             .attr('class', 'member-role')
+            .attr('id', function(d) {
+                return d.domId;
+            })
             .property('type', 'text')
-            .attr('maxlength', context.maxCharsForRelationRole())
             .attr('placeholder', t('inspector.role'))
             .call(utilNoAuto)
             .property('value', function(d) { return d.member.role; })
@@ -304,7 +314,6 @@ export function uiSectionRawMembershipEditor(context) {
             .append('input')
             .attr('class', 'member-role')
             .property('type', 'text')
-            .attr('maxlength', context.maxCharsForRelationRole())
             .attr('placeholder', t('inspector.role'))
             .call(utilNoAuto);
 
@@ -376,7 +385,7 @@ export function uiSectionRawMembershipEditor(context) {
             // remove hover-higlighting
             if (d.relation) utilHighlightEntities([d.relation.id], false, context);
 
-            var role = list.selectAll('.member-row-new .member-role').property('value');
+            var role = context.cleanRelationRole(list.selectAll('.member-row-new .member-role').property('value'));
             addMembership(d, role);
         }
 

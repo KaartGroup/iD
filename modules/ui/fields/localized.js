@@ -5,12 +5,11 @@ import * as countryCoder from '@ideditor/country-coder';
 import { presetManager } from '../../presets';
 import { fileFetcher } from '../../core/file_fetcher';
 import { t, localizer } from '../../core/localizer';
-import { geoExtent } from '../../geo';
 import { services } from '../../services';
 import { svgIcon } from '../../svg';
 import { uiTooltip } from '../tooltip';
 import { uiCombobox } from '../combobox';
-import { utilArrayUniq, utilEditDistance, utilGetSetValue, utilNoAuto, utilRebind } from '../../util';
+import { utilArrayUniq, utilEditDistance, utilGetSetValue, utilNoAuto, utilRebind, utilTotalExtent, utilUniqueDomId } from '../../util';
 
 var _languagesArray = [];
 
@@ -170,7 +169,6 @@ export function uiFieldLocalized(field, context) {
             .attr('type', 'text')
             .attr('id', field.domId)
             .attr('class', 'localized-main')
-            .attr('maxlength', context.maxCharsForTagValue())
             .call(utilNoAuto)
             .merge(input);
 
@@ -385,13 +383,16 @@ export function uiFieldLocalized(field, context) {
                     d3_event.preventDefault();
                     return;
                 }
-                var t = {};
-                var val = utilGetSetValue(d3_select(this)) || undefined;
+
+                var val = utilGetSetValue(d3_select(this));
+                if (!onInput) val = context.cleanTagValue(val);
 
                 // don't override multiple values with blank string
                 if (!val && Array.isArray(_tags[field.key])) return;
 
-                t[field.key] = val;
+                var t = {};
+
+                t[field.key] = val || undefined;
                 dispatch.call('change', this, t, onInput);
             };
         }
@@ -420,12 +421,14 @@ export function uiFieldLocalized(field, context) {
             tags[key(d.lang)] = undefined;
         }
 
+        var newKey = lang && context.cleanTagKey(key(lang));
+
         var value = utilGetSetValue(d3_select(this.parentNode).selectAll('.localized-value'));
 
-        if (lang && value) {
-            tags[key(lang)] = value;
-        } else if (lang && _wikiTitles && _wikiTitles[d.lang]) {
-            tags[key(lang)] = _wikiTitles[d.lang];
+        if (newKey && value) {
+            tags[newKey] = value;
+        } else if (newKey && _wikiTitles && _wikiTitles[d.lang]) {
+            tags[newKey] = _wikiTitles[d.lang];
         }
 
         d.lang = lang;
@@ -435,7 +438,7 @@ export function uiFieldLocalized(field, context) {
 
     function changeValue(d) {
         if (!d.lang) return;
-        var value = utilGetSetValue(d3_select(this)) || undefined;
+        var value = context.cleanTagValue(utilGetSetValue(d3_select(this))) || undefined;
 
         // don't override multiple values with blank string
         if (!value && Array.isArray(d.value)) return;
@@ -493,12 +496,15 @@ export function uiFieldLocalized(field, context) {
         var entriesEnter = entries.enter()
             .append('div')
             .attr('class', 'entry')
-            .each(function() {
+            .each(function(_, index) {
                 var wrap = d3_select(this);
+
+                var domId = utilUniqueDomId(index);
 
                 var label = wrap
                     .append('label')
-                    .attr('class', 'field-label');
+                    .attr('class', 'field-label')
+                    .attr('for', domId);
 
                 var text = label
                     .append('span')
@@ -536,6 +542,7 @@ export function uiFieldLocalized(field, context) {
                 wrap
                     .append('input')
                     .attr('class', 'localized-lang')
+                    .attr('id', domId)
                     .attr('type', 'text')
                     .attr('placeholder', t('translate.localized_translation_language'))
                     .on('blur', changeLang)
@@ -545,7 +552,6 @@ export function uiFieldLocalized(field, context) {
                 wrap
                     .append('input')
                     .attr('type', 'text')
-                    .attr('maxlength', context.maxCharsForTagValue())
                     .attr('class', 'localized-value')
                     .on('blur', changeValue)
                     .on('change', changeValue);
@@ -569,6 +575,10 @@ export function uiFieldLocalized(field, context) {
         entries = entries.merge(entriesEnter);
 
         entries.order();
+
+        entries.classed('present', function(d) {
+            return d.lang && d.value;
+        });
 
         utilGetSetValue(entries.select('.localized-lang'), function(d) {
             return localizer.languageName(d.lang);
@@ -638,10 +648,7 @@ export function uiFieldLocalized(field, context) {
     }
 
     function combinedEntityExtent() {
-        return _entityIDs && _entityIDs.length && _entityIDs.reduce(function(extent, entityID) {
-            var entity = context.graph().entity(entityID);
-            return extent.extend(entity.extent(context.graph()));
-        }, geoExtent());
+        return _entityIDs && _entityIDs.length && utilTotalExtent(_entityIDs, context.graph());
     }
 
     return utilRebind(localized, dispatch, 'on');
