@@ -124,7 +124,7 @@ export function svgAreas(projection, context, isProp=false) {
             fill: fills
         };
 
-        var clipPaths = context.surface().selectAll('defs').selectAll(isProp ? 'clipPath-prop' : 'clipPath-osm') 
+        var clipPaths = context.surface().selectAll('defs').selectAll(isProp ? '.clipPath-prop' : '.clipPath-osm')
            .filter(filter)
            .data(data.clip, osmEntity.key);
 
