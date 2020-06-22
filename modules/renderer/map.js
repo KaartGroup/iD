@@ -402,15 +402,15 @@ export function rendererMap(context) {
 
         surface
             .call(drawVertices, graph, data.length > 1 ? data.filter(function(e) { return !e.proprietary; }) : data, filter, map.extent(), fullRedraw)
-            //.call(drawPropVertices, graph, data.length > 1 ? data.filter(function(e) { return e.proprietary; }) : data, filter, map.extent(), fullRedraw)
+            .call(drawPropVertices, graph, data.length > 1 ? data.filter(function(e) { return e.proprietary; }) : data, filter, map.extent(), fullRedraw)
             .call(drawLines, graph, data.length > 1 ? data.filter(function(e) { return !e.proprietary; }) : data, filter)
-            //.call(drawPropLines, graph, data.length > 1 ? data.filter(function(e) { return e.proprietary; }) : data, filter)
-            .call(drawAreas, graph, data, filter) //data.length > 1 ? data.filter(function(e) { return !e.proprietary; }) : data, filter)
-            //.call(drawPropAreas, graph, data.length > 1 ? data.filter(function (e) { return e.proprietary; }) : data, filter)
+            .call(drawPropLines, graph, data.length > 1 ? data.filter(function(e) { return e.proprietary; }) : data, filter)
+            .call(drawAreas, graph, data.length > 1 ? data.filter(function(e) { return !e.proprietary; }) : data, filter)
+            .call(drawPropAreas, graph, data.length > 1 ? data.filter(function (e) { return e.proprietary; }) : data, filter)
             .call(drawMidpoints, graph, data.length > 1 ? data.filter(function (e) { return !e.proprietary; }) : data, filter, map.trimmedExtent())
-            //.call(drawPropMidpoints, graph, data.length > 1 ? data.filter(function (e) { return e.proprietary; }) : data, filter, map.trimmedExtent())
+            .call(drawPropMidpoints, graph, data.length > 1 ? data.filter(function (e) { return e.proprietary; }) : data, filter, map.trimmedExtent())
             .call(drawLabels, graph, data.length > 1 ? data.filter(function(e) { return !e.proprietary; }) : data, filter, _dimensions, fullRedraw)
-            //.call(drawPropLabels, graph, data.length > 1 ? data.filter(function(e) { return e.proprietary; }) : data, filter, _dimensions, fullRedraw)
+            .call(drawPropLabels, graph, data.length > 1 ? data.filter(function(e) { return e.proprietary; }) : data, filter, _dimensions, fullRedraw)
             .call(drawPoints, graph, data.length > 1 ? data.filter(function(e) { return !e.proprietary; }) : data, filter)
             .call(drawPropPoints, graph, data.length > 1 ? data.filter(function(e) { return e.proprietary; }) : data, filter);
 
@@ -427,17 +427,17 @@ export function rendererMap(context) {
         drawLabels = svgLabels(projection, context);
         
         drawPropPoints = svgPoints(projection, context, true);
-        //drawPropVertices = svgVertices(projection, context, true);
-        //drawPropLines = svgLines(projection, context, true);
-        //drawPropAreas = svgAreas(projection, context, true);
-        //drawPropMidpoints = svgMidpoints(projection, context, true);
-        //drawPropLabels = svgLabels(projection, context, true);
+        drawPropVertices = svgVertices(projection, context, true);
+        drawPropLines = svgLines(projection, context, true);
+        drawPropAreas = svgAreas(projection, context, true);
+        drawPropMidpoints = svgMidpoints(projection, context, true);
+        drawPropLabels = svgLabels(projection, context, true);
     };
 
     function editOff(propLayer=false) {
         context.features().resetStats();
         surface.selectAll(propLayer ? '.layer-prop *' : '.layer-osm *').remove();
-        surface.selectAll('.layer-touch:not(.markers) *').remove();
+        surface.selectAll(propLayer ? '.layer-touch-prop:not(.markers) *' : '.layer-touch:not(.markers) *').remove();
 
         var allowed = {
             'browse': true,
@@ -713,13 +713,15 @@ export function rendererMap(context) {
         }
 
         // OSM & Prop Data 
+        // FIXED
         // TODO/BUG there is an issue where the layers do not correctly load if you toggle them in this order:
         // Either toggle osm or prop layer (for example, osm was toggled first)
         // Then toggle the other (for example, then toggle prop)
         // If I then toggle the prop button it displays fine, but if I attempt to toggle osm it displays incorrectly 
         // BUT, it I toggled osm then I toggle prop, it works just fine, so I have no idea...
         // Hopefully when I come back to this I can figure it out...
-        if ((map.editableDataEnabled() && map.editablePropDataEnabled()) || map.isInWideSelection()) {
+        // It was affected by the touch layer being conflated, dedicated touch layers work better
+        if (map.editableDataEnabled() || map.isInWideSelection()) {
             context.loadTiles(projection);
             drawEditable(difference, extent);
         } else if ((!map.editablePropDataEnabled()) && map.editableDataEnabled()) {
@@ -727,6 +729,7 @@ export function rendererMap(context) {
         } else if ((!map.editableDataEnabled()) && map.editablePropDataEnabled()) {
             editOff();
         } else {
+              editOff();
             // do nothing for now...
         }
 

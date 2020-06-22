@@ -84,7 +84,7 @@ export function svgVertices(projection, context, isProp=false) {
                             r += 1.5;
                         }
 
-                        if (klass === 'shadow') {   // remember this value, so we don't need to
+                        if (klass === (isProp ? 'shadow-prop' : 'shadow')) {   // remember this value, so we don't need to
                             _radii[entity.id] = r;  // recompute it when we draw the touch targets
                         }
 
@@ -113,11 +113,11 @@ export function svgVertices(projection, context, isProp=false) {
 
         enter
             .append('circle')
-            .attr('class', 'shadow');
+            .attr('class', isProp ? 'shadow-prop' : 'shadow');
 
         enter
             .append('circle')
-            .attr('class', isProp ? 'stroke-prop' : 'stroke');
+            .attr('class', 'stroke');
 
         // Vertices with tags get a fill.
         enter.filter(function(d) { return d.hasInterestingTags(); })
@@ -360,7 +360,7 @@ export function svgVertices(projection, context, isProp=false) {
         var base = context.history().base();
 
         var drawLayer = selection.selectAll(isProp ? '.layer-prop.points .points-group.vertices' : '.layer-osm.points .points-group.vertices');
-        var touchLayer = selection.selectAll('.layer-touch.points');
+        var touchLayer = selection.selectAll(isProp ? '.layer-touch-prop.points' : '.layer-touch.points');
 
         if (fullRedraw) {
             _currPersistent = {};

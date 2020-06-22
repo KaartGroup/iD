@@ -45,7 +45,7 @@ export function svgMidpoints(projection, context, isProp=false) {
 
     function drawMidpoints(selection, graph, entities, filter, extent) {
         var drawLayer = selection.selectAll(isProp ? '.layer-prop.points .points-group.midpoints' : '.layer-osm.points .points-group.midpoints');
-        var touchLayer = selection.selectAll('.layer-touch.points');
+        var touchLayer = selection.selectAll(isProp ? '.layer-touch-prop.points' : '.layer-touch.points');
 
         var mode = context.mode();
         if ((mode && mode.id !== 'select') || !context.map().withinEditableZoom()) {

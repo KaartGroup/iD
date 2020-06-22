@@ -270,7 +270,7 @@ export function svgLines(projection, context, isProp=false) {
 
         var covered = selection.selectAll(isProp ? '.layer-prop.covered' : '.layer-osm.covered'); // under areas
         var uncovered = selection.selectAll(isProp ? '.layer-prop.lines' : '.layer-osm.lines'); // over areas
-        var touchLayer = selection.selectAll('.layer-touch.lines');
+        var touchLayer = selection.selectAll(isProp ? '.layer-touch-prop.lines' : '.layer-touch.lines');
 
         // Draw lines..
         [covered, uncovered].forEach(function(selection) {
@@ -292,14 +292,14 @@ export function svgLines(projection, context, isProp=false) {
                 .attr('class', function(d) { return 'linegroup line-' + d; });
 
             layergroup.selectAll('g.line-shadow')
-                .call(drawLineGroup, 'shadow', false);
+                .call(drawLineGroup, isProp ? 'shadow-prop' : 'shadow', false);
             layergroup.selectAll('g.line-casing')
                 .call(drawLineGroup, 'casing', false);
             layergroup.selectAll('g.line-stroke')
                 .call(drawLineGroup, 'stroke', false);
 
             layergroup.selectAll('g.line-shadow-highlighted')
-                .call(drawLineGroup, 'shadow', true);
+                .call(drawLineGroup, isProp ? 'shadow-prop' : 'shadow', true);
             layergroup.selectAll('g.line-casing-highlighted')
                 .call(drawLineGroup, 'casing', true);
             layergroup.selectAll('g.line-stroke-highlighted')

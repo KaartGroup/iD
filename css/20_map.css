@@ -49,6 +49,7 @@
 .qaItem.target,
 .note.target,
 .node.target,
+.node.target-prop,
 .turn .target {
     pointer-events: fill;
     fill-opacity: 0.8;
@@ -191,14 +192,27 @@ g.midpoint .shadow {
     fill-opacity: 0;
 }
 
+g.vertex .shadow-prop,
+g.midpoint .shadow-prop {
+    stroke-width: 6;
+    fill: #f4753c;
+    fill-opacity: 0;
+}
+
 g.vertex.related:not(.selected) .shadow,
 g.vertex.hover:not(.selected) .shadow,
 g.midpoint.related:not(.selected) .shadow,
-g.midpoint.hover:not(.selected) .shadow {
+g.midpoint.hover:not(.selected) .shadow,
+
+g.vertex.related:not(.selected) .shadow-prop,
+g.vertex.hover:not(.selected) .shadow-prop,
+g.midpoint.related:not(.selected) .shadow-prop,
+g.midpoint.hover:not(.selected) .shadow-prop {
     fill-opacity: 0.5;
 }
 
-g.vertex.selected .shadow {
+g.vertex.selected .shadow,
+g.vertex.selected .shadow-prop {
     fill-opacity: 0.7;
 }
 
@@ -229,12 +243,23 @@ path.shadow {
     stroke-linejoin: round;
 }
 
+path.shadow-prop {
+    stroke: #f4753c;
+    stroke-width: 16;
+    stroke-opacity: 0.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
 path.shadow.related:not(.selected),
-path.shadow.hover:not(.selected) {
+path.shadow.hover:not(.selected),
+path.shadow-prop.related:not(.selected),
+path.shadow-prop.hover:not(.selected) {
     stroke-opacity: 0.4;
 }
 
-path.shadow.selected {
+path.shadow.selected,
+path.shadow-prop.selected {
     stroke-opacity: 0.7;
 }
 

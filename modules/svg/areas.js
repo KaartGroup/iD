@@ -144,7 +144,7 @@ export function svgAreas(projection, context, isProp=false) {
            .attr('d', path);
 
         var drawLayer = selection.selectAll(isProp ? '.layer-prop.areas' : '.layer-osm.areas');
-        var touchLayer = selection.selectAll('.layer-touch.areas');
+        var touchLayer = selection.selectAll(isProp ? '.layer-touch-prop.areas' : '.layer-touch.areas');
 
         // Draw areas..
         var areagroup = drawLayer

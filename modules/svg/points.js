@@ -86,7 +86,7 @@ export function svgPoints(projection, context, isProp=false) {
 
 
         var drawLayer = selection.selectAll(isProp ? '.layer-prop.points .points-group.points' : '.layer-osm.points .points-group.points');
-        var touchLayer = selection.selectAll('.layer-touch.points');
+        var touchLayer = selection.selectAll(isProp ? '.layer-touch-prop.points' : '.layer-touch.points');
 
         // Draw points..
         var groups = drawLayer.selectAll('g.point')
@@ -103,7 +103,7 @@ export function svgPoints(projection, context, isProp=false) {
 
         enter
             .append('path')
-            .call(markerPath, 'shadow');
+            .call(markerPath, isProp ? 'shadow-prop' : 'shadow');
 
         enter
             .append('ellipse')
