@@ -84,7 +84,7 @@ export function svgVertices(projection, context, isProp=false) {
                             r += 1.5;
                         }
 
-                        if (klass === (isProp ? 'shadow-prop' : 'shadow')) {   // remember this value, so we don't need to
+                        if (klass === 'shadow') {   // remember this value, so we don't need to
                             _radii[entity.id] = r;  // recompute it when we draw the touch targets
                         }
 
@@ -113,7 +113,7 @@ export function svgVertices(projection, context, isProp=false) {
 
         enter
             .append('circle')
-            .attr('class', isProp ? 'shadow-prop' : 'shadow');
+            .attr('class', 'shadow');
 
         enter
             .append('circle')

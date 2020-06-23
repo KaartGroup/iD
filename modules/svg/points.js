@@ -103,7 +103,7 @@ export function svgPoints(projection, context, isProp=false) {
 
         enter
             .append('path')
-            .call(markerPath, isProp ? 'shadow-prop' : 'shadow');
+            .call(markerPath, 'shadow');
 
         enter
             .append('ellipse')
@@ -111,7 +111,7 @@ export function svgPoints(projection, context, isProp=false) {
             .attr('cy', 1)
             .attr('rx', 6.5)
             .attr('ry', 3)
-            .attr('class', isProp ? 'stroke-prop' : 'stroke');
+            .attr('class', 'stroke');
 
         enter
             .append('path')

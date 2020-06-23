@@ -292,14 +292,14 @@ export function svgLines(projection, context, isProp=false) {
                 .attr('class', function(d) { return 'linegroup line-' + d; });
 
             layergroup.selectAll('g.line-shadow')
-                .call(drawLineGroup, isProp ? 'shadow-prop' : 'shadow', false);
+                .call(drawLineGroup, 'shadow', false);
             layergroup.selectAll('g.line-casing')
                 .call(drawLineGroup, 'casing', false);
             layergroup.selectAll('g.line-stroke')
                 .call(drawLineGroup, 'stroke', false);
 
             layergroup.selectAll('g.line-shadow-highlighted')
-                .call(drawLineGroup, isProp ? 'shadow-prop' : 'shadow', true);
+                .call(drawLineGroup, 'shadow', true);
             layergroup.selectAll('g.line-casing-highlighted')
                 .call(drawLineGroup, 'casing', true);
             layergroup.selectAll('g.line-stroke-highlighted')

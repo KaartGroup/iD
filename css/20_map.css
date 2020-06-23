@@ -32,7 +32,6 @@
 
 /* No interactivity except what we specifically allow */
 .data-layer.osm *,
-.data-layer.prop-features *,
 .data-layer.notes *,
 .data-layer.keepRight *,
 .data-layer.improveOSM * {
@@ -49,7 +48,6 @@
 .qaItem.target,
 .note.target,
 .node.target,
-.node.target-prop,
 .turn .target {
     pointer-events: fill;
     fill-opacity: 0.8;
@@ -89,7 +87,7 @@
 /* `.active` objects (currently being drawn or dragged) are not interactive */
 /* This is important to allow the events to drop through to whatever is */
 /* below them on the map, so you can still hover and connect to other things. */
-.layer-osm .active, .layer-prop .active {
+.layer-osm .active {
     pointer-events: none !important;
 }
 
@@ -118,13 +116,6 @@ g.point .stroke {
     fill: #fff;
 }
 
-g.point .stroke-prop {
-    stroke: #f4753c;
-    stroke-width: 2.5;
-    fill: #444;
-}
-
-
 g.qaItem .shadow,
 g.point .shadow,
 g.note .shadow {
@@ -134,25 +125,16 @@ g.note .shadow {
     stroke-opacity: 0;
 }
 
-g.point .shadow-prop {
-    fill: none;
-    stroke: #f4753c;
-    stroke-width: 16;
-    stroke-opacity: 0;
-}
-
 g.qaItem.hover:not(.selected) .shadow,
 g.note.hover:not(.selected) .shadow,
 g.point.related:not(.selected) .shadow,
-g.point.hover:not(.selected) .shadow,
-g.point.hover:not(.selected) .shadow-prop {
+g.point.hover:not(.selected) .shadow {
     stroke-opacity: 0.5;
 }
 
 g.qaItem.selected .shadow,
 g.note.selected .shadow,
-g.point.selected .shadow,
-g.point.selected .shadow-prop {
+g.point.selected .shadow {
     stroke-opacity: 0.7;
 }
 
@@ -192,27 +174,14 @@ g.midpoint .shadow {
     fill-opacity: 0;
 }
 
-g.vertex .shadow-prop,
-g.midpoint .shadow-prop {
-    stroke-width: 6;
-    fill: #f4753c;
-    fill-opacity: 0;
-}
-
 g.vertex.related:not(.selected) .shadow,
 g.vertex.hover:not(.selected) .shadow,
 g.midpoint.related:not(.selected) .shadow,
-g.midpoint.hover:not(.selected) .shadow,
-
-g.vertex.related:not(.selected) .shadow-prop,
-g.vertex.hover:not(.selected) .shadow-prop,
-g.midpoint.related:not(.selected) .shadow-prop,
-g.midpoint.hover:not(.selected) .shadow-prop {
+g.midpoint.hover:not(.selected) .shadow {
     fill-opacity: 0.5;
 }
 
-g.vertex.selected .shadow,
-g.vertex.selected .shadow-prop {
+g.vertex.selected .shadow {
     fill-opacity: 0.7;
 }
 
@@ -243,23 +212,12 @@ path.shadow {
     stroke-linejoin: round;
 }
 
-path.shadow-prop {
-    stroke: #f4753c;
-    stroke-width: 16;
-    stroke-opacity: 0.6;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-}
-
 path.shadow.related:not(.selected),
-path.shadow.hover:not(.selected),
-path.shadow-prop.related:not(.selected),
-path.shadow-prop.hover:not(.selected) {
+path.shadow.hover:not(.selected) {
     stroke-opacity: 0.4;
 }
 
-path.shadow.selected,
-path.shadow-prop.selected {
+path.shadow.selected {
     stroke-opacity: 0.7;
 }
 

@@ -1,0 +1,178 @@
+.simple-preset-list-item {
+    margin-bottom: 10px;
+    width: 100%;
+    padding-left: 10px;
+}
+
+.simple-preset-list-button {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    display: flex;
+}
+
+.simple-preset-list-button-wrap {
+    height: 62px;
+    display: flex;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.simple-preset-icon-container.medium {
+    position: relative;
+    width: 60px;
+    height: 60px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.simple-label {
+    display: flex;
+    width: 100%;
+    flex-flow: row wrap;
+    align-items: center;
+    text-align: left;
+    padding: 5px 10px;
+    border-left-color: rgba(0, 0, 0, 0.1);
+    border-left-style: solid;
+    border-left-width: 1px;
+}
+
+.simple-label-inner {
+    width:100%;
+} 
+
+.simple-namepart {
+    height: 17px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.simple-tag-reference-button {
+    height:100%;
+    width:10%;
+    border-left-color: rgba(0, 0, 0, 0.1);
+    border-left-style: solid;
+    border-left-width: 1px;
+}
+
+.simple-tag-reference-body {
+    flex: 1 1 auto;
+    width: 100%;
+    overflow: hidden;
+    display: none;
+    padding-top: 10px;
+} 
+
+.simple-tag-reference-body.shown {
+    padding-bottom: 10px;
+    display: inline-block;
+}
+
+.simple-proprietary-dialogue.inspector-body {
+    text-align: center;
+    align-items: center;
+    top: 60px;
+}
+
+.simple.qaItem .shadow,
+.simple.point .shadow,
+.simple.note .shadow {
+    fill: none;
+    stroke: green;
+    stroke-width: 16;
+    stroke-opacity: 0;
+}
+
+.simple.qaItem.selected .shadow,
+.simple.note.selected .shadow,
+.simple.point.selected .shadow {
+    stroke-opacity: 0.7;
+}
+
+/* Chrome only: */
+@media all and (-webkit-min-device-pixel-ratio:0) and (min-resolution: .001dpcm) { 
+    .simple-preset-list-button {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        display: contents;
+    }
+}
+
+
+/* Map render stuff */
+
+
+/* No interactivity except what we specifically allow */
+.data-layer.prop-features * {
+    pointer-events: none;
+}
+
+
+/* `.active` objects (currently being drawn or dragged) are not interactive */
+/* This is important to allow the events to drop through to whatever is */
+/* below them on the map, so you can still hover and connect to other things. */
+.layer-prop .active {
+    pointer-events: none !important;
+}
+
+
+/* points */
+.layer-prop g.point .stroke {
+    stroke: #f4753c;
+    stroke-width: 1;
+    fill: #fff;
+}
+.layer-prop g.point ellipse.stroke {
+    fill: #444;
+    display: block;
+    stroke-width: 2;
+}
+.layer-prop g.point .shadow {
+    fill: none;
+    stroke: #f4753c;
+    stroke-width: 16;
+    stroke-opacity: 0;
+}
+
+
+/* vertices and midpoints */
+.layer-prop g.vertex .shadow,
+.layer-prop g.midpoint .shadow {
+    stroke-width: 6;
+    fill: #f4753c;
+    fill-opacity: 0;
+}
+
+
+/* lines */
+.layer-prop path.shadow {
+    stroke: #f4753c;
+    stroke-width: 16;
+    stroke-opacity: 0.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+.layer-prop path.shadow.related:not(.selected),
+.layer-prop path.shadow.hover:not(.selected) {
+    stroke-opacity: 0.4;
+}
+.layer-prop path.shadow.selected {
+    stroke-opacity: 0.7;
+}
+
+
+/* For some reason these are needed
+   otherwise areas will be filled 
+   with black and lines will have a
+   black line between end-vertices  */
+.layer-prop.areas * {
+    fill:none;
+}
+.layer-prop.lines * {
+    fill:none;
+}
