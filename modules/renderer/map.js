@@ -397,7 +397,6 @@ export function rendererMap(context) {
             // creating a new vertex, triggering a partial redraw without a mode change
             surface
                 .call(drawVertices.drawSelected, graph, map.extent());
-            //    .call(drawPropVertices.drawSelected, graph, map.extent());
         }
 
         surface
@@ -713,24 +712,20 @@ export function rendererMap(context) {
         }
 
         // OSM & Prop Data 
-        // FIXED
-        // TODO/BUG there is an issue where the layers do not correctly load if you toggle them in this order:
-        // Either toggle osm or prop layer (for example, osm was toggled first)
-        // Then toggle the other (for example, then toggle prop)
-        // If I then toggle the prop button it displays fine, but if I attempt to toggle osm it displays incorrectly 
-        // BUT, it I toggled osm then I toggle prop, it works just fine, so I have no idea...
-        // Hopefully when I come back to this I can figure it out...
-        // It was affected by the touch layer being conflated, dedicated touch layers work better
-        if (map.editableDataEnabled() || map.isInWideSelection()) {
+        if ((map.editableDataEnabled() && map.editablePropDataEnabled()) || map.isInWideSelection()) {
             context.loadTiles(projection);
             drawEditable(difference, extent);
-        } else if ((!map.editablePropDataEnabled()) && map.editableDataEnabled()) {
+        } else if ((!map.editablePropDataEnabled() && map.editableDataEnabled()) || map.isInWideSelection()) {
+            context.loadTiles(projection);
+            drawEditable(difference, extent);
             editOff(true);
-        } else if ((!map.editableDataEnabled()) && map.editablePropDataEnabled()) {
+        } else if ((!map.editableDataEnabled() && map.editablePropDataEnabled()) || map.isInWideSelection()) {
+            context.loadTiles(projection);
+            drawEditable(difference, extent);
             editOff();
         } else {
-              editOff();
-            // do nothing for now...
+            editOff(true);
+            editOff();
         }
 
         _transformStart = projection.transform();

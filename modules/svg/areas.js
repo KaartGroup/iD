@@ -170,7 +170,12 @@ export function svgAreas(projection, context, isProp=false) {
 
         function sortedByArea(entity) {
             if (this._parent.__data__ === 'fill') {
-                return fillpaths[bisect(fillpaths, -entity.area(graph))];
+                // TODO loop through fill polygons, calc area and create new datastructure for d3 to sort via area DES
+                // [
+                //  { entity: { entity 1 }, area: 123 }
+                //  { entity: { entity 2 }, area: 456 }
+                // ]
+                return undefined; // fillpaths[bisect(fillpaths, -entity.area(graph))];
             }
         }
 
