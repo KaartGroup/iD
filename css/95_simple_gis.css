@@ -33,7 +33,7 @@
     width: 100%;
     flex-flow: row wrap;
     align-items: center;
-    text-align: left;
+    text-align: center;
     padding: 5px 10px;
     border-left-color: rgba(0, 0, 0, 0.1);
     border-left-style: solid;
@@ -76,21 +76,7 @@
     text-align: center;
     align-items: center;
     top: 60px;
-}
-
-.simple.qaItem .shadow,
-.simple.point .shadow,
-.simple.note .shadow {
-    fill: none;
-    stroke: green;
-    stroke-width: 16;
-    stroke-opacity: 0;
-}
-
-.simple.qaItem.selected .shadow,
-.simple.note.selected .shadow,
-.simple.point.selected .shadow {
-    stroke-opacity: 0.7;
+    margin-top: 60px;
 }
 
 /* Chrome only: */
@@ -105,7 +91,6 @@
 
 
 /* Map render stuff */
-
 
 /* No interactivity except what we specifically allow */
 .data-layer.prop-features * {
