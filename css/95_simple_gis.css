@@ -138,10 +138,23 @@
 .layer-prop path.shadow {
     stroke: #f4753c;
     stroke-width: 16;
-    stroke-opacity: 0.6;
+    stroke-opacity: 0;
     stroke-linecap: round;
     stroke-linejoin: round;
 }
+.layer-prop path.stroke {
+    stroke: #f4753c;
+    stroke-width: 2.5;
+}
+
+.layer-prop path.line.casing.tag-highway {
+    stroke: #f4753c;
+}
+
+.layer-prop path.line.casing.tag-highway {
+    stroke-width: 11;
+}
+
 .layer-prop path.shadow.related:not(.selected),
 .layer-prop path.shadow.hover:not(.selected) {
     stroke-opacity: 0.4;
