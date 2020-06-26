@@ -74,7 +74,7 @@ export function uiSuccess(context) {
       .append('div')
       .attr('class', 'header fillL');
 
-    if (!getPropDataExistence() && getNonPropDataExistence()) {
+    if (!getPropDataExistence(context) && getNonPropDataExistence(context)) {
       header
       .append('button')
       .attr('class', 'fr')
@@ -90,7 +90,7 @@ export function uiSuccess(context) {
       .append('div')
       .attr('class', 'body save-success fillL');
 
-    if (getPropDataExistence()) {
+    if (getPropDataExistence(context)) {
       presetItem(body, {
         label: ('Continue to Proprietary Upload...'),
         onClick: function() { context.enter(modeSave(context)); }

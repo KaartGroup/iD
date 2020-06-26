@@ -16,7 +16,7 @@ import { geoExtent } from '../geo/extent';
 import { uiPresetIcon } from './preset_icon';
 import { uiTagReference } from './tag_reference';
 import { utilKeybinding, utilNoAuto, utilRebind } from '../util';
-import { setObjAndChildren, getPropDbStatus, objProprietaryState } from '../services/simple_internal_fcns';
+import { setObjAndChildren, objProprietaryState } from '../services/simple_internal_fcns';
 
 
 export function uiPresetList(context) {
@@ -135,10 +135,9 @@ export function uiPresetList(context) {
             search.node().focus();
         }
 
-        var isProprietaryEnabled = getPropDbStatus();
         var mode = context.mode();
 
-        if (isProprietaryEnabled && mode.newFeature() && objProprietaryState(_entityIDs) == null) {
+        if (mode.newFeature() && objProprietaryState(_entityIDs, context) == null) {
             var bodyEnter = selection
                 .append('div')
                 .attr('class', 'simple-proprietary-dialogue inspector-body');
@@ -179,7 +178,7 @@ export function uiPresetList(context) {
 
     function onNonPropObj(s) {
         var obj = context.entity(_entityIDs);
-        setObjAndChildren(obj, false);
+        setObjAndChildren(obj, false, context);
 
         s.select('.simple-proprietary-dialogue.inspector-body')
             .style('display','none');
@@ -201,7 +200,7 @@ export function uiPresetList(context) {
 
     function onPropObj(s) {
         var obj = context.entity(_entityIDs);
-        setObjAndChildren(obj, true);
+        setObjAndChildren(obj, true, context);
         
         s.select('.simple-proprietary-dialogue.inspector-body')
             .style('display','none');

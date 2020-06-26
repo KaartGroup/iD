@@ -30,7 +30,7 @@ export function uiSectionChanges(context) {
         .title(function() {
             var history = context.history();
             //var summary = history.difference().summary();
-            var summary = fixUiSummary(history);
+            var summary = fixUiSummary(history, context);
             return t('commit.changes', { count: summary.length });
         })
         .disclosureContent(renderDisclosureContent);
@@ -38,7 +38,7 @@ export function uiSectionChanges(context) {
     function renderDisclosureContent(selection) {
         var history = context.history();
         //var summary = history.difference().summary();
-        var summary = fixUiSummary(history);
+        var summary = fixUiSummary(history, context);
         
         var container = selection.selectAll('.commit-section')
             .data([0]);

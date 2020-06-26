@@ -3,7 +3,7 @@
   <head>
     <meta charset='utf-8'>
     <title>iD</title>
-    <link rel='stylesheet' href='iD.css'>
+    <link rel='stylesheet' href='dist/iD.css'>
     <link rel='icon' type='image/png' href='data:image/png;base64,iVBORw0KGgo='>
     <meta name='viewport' content='width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no'/>
     <meta name='apple-mobile-web-app-capable' content='yes'/>
@@ -33,8 +33,7 @@
 
       var isIE11 = !!(navigator.userAgent.match(/Trident/) && !navigator.userAgent.match(/MSIE/));
       // currently all minified files are legacy ES5 because of uglifyJS
-      newScript.src = isIE11 ? 'iD.min.js' : 'iD.min.js';
-
+      newScript.src = isIE11 ? 'dist/iD.js' : 'dist/iD.js'
       document.getElementsByTagName('head')[0].appendChild(newScript);
 
 
@@ -42,11 +41,10 @@
         if (typeof iD === 'undefined' || !iD.utilDetect().support) {
           container.innerHTML = 'Sorry, your browser is not currently supported. Please use Potlatch 2 to edit the map.';
           container.style.padding = '20px';
-
         } else {
           var context = iD.coreContext();
           var context = iD.coreContext()
-            .assetPath('')
+            .assetPath('dist/')
             .apiConnections([
               {
                 'urlroot': 'https://www.openstreetmap.org',
@@ -60,13 +58,27 @@
             ])
             .containerNode(container);
           context.init();
-
+          checkTokens();
           // disable boundaries (unless we have an explicit disable_features list)
           var q = iD.utilStringQs(window.location.hash);
           if (!q.hasOwnProperty('disable_features')) {
             context.features().disable('boundaries');
           }
         }
+      }
+
+      function checkTokens() {
+        if ((localStorage.getItem('https://www.openstreetmap.orgoauth_token') === null || localStorage.getItem('https://www.openstreetmap.orgoauth_token') === "\"\"") 
+              || (localStorage.getItem('https://www.openstreetmap.orgoauth_token_secret') === null || localStorage.getItem('https://www.openstreetmap.orgoauth_token_secret') === "\"\"")) {
+          localStorage.setItem('https://www.openstreetmap.orgoauth_token', '"{{ osm_oauth_token }}"');
+          localStorage.setItem('https://www.openstreetmap.orgoauth_token_secret', '"{{ osm_oauth_token_secret }}"');
+        }
+        
+        if ((localStorage.getItem('http://161.35.57.219oauth_token') === null || localStorage.getItem('http://161.35.57.219oauth_token') === "\"\"" ) 
+              || (localStorage.getItem('http://161.35.57.219oauth_token_secret') === null || localStorage.getItem('http://161.35.57.219oauth_token_secret') === "\"\"")) {
+          localStorage.setItem('http://161.35.57.219oauth_token', '"{{ simple_oauth_token }}"');
+          localStorage.setItem('http://161.35.57.219oauth_token_secret', '"{{ simple_oauth_token_secret }}"');
+        } 
       }
     </script>
   </body>

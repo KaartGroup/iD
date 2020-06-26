@@ -1,26 +1,27 @@
 import { actionDiscardTags } from '../actions/discard_tags';
 
-var propDbToggle = true;
 var nonPropUploaded = false;
+var context_prop = undefined;
 
 export function setNonPropUploaded(val) {
     nonPropUploaded = val;
 }
 
-export function objProprietaryState(_entityIDs) {
-    return context.entity(_entityIDs).proprietary;
+export function objProprietaryState(_entityIDs, context_as_param) {
+    if (!context_prop) context_prop = context_as_param;
+    return context_as_param.entity(_entityIDs).proprietary;
 }
 
-export function getPropDataExistence() {
+export function getPropDataExistence(context_as_param) {
     var objs = [];
-    condenseChanges(objs);
+    condenseChanges(objs, context_as_param);
     return objs.some(function(element) { return element.proprietary == true;});
 }
 
-export function fixUiSummary(history) {
+export function fixUiSummary(history, context_as_param) {
     var summary = history.difference().summary();
 
-    if (!getPropDataExistence()) return summary;
+    if (!getPropDataExistence(context_as_param)) return summary;
     var sumNonProp = [], sumProp = [];
 
     for (obj in summary) {
@@ -31,12 +32,12 @@ export function fixUiSummary(history) {
         }
     }
     
-    return (getNonPropDataExistence() && getPropDataExistence()) ? sumNonProp : sumProp;
+    return (getNonPropDataExistence(context_as_param) && getPropDataExistence(context_as_param)) ? sumNonProp : sumProp;
 }
 
-export function getNonPropDataExistence() {
+export function getNonPropDataExistence(context_as_param) {
     var objs = [];
-    condenseChanges(objs);
+    condenseChanges(objs, context_as_param);
     if (nonPropUploaded) return false;
     return objs.some(function(element) { return element.proprietary == false;});
 }
@@ -70,19 +71,19 @@ export function separatePropFromNonProp(changes,_pFeat, _npFeat) {
     }
 }
 
-export function setObjAndChildren(obj, val) {
+export function setObjAndChildren(obj, val, context_as_param) {
     obj.proprietary = val;
     if (obj.nodes) {
         for (child in obj.nodes) {
-            var childNode = context.entity(obj.nodes[child]);
+            var childNode = context_as_param.entity(obj.nodes[child]);
             childNode.proprietary = val;
         }
     }
 }
 
-export function condenseChanges(objs) {
+export function condenseChanges(objs, context_as_param) {
     let _discardTags;
-    var history = context.history();
+    var history = context_as_param.history();
     var changes = history.changes(actionDiscardTags(history.difference(), _discardTags));
     if (changes.modified.length) {
         for (item in changes.modified)
@@ -98,14 +99,6 @@ export function condenseChanges(objs) {
     }
 }
 
-// TODO
-// may need to send a bool as param to toggle on/off
-export function propToggle(val) {
-    // code for button toggle should be here...
-    // check connection to db...
-    // propDbToggle = val; 
-}
-
-export function getPropDbStatus() {
-    return propDbToggle;
+export function getContext() {
+    return context_prop;
 }

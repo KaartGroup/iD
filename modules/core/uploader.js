@@ -93,7 +93,7 @@ export function coreUploader(context) {
         // Store original changes, in case user wants to download them as an .osc file
         _origChanges = history.changes(actionDiscardTags(history.difference(), _discardTags));
 
-        if (getPropDataExistence() && getNonPropDataExistence())
+        if (getPropDataExistence(context) && getNonPropDataExistence(context))
             separatePropFromNonProp(_origChanges,_propFeatures,_nonPropFeatures);
         
         // First time, `history.perform` a no-op action.
@@ -319,10 +319,10 @@ export function coreUploader(context) {
 
             } 
             */
-            if (getNonPropDataExistence()) {
+            if (getNonPropDataExistence(context)) {
                 dispatch.call('willAttemptUpload', this);
-                osm.putChangeset(changeset, (getPropDataExistence() && getOSMDataExistence()) ? _osmFeatures : _origChanges, uploadCallback);
-            } else if (getPropDataExistence()) {
+                osm.putChangeset(changeset, (getPropDataExistence(context) && getOSMDataExistence(context)) ? _osmFeatures : _origChanges, uploadCallback);
+            } else if (getPropDataExistence(context)) {
                 dispatch.call('willAttemptPropUpload', this);
                 prop.putChangeset(changeset, (_propFeatures.modified.length || _propFeatures.created.length || _propFeatures.deleted.length) ? _propFeatures : _origChanges, uploadCallback);
             } else {
@@ -346,7 +346,7 @@ export function coreUploader(context) {
             }
 
         } else {
-            if (getNonPropDataExistence() && getPropDataExistence())
+            if (getNonPropDataExistence(context) && getPropDataExistence(context))
                 didResultInSuccessAndUploadingBoth(changeset);
             else
                 didResultInSuccess(changeset);
@@ -394,7 +394,7 @@ export function coreUploader(context) {
         // delete the edit stack cached to local storage
         context.history().clearSaved();
         
-        if (getNonPropDataExistence())
+        if (getNonPropDataExistence(context))
             dispatch.call('resultSuccess', this, changeset);
         else
         dispatch.call('resultPropSuccess', this, changeset);

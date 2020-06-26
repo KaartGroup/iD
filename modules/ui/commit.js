@@ -131,7 +131,7 @@ export function uiCommit(context) {
 
         context.changeset = new osmChangeset({ tags: tags });
 
-        if (getPropDataExistence() && getNonPropDataExistence())
+        if (getPropDataExistence(context) && getNonPropDataExistence(context))
             context.changeset.update({ proprietary: true });
     }
 
@@ -230,7 +230,7 @@ export function uiCommit(context) {
             .append('div')
             .attr('class', 'header-block')
             .append('h3')
-            .text((getPropDataExistence() && !getNonPropDataExistence()) ? 'Upload to Proprietary' : t('commit.title'));
+            .text((getPropDataExistence(context) && !getNonPropDataExistence(context)) ? 'Upload to Proprietary' : t('commit.title'));
 
         headerTitle
             .append('div')
@@ -295,7 +295,7 @@ export function uiCommit(context) {
 
         // always check if this has changed, but only update prose.html()
         // if needed, because it can trigger a style recalculation
-        if (getPropDataExistence() && !getNonPropDataExistence()) {
+        if (getPropDataExistence(context) && !getNonPropDataExistence(context)) {
             prop.userDetails(function(err, user) {
                 if (err) return;
     

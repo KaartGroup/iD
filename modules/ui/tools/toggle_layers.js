@@ -9,9 +9,10 @@ import { t, localizer } from '../../core/localizer';
 import { svgIcon } from '../../svg';
 import { uiTooltip } from '../tooltip';
 import { modeBrowse } from '../../modes/browse';
+import { getContext } from '../../services/simple_internal_fcns';
 
 
-function showsLayer(which) {
+function showsLayer(which, context) {
     var layer = context.layers().layer(which);
     if (layer) {
         return layer.enabled();
@@ -19,7 +20,7 @@ function showsLayer(which) {
     return false;
 }
 
-function setLayer(which, enabled) {
+function setLayer(which, enabled, context) {
     // Don't allow layer changes while drawing - #6584
     var mode = context.mode();
     if (mode && /^draw/.test(mode.id)) return;
@@ -35,7 +36,8 @@ function setLayer(which, enabled) {
 }
 
 function toggleLayer(which) {
-    setLayer(which, !showsLayer(which));
+    context = getContext();
+    setLayer(which, !showsLayer(which, context), context);
 }
 
 export function uiToolToggle(context) {
