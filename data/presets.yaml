@@ -666,10 +666,16 @@ en:
         label: Design
       destination:
         # destination=*
-        label: Destination
+        label: Destinations
+      destination/ref:
+        # 'destination:ref=*'
+        label: Destination Road Numbers
       destination/ref_oneway:
         # 'destination:ref=*'
         label: Destination Road Numbers
+      destination/symbol:
+        # 'destination:symbol=*'
+        label: Destination Symbols
       destination/symbol_oneway:
         # 'destination:symbol=*'
         label: Destination Symbols
@@ -677,6 +683,9 @@ en:
       destination_oneway:
         # destination=*
         label: Destinations
+      destination_waterway:
+        # destination=*
+        label: Destination
       devices:
         # devices=*
         label: Devices
@@ -868,6 +877,9 @@ en:
       emergency_combo:
         # emergency=*
         label: Type
+      emergency_ward_entrance:
+        # emergency_ward_entrance=*
+        label: Type
       enforcement:
         # enforcement=*
         label: Type
@@ -1017,6 +1029,9 @@ en:
       government:
         # government=*
         label: Type
+      grades:
+        # grades=*
+        label: Grade Levels
       grape_variety:
         # grape_variety=*
         label: Grape Varieties
@@ -1339,6 +1354,11 @@ en:
       line_attachment:
         # line_attachment=*
         label: Line Attachment
+      line_management:
+        # line_management=*
+        label: Line Management
+        # 'terms: branching,line topology,termination'
+        terms: '[translate with synonyms or related terms for ''Line Management'', separated by commas]'
       lit:
         # lit=*
         label: Lit
@@ -2728,6 +2748,11 @@ en:
       vending:
         # vending=*
         label: Types of Goods
+      vhf:
+        # vhf=*
+        label: VHF Channel
+        # 'terms: call sign,very high frequency'
+        terms: '[translate with synonyms or related terms for ''VHF Channel'', separated by commas]'
       video_calls:
         # video=*
         label: Video Calls
@@ -4639,8 +4664,9 @@ en:
         terms: '<translate with synonyms or related terms for ''Craft'', separated by commas>'
       craft/agricultural_engines:
         # craft=agricultural_engines
-        name: Argricultural Engines Mechanic
-        terms: '<translate with synonyms or related terms for ''Argricultural Engines Mechanic'', separated by commas>'
+        name: Agricultural Engines Mechanic
+        # 'terms: combines,farm equipment,harvesters,tractors'
+        terms: '<translate with synonyms or related terms for ''Agricultural Engines Mechanic'', separated by commas>'
       craft/basket_maker:
         # craft=basket_maker
         name: Basket Maker
@@ -4975,6 +5001,11 @@ en:
         name: Emergency Exit
         # 'terms: fire exit,door'
         terms: '<translate with synonyms or related terms for ''Emergency Exit'', separated by commas>'
+      entrance/emergency_ward_entrance:
+        # emergency=emergency_ward_entrance
+        name: Emergency Room Entrance
+        # 'terms: accident & emergency department,casualty department,ed,emergency department,emergency room,emergency ward,er,ew'
+        terms: '<translate with synonyms or related terms for ''Emergency Room Entrance'', separated by commas>'
       ford:
         # ford=yes
         name: Ford
@@ -6011,7 +6042,7 @@ en:
       leisure/marina:
         # leisure=marina
         name: Marina
-        # 'terms: boat'
+        # 'terms: boats,docks,harbor,harbour,moorings,yachts'
         terms: '<translate with synonyms or related terms for ''Marina'', separated by commas>'
       leisure/miniature_golf:
         # leisure=miniature_golf
@@ -7168,8 +7199,9 @@ en:
         terms: '<translate with synonyms or related terms for ''Basket Swing'', separated by commas>'
       playground/climbing_frame:
         # playground=climbingframe
-        name: Climbing Frame
-        terms: '<translate with synonyms or related terms for ''Climbing Frame'', separated by commas>'
+        name: Play Climbing Frame
+        # 'terms: jungle gym,monkey bars'
+        terms: '<translate with synonyms or related terms for ''Play Climbing Frame'', separated by commas>'
       playground/cushion:
         # playground=cushion
         name: Bouncy Cushion
@@ -7191,9 +7223,9 @@ en:
         terms: '<translate with synonyms or related terms for ''Play Roundabout'', separated by commas>'
       playground/sandpit:
         # playground=sandpit
-        name: Sandpit
-        # 'terms: sandbox'
-        terms: '<translate with synonyms or related terms for ''Sandpit'', separated by commas>'
+        name: Play Sandbox
+        # 'terms: sandbox,sandpit'
+        terms: '<translate with synonyms or related terms for ''Play Sandbox'', separated by commas>'
       playground/seesaw:
         # playground=seesaw
         name: Seesaw
@@ -7213,8 +7245,9 @@ en:
         terms: '<translate with synonyms or related terms for ''Swing'', separated by commas>'
       playground/zipwire:
         # playground=zipwire
-        name: Zip Wire
-        terms: '<translate with synonyms or related terms for ''Zip Wire'', separated by commas>'
+        name: Play Zip Line
+        # 'terms: zipline,zip wire,zipwire'
+        terms: '<translate with synonyms or related terms for ''Play Zip Line'', separated by commas>'
       point:
         name: Point
         # 'terms: node,other,vertex,vertices'
@@ -8786,6 +8819,11 @@ en:
         # type=connectivity
         name: Lane Connectivity
         terms: '<translate with synonyms or related terms for ''Lane Connectivity'', separated by commas>'
+      type/destination_sign:
+        # type=destination_sign
+        name: Destination Sign
+        # 'terms: exit sign'
+        terms: '<translate with synonyms or related terms for ''Destination Sign'', separated by commas>'
       type/enforcement:
         # type=enforcement
         name: Enforcement

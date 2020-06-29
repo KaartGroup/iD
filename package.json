@@ -76,6 +76,7 @@
     "@rollup/plugin-commonjs": "^13.0.0",
     "@rollup/plugin-json": "^4.0.1",
     "@rollup/plugin-node-resolve": "^8.0.0",
+    "autoprefixer": "^9.8.4",
     "chai": "^4.1.0",
     "cldr-core": "36.0.0",
     "cldr-localenames-full": "36.0.0",
@@ -114,9 +115,12 @@
     "smash": "0.0",
     "static-server": "^2.2.1",
     "svg-sprite": "1.5.0",
-    "uglify-js": "~3.9.4"
+    "uglify-js": "~3.10.0"
   },
   "engines": {
     "node": ">=10"
-  }
+  },
+  "browserslist": [
+    "> 0.2%, last 6 major versions, Firefox ESR, maintained node versions"
+  ]
 }

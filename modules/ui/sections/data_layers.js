@@ -37,7 +37,8 @@ export function uiSectionDataLayers(context) {
             .call(drawPropItems)
             .call(drawQAItems)
             .call(drawCustomDataItems)
-            .call(drawVectorItems);      // Beta - Detroit mapping challenge
+            .call(drawVectorItems)      // Beta - Detroit mapping challenge
+            .call(drawPanelItems);
     }
 
     function showsLayer(which) {
@@ -408,7 +409,7 @@ export function uiSectionDataLayers(context) {
                 d3_event.stopPropagation();
                 dataLayer.fitZoom();
             })
-            .call(svgIcon('#iD-icon-search'));
+            .call(svgIcon('#iD-icon-framed-dot'));
 
         // Update
         ul = ul
@@ -437,6 +438,60 @@ export function uiSectionDataLayers(context) {
         } else if (d && d.fileList) {
             dataLayer.fileList(d.fileList);
         }
+    }
+
+
+    function drawPanelItems(selection) {
+
+        var panelsListEnter = selection.selectAll('.md-extras-list')
+            .data([0])
+            .enter()
+            .append('ul')
+            .attr('class', 'layer-list md-extras-list');
+
+        var historyPanelLabelEnter = panelsListEnter
+            .append('li')
+            .attr('class', 'history-panel-toggle-item')
+            .append('label')
+            .call(uiTooltip()
+                .title(t('map_data.history_panel.tooltip'))
+                .keys([uiCmd('⌘⇧' + t('info_panels.history.key'))])
+                .placement('top')
+            );
+
+        historyPanelLabelEnter
+            .append('input')
+            .attr('type', 'checkbox')
+            .on('change', function() {
+                d3_event.preventDefault();
+                context.ui().info.toggle('history');
+            });
+
+        historyPanelLabelEnter
+            .append('span')
+            .text(t('map_data.history_panel.title'));
+
+        var measurementPanelLabelEnter = panelsListEnter
+            .append('li')
+            .attr('class', 'measurement-panel-toggle-item')
+            .append('label')
+            .call(uiTooltip()
+                .title(t('map_data.measurement_panel.tooltip'))
+                .keys([uiCmd('⌘⇧' + t('info_panels.measurement.key'))])
+                .placement('top')
+            );
+
+        measurementPanelLabelEnter
+            .append('input')
+            .attr('type', 'checkbox')
+            .on('change', function() {
+                d3_event.preventDefault();
+                context.ui().info.toggle('measurement');
+            });
+
+        measurementPanelLabelEnter
+            .append('span')
+            .text(t('map_data.measurement_panel.title'));
     }
 
     context.layers().on('change.uiSectionDataLayers', section.reRender);

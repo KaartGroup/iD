@@ -57,6 +57,9 @@ export function uiInit(context) {
 
         container
             .on('click.ui', function() {
+                // we're only concerned with the primary mouse button
+                if (d3_event.button !== 0) return;
+
                 if (!d3_event.composedPath) return;
 
                 // some targets have default click events we don't want to override
@@ -145,42 +148,6 @@ export function uiInit(context) {
             .attr('class', 'main-map')
             .attr('dir', 'ltr')
             .call(map);
-
-
-        // Map controls
-        var controls = content
-            .append('div')
-            .attr('class', 'map-controls');
-
-        controls
-            .append('div')
-            .attr('class', 'map-control zoombuttons')
-            .call(uiZoom(context));
-
-        controls
-            .append('div')
-            .attr('class', 'map-control zoom-to-selection-control')
-            .call(uiZoomToSelection(context));
-
-        controls
-            .append('div')
-            .attr('class', 'map-control geolocate-control')
-            .call(uiGeolocate(context));
-
-        var uiPanes = [
-            uiPaneBackground(context),
-            uiPaneMapData(context),
-            uiPaneIssues(context),
-            uiPanePreferences(context),
-            uiPaneHelp(context)
-        ];
-
-        uiPanes.forEach(function(pane) {
-            controls
-                .append('div')
-                .attr('class', 'map-control map-pane-control ' + pane.id + '-control')
-                .call(pane.renderToggleButton);
-        });
 
         content
             .append('div')
@@ -300,13 +267,46 @@ export function uiInit(context) {
             .append('div')
             .attr('class', 'over-map');
 
+        // Map controls
+        var controls = overMap
+            .append('div')
+            .attr('class', 'map-controls');
+
+        controls
+            .append('div')
+            .attr('class', 'map-control zoombuttons')
+            .call(uiZoom(context));
+
+        controls
+            .append('div')
+            .attr('class', 'map-control zoom-to-selection-control')
+            .call(uiZoomToSelection(context));
+
+        controls
+            .append('div')
+            .attr('class', 'map-control geolocate-control')
+            .call(uiGeolocate(context));
+
         // Add panes
         // This should happen after map is initialized, as some require surface()
         var panes = overMap
             .append('div')
             .attr('class', 'map-panes');
 
+        var uiPanes = [
+            uiPaneBackground(context),
+            uiPaneMapData(context),
+            uiPaneIssues(context),
+            uiPanePreferences(context),
+            uiPaneHelp(context)
+        ];
+
         uiPanes.forEach(function(pane) {
+            controls
+                .append('div')
+                .attr('class', 'map-control map-pane-control ' + pane.id + '-control')
+                .call(pane.renderToggleButton);
+
             panes
                 .call(pane.renderPane);
         });

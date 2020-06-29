@@ -411,6 +411,7 @@
                     "vertex": "Moved a node in a way.",
                     "line": "Moved a line.",
                     "area": "Moved an area.",
+                    "relation": "Moved a relation.",
                     "multiple": "Moved multiple features."
                 },
                 "incomplete_relation": {
@@ -486,7 +487,8 @@
                 "annotation": {
                     "line": "Rotated a line.",
                     "area": "Rotated an area.",
-                    "multiple": "Rotated multiple features."
+                    "multiple": "Rotated multiple features.",
+                    "relation": "Rotated a relation."
                 },
                 "incomplete_relation": {
                     "single": "This feature can't be rotated because it hasn't been fully downloaded.",
@@ -823,7 +825,7 @@
         },
         "background": {
             "title": "Background",
-            "description": "Background settings",
+            "description": "Background Settings",
             "key": "B",
             "backgrounds": "Backgrounds",
             "none": "None",
@@ -845,8 +847,12 @@
                 "key": "/"
             },
             "panel": {
-                "description": "Show Detail Panel",
+                "description": "Show Background Panel",
                 "tooltip": "Show advanced background information."
+            },
+            "location_panel": {
+                "description": "Show Location Panel",
+                "tooltip": "Show coordinates and regional details."
             },
             "fix_misalignment": "Imagery Offset",
             "offset": "Drag anywhere in the gray area below to adjust the imagery offset, or enter the offset values in meters."
@@ -859,11 +865,11 @@
             "layers": {
                 "osm": {
                     "tooltip": "Map data from OpenStreetMap",
-                    "title": "OpenStreetMap data"
+                    "title": "OpenStreetMap Data"
                 },
                 "notes": {
                     "tooltip": "Note data from OpenStreetMap",
-                    "title": "OpenStreetMap notes"
+                    "title": "OpenStreetMap Notes"
                 },
                 "keepRight": {
                     "tooltip": "Data issues detected by keepright.at",
@@ -882,6 +888,14 @@
                     "title": "Custom Map Data",
                     "zoom": "Zoom to data"
                 }
+            },
+            "history_panel": {
+                "title": "Show History Panel",
+                "tooltip": "Show version details for the selection."
+            },
+            "measurement_panel": {
+                "title": "Show Measurement Panel",
+                "tooltip": "Show geometry values for the selection."
             },
             "style_options": "Style Options",
             "highlight_edits": {
@@ -1759,10 +1773,10 @@
                 "title": "Background Imagery",
                 "intro": "The background imagery that appears beneath the map data is an important resource for mapping. This imagery can be aerial photos collected from satellites, airplanes, and drones, or it can be scanned historical maps or other freely available source data.",
                 "sources_h": "Imagery Sources",
-                "choosing": "To see which imagery sources are available for editing, click the {layers} **Background settings** button on the side of the map.",
+                "choosing": "To see which imagery sources are available for editing, click the {layers} **Background Settings** button on the side of the map.",
                 "sources": "By default, a [Bing Maps](https://www.bing.com/maps/) satellite layer is chosen as the background image. Depending on where you are editing, other imagery sources will be available. Some may be newer or have higher resolution, so it is always useful to check and see which layer is the best one to use as a mapping reference.",
                 "offsets_h": "Adjusting Imagery Offset",
-                "offset": "Imagery is sometimes offset slightly from accurate map data. If you see a lot of roads or buildings shifted from the background imagery, it may be the imagery that's incorrect, so don't move them all to match the background. Instead, you can adjust the background so that it matches the existing data by expanding the \"Adjust Imagery Offset\" section at the bottom of the Background Settings pane.",
+                "offset": "Imagery is sometimes offset slightly from accurate map data. If you see a lot of roads or buildings shifted from the background imagery, it may be the imagery that's incorrect, so don't move them all to match the background. Instead, you can adjust the background so that it matches the existing data by expanding the \"Imagery Offset\" section at the bottom of the Background Settings pane.",
                 "offset_change": "Click on the small triangles to adjust the imagery offset in small steps, or hold the {leftclick} left mouse button and drag within the gray square to slide the imagery into alignment."
             },
             "streetlevel": {
@@ -2593,9 +2607,9 @@
                 },
                 "operations": {
                     "title": "Operations",
-                    "continue_line": "Continue a line at the selected node",
+                    "continue_line": "Continue a line at the selected endpoint",
                     "merge": "Combine (merge) selected features",
-                    "disconnect": "Disconnect features at the selected node",
+                    "disconnect": "Disconnect selected features",
                     "extract": "Extract a point from a feature",
                     "split": "Split a line into two at the selected node",
                     "reverse": "Reverse selected features",
@@ -3278,15 +3292,24 @@
                 "destination_oneway": {
                     "label": "Destinations"
                 },
-                "destination": {
+                "destination_waterway": {
                     "label": "Destination"
                 },
+                "destination": {
+                    "label": "Destinations"
+                },
                 "destination/ref_oneway": {
+                    "label": "Destination Road Numbers"
+                },
+                "destination/ref": {
                     "label": "Destination Road Numbers"
                 },
                 "destination/symbol_oneway": {
                     "label": "Destination Symbols",
                     "terms": ""
+                },
+                "destination/symbol": {
+                    "label": "Destination Symbols"
                 },
                 "devices": {
                     "label": "Devices",
@@ -3438,6 +3461,9 @@
                 "emergency_combo": {
                     "label": "Type"
                 },
+                "emergency_ward_entrance": {
+                    "label": "Type"
+                },
                 "emergency": {
                     "label": "Emergency"
                 },
@@ -3577,6 +3603,9 @@
                 },
                 "government": {
                     "label": "Type"
+                },
+                "grades": {
+                    "label": "Grade Levels"
                 },
                 "grape_variety": {
                     "label": "Grape Varieties"
@@ -3857,6 +3886,10 @@
                 },
                 "line_attachment": {
                     "label": "Line Attachment"
+                },
+                "line_management": {
+                    "label": "Line Management",
+                    "terms": "branching,line topology,termination"
                 },
                 "lit": {
                     "label": "Lit",
@@ -4993,6 +5026,10 @@
                 },
                 "vending": {
                     "label": "Types of Goods"
+                },
+                "vhf": {
+                    "label": "VHF Channel",
+                    "terms": "call sign,very high frequency"
                 },
                 "video_calls": {
                     "label": "Video Calls",
@@ -6669,8 +6706,8 @@
                     "name": "Tailor"
                 },
                 "craft/agricultural_engines": {
-                    "name": "Argricultural Engines Mechanic",
-                    "terms": ""
+                    "name": "Agricultural Engines Mechanic",
+                    "terms": "combines,farm equipment,harvesters,tractors"
                 },
                 "craft/basket_maker": {
                     "name": "Basket Maker",
@@ -6958,6 +6995,10 @@
                 "entrance": {
                     "name": "Entrance / Exit",
                     "terms": "entrance,exit,door"
+                },
+                "entrance/emergency_ward_entrance": {
+                    "name": "Emergency Room Entrance",
+                    "terms": "accident & emergency department,casualty department,ed,emergency department,emergency room,emergency ward,er,ew"
                 },
                 "entrance/emergency": {
                     "name": "Emergency Exit",
@@ -7823,7 +7864,7 @@
                 },
                 "leisure/marina": {
                     "name": "Marina",
-                    "terms": "boat"
+                    "terms": "boats,docks,harbor,harbour,moorings,yachts"
                 },
                 "leisure/miniature_golf": {
                     "name": "Miniature Golf",
@@ -8797,8 +8838,8 @@
                     "terms": ""
                 },
                 "playground/climbing_frame": {
-                    "name": "Climbing Frame",
-                    "terms": ""
+                    "name": "Play Climbing Frame",
+                    "terms": "jungle gym,monkey bars"
                 },
                 "playground/cushion": {
                     "name": "Bouncy Cushion",
@@ -8817,8 +8858,8 @@
                     "terms": "merry-go-round"
                 },
                 "playground/sandpit": {
-                    "name": "Sandpit",
-                    "terms": "sandbox"
+                    "name": "Play Sandbox",
+                    "terms": "sandbox,sandpit"
                 },
                 "playground/seesaw": {
                     "name": "Seesaw",
@@ -8837,8 +8878,8 @@
                     "terms": ""
                 },
                 "playground/zipwire": {
-                    "name": "Zip Wire",
-                    "terms": ""
+                    "name": "Play Zip Line",
+                    "terms": "zipline,zip wire,zipwire"
                 },
                 "point": {
                     "name": "Point",
@@ -10157,6 +10198,10 @@
                     "name": "Lane Connectivity",
                     "terms": ""
                 },
+                "type/destination_sign": {
+                    "name": "Destination Sign",
+                    "terms": "exit sign"
+                },
                 "type/enforcement": {
                     "name": "Enforcement",
                     "terms": ""
@@ -10868,6 +10913,20 @@
                     "text": "Urząd Miasta Wrocław"
                 },
                 "name": "Wrocław: Orthophotomap 2018 (aerial image)"
+            },
+            "Maxar-Premium": {
+                "name": "Maxar Premium Imagery (Beta)",
+                "attribution": {
+                    "text": "Terms & Feedback"
+                },
+                "description": "Maxar Premium is a mosaic composed of Maxar basemap with select regions filled with +Vivid or custom area of interest imagery, 50cm resolution or better, and refreshed more frequently with ongoing updates."
+            },
+            "Maxar-Standard": {
+                "name": "Maxar Standard Imagery (Beta)",
+                "attribution": {
+                    "text": "Terms & Feedback"
+                },
+                "description": "Maxar Standard is a curated set of imagery covering 86% of the earth’s landmass, with 30-60cm resolution where available, backfilled by Landsat. Average age is 2.31 years, with some areas updated 2x per year."
             }
         },
         "community": {
