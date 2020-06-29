@@ -7,9 +7,10 @@ import { svgIcon } from '../svg/icon';
 export function uiAccount(context) {
     var osm = context.connection();
     var prop = context.connectionProp();
+    var alreadyDrawn = false;
 
     function update(selection) {
-        if (!osm || !prop) return;
+        if (!osm || !prop) return;   
 
         if (!osm.authenticated() && !prop.authenticated()) {
             selection.selectAll('.userLink, .logoutLink')
@@ -25,28 +26,34 @@ export function uiAccount(context) {
         prop.userDetails(function(err, details) {
             if (err || !details) return;
 
-            selection.selectAll('.userLink, .logoutLink')
-                .classed('hide', false);
+            if (osm.authenticated()) alreadyDrawn = false;
 
-            // Link
-            userLink.append('a')
-                .attr('href', prop.userURL(details.display_name))
-                .attr('target', '_blank');
+            if (!alreadyDrawn) {
+                selection.selectAll('.userLink, .logoutLink')
+                    .classed('hide', false);
 
-            // Add thumbnail or dont
-            if (details.image_url) {
-                userLink.append('img')
-                    .attr('class', 'icon pre-text user-icon')
-                    .attr('src', details.image_url);
-            } else {
-                userLink
-                    .call(svgIcon('#iD-icon-avatar', 'pre-text light'));
+                // Link
+                userLink.append('a')
+                    .attr('href', prop.userURL(details.display_name))
+                    .attr('target', '_blank');
+
+                // Add thumbnail or dont
+                if (details.image_url) {
+                    userLink.append('img')
+                        .attr('class', 'icon pre-text user-icon')
+                        .attr('src', details.image_url);
+                } else {
+                    userLink
+                        .call(svgIcon('#iD-icon-avatar', 'pre-text light'));
+                }
+
+                // Add user name
+                userLink.append('span')
+                    .attr('class', 'label')
+                    .text(details.display_name);
+                
+                alreadyDrawn = true;
             }
-
-            // Add user name
-            userLink.append('span')
-                .attr('class', 'label')
-                .text(details.display_name);
         });
 
         osm.userDetails(function(err, details) {
@@ -84,6 +91,8 @@ export function uiAccount(context) {
                     d3_event.preventDefault();
                     osm.logout();
                     prop.logout();
+                    // TODO replace localhost w/ var
+                    window.location.replace('http://localhost:5000/logout');
                 });
     }
 
@@ -100,10 +109,13 @@ export function uiAccount(context) {
         if (osm && prop) {
             osm.on('change.account', function() { update(selection); });
             prop.on('change.account', function() { update(selection); });
-        } else if (osm)
+            update(selection);
+        } else if (osm) {
             osm.on('change.account', function() { update(selection); });
-          else
+            update(selection);
+        } else if (prop) {
             prop.on('change.account', function() { update(selection); });
-        update(selection);
+            update(selection);
+        }
     };
 }
