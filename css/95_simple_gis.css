@@ -124,6 +124,19 @@
     stroke-opacity: 0;
 }
 
+.layer-prop g.qaItem.hover:not(.selected) .shadow,
+.layer-prop g.note.hover:not(.selected) .shadow,
+.layer-prop g.point.related:not(.selected) .shadow,
+.layer-prop g.point.hover:not(.selected) .shadow {
+    stroke-opacity: 0.5;
+}
+
+.layer-prop g.qaItem.selected .shadow,
+.layer-prop g.note.selected .shadow,
+.layer-prop g.point.selected .shadow {
+    stroke-opacity: 0.7;
+}
+
 
 /* vertices and midpoints */
 .layer-prop g.vertex .shadow,
