@@ -15,17 +15,18 @@ export function objProprietaryState(_entityIDs, context_as_param) {
 export function getPropDataExistence(context_as_param) {
     var objs = [];
     condenseChanges(objs, context_as_param);
-    return objs.some(function(element) { return element.proprietary == true;});
+    return objs.some(function(element) { return element.proprietary === true;});
 }
 
 export function fixUiSummary(history, context_as_param) {
     var summary = history.difference().summary();
+    var obj;
 
     if (!getPropDataExistence(context_as_param)) return summary;
     var sumNonProp = [], sumProp = [];
 
     for (obj in summary) {
-        if (summary[obj].entity.proprietary == true) {
+        if (summary[obj].entity.proprietary === true) {
             sumProp.push(summary[obj]);
         } else {
             sumNonProp.push(summary[obj]);
@@ -39,13 +40,13 @@ export function getNonPropDataExistence(context_as_param) {
     var objs = [];
     condenseChanges(objs, context_as_param);
     if (nonPropUploaded) return false;
-    return objs.some(function(element) { return element.proprietary == false;});
+    return objs.some(function(element) { return element.proprietary === false;});
 }
 
 export function separatePropFromNonProp(changes,_pFeat, _npFeat) {
     if (changes.modified.length) {
         for (obj in changes.modified) {
-            if (changes.modified[obj].proprietary == true)
+            if (changes.modified[obj].proprietary === true)
                 _pFeat.modified.push(changes.modified[obj]);
             else 
                 _npFeat.modified.push(changes.modified[obj]);
@@ -54,7 +55,7 @@ export function separatePropFromNonProp(changes,_pFeat, _npFeat) {
     
     if (changes.created.length) {
         for (obj in changes.created) {
-            if (changes.created[obj].proprietary == true) 
+            if (changes.created[obj].proprietary === true) 
                 _pFeat.created.push(changes.created[obj]);
             else 
                 _npFeat.created.push(changes.created[obj]);
@@ -63,7 +64,7 @@ export function separatePropFromNonProp(changes,_pFeat, _npFeat) {
     
     if (changes.deleted.length) {
         for (obj in changes.deleted) {
-            if (changes.deleted[obj].proprietary == true) 
+            if (changes.deleted[obj].proprietary === true) 
                 _pFeat.deleted.push(changes.deleted[obj]);
             else 
                 _npFeat.deleted.push(changes.deleted[obj]);

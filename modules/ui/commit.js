@@ -319,7 +319,7 @@ export function uiCommit(context) {
                     .attr('target', '_blank');
     
                 prose
-                    .html("The changes you upload as " + userLink.html() + " will be visible only to you and those in your organization.");//t('commit.upload_explanation_with_user', { user: userLink.html() }));
+                    .html('The changes you upload as ' + userLink.html() + ' will be visible only to you and those in your organization.');//t('commit.upload_explanation_with_user', { user: userLink.html() }));
             });
         } else {
             osm.userDetails(function(err, user) {

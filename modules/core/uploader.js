@@ -34,8 +34,8 @@ export function coreUploader(context) {
 
     var _conflicts = [];
     var _errors = [];
-    var _propFeatures = { created: [], modified: [], deleted: [] }
-    var _nonPropFeatures = { created: [], modified: [], deleted: [] }
+    var _propFeatures = { created: [], modified: [], deleted: [] };
+    var _nonPropFeatures = { created: [], modified: [], deleted: [] };
     var _origChanges;
 
     var _discardTags = {};
@@ -321,7 +321,7 @@ export function coreUploader(context) {
             */
             if (getNonPropDataExistence(context)) {
                 dispatch.call('willAttemptUpload', this);
-                osm.putChangeset(changeset, (getPropDataExistence(context) && getOSMDataExistence(context)) ? _osmFeatures : _origChanges, uploadCallback);
+                osm.putChangeset(changeset, (getPropDataExistence(context) && getNonPropDataExistence(context)) ? _nonPropFeatures : _origChanges, uploadCallback);
             } else if (getPropDataExistence(context)) {
                 dispatch.call('willAttemptPropUpload', this);
                 prop.putChangeset(changeset, (_propFeatures.modified.length || _propFeatures.created.length || _propFeatures.deleted.length) ? _propFeatures : _origChanges, uploadCallback);

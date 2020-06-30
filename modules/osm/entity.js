@@ -46,7 +46,7 @@ osmEntity.id.type = function(id) {
 
 osmEntity.id.proprietary = function(entity) {
     return entity.proprietary;
-}
+};
 
 
 // A function suitable for use as the second argument to d3.selection#data().

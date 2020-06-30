@@ -155,7 +155,7 @@ export function modeSave(context) {
     }
 
 
-    function showPropSuccess(changeset) {
+    function showPropSuccess() {
         commit.reset();
         setNonPropUploaded(false);
         context.enter(modeBrowse(context));

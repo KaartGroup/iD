@@ -50,8 +50,7 @@ export function uiAccount(context) {
                 // Add user name
                 userLink.append('span')
                     .attr('class', 'label')
-                    .text(details.display_name);
-                
+                    .text(details.display_name);               
                 alreadyDrawn = true;
             }
         });
@@ -91,8 +90,7 @@ export function uiAccount(context) {
                     d3_event.preventDefault();
                     osm.logout();
                     prop.logout();
-                    // TODO replace localhost w/ var
-                    window.location.replace('http://localhost:5000/logout');
+                    location.replace(location.protocol + '//' + location.host + '/logout');
                 });
     }
 
