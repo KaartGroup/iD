@@ -15,7 +15,7 @@ import { utilArrayChunk, utilArrayGroupBy, utilArrayUniq, utilRebind, utilTiler,
 
 var tiler = utilTiler();
 var dispatch = d3_dispatch('apiStatusChange', 'authLoading', 'authDone', 'change', 'loading', 'loaded', 'loadedNotes');
-var urlroot = 'http://161.35.57.219';
+var urlroot = 'https://map.simple.kaart.com';
 var oauth = osmAuth({
     url: urlroot,
     oauth_consumer_key: '0fOsXTrJQ9a9DxOO3Li68FHWSP0qwSLhVUx2J2iq',
