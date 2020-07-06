@@ -47,10 +47,10 @@ export function uiToolOldDrawModes(context) {
 
 
     function enabled() {
-        return osmEditable();
+        return osmOrPropEditable();
     }
 
-    function osmEditable() {
+    function osmOrPropEditable() {
         return context.editable();
     }
 

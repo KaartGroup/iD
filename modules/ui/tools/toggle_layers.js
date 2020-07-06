@@ -9,36 +9,7 @@ import { t, localizer } from '../../core/localizer';
 import { svgIcon } from '../../svg';
 import { uiTooltip } from '../tooltip';
 import { modeBrowse } from '../../modes/browse';
-import { getContext } from '../../services/simple_internal_fcns';
 
-
-function showsLayer(which, context) {
-    var layer = context.layers().layer(which);
-    if (layer) {
-        return layer.enabled();
-    }
-    return false;
-}
-
-function setLayer(which, enabled, context) {
-    // Don't allow layer changes while drawing - #6584
-    var mode = context.mode();
-    if (mode && /^draw/.test(mode.id)) return;
-
-    var layer = context.layers().layer(which);
-    if (layer) {
-        layer.enabled(enabled);
-
-        if (!enabled && (which === 'osm' || which === 'notes')) {
-            context.enter(modeBrowse(context));
-        }
-    }
-}
-
-function toggleLayer(which) {
-    context = getContext();
-    setLayer(which, !showsLayer(which, context), context);
-}
 
 export function uiToolToggle(context) {
 
@@ -116,5 +87,34 @@ export function uiToolToggle(context) {
         }
     };
  
+    function showsLayer(which) {
+        var layer = context.layers().layer(which);
+        if (layer) {
+            return layer.enabled();
+        }
+        return false;
+    }
+    
+    function setLayer(which, enabled) {
+        // Don't allow layer changes while drawing - #6584
+        var mode = context.mode();
+        if (mode && /^draw/.test(mode.id)) return;
+    
+        var layer = context.layers().layer(which);
+        if (layer) {
+            layer.enabled(enabled);
+    
+            if (!enabled && (which === 'osm' || which === 'notes')) {
+                context.enter(modeBrowse(context));
+            }
+        }
+    }
+    
+    function toggleLayer(which) {
+        setLayer(which, !showsLayer(which));
+        var s = d3_select('.' + which + '.add-button.bar-button')
+            .classed('disabled', !showsLayer(which))
+    }
+
     return tool;
 }

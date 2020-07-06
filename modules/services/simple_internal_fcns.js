@@ -2,6 +2,7 @@ import { actionDiscardTags } from '../actions/discard_tags';
 
 var nonPropUploaded = false;
 var context_prop = undefined;
+var obj, child, item = undefined;
 
 export function setNonPropUploaded(val) {
     nonPropUploaded = val;

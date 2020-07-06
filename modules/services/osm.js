@@ -612,10 +612,9 @@ export default {
             }
         }
 
-        // TODO: Re-add authenticated downloads, especially for prop data!
-        /*if (this.authenticated()) {
+        if (this.authenticated()) {
             return oauth.xhr({ method: 'GET', path: path }, done);
-        } else {*/
+        } else {
             var url = urlroot + path;
             var controller = new AbortController();
 
@@ -637,7 +636,7 @@ export default {
                 }
             });
             return controller;
-        //}
+        }
     },
 
 

@@ -135,9 +135,7 @@ export function uiPresetList(context) {
             search.node().focus();
         }
 
-        var mode = context.mode();
-
-        if (mode.newFeature() && objProprietaryState(_entityIDs, context) == null) {
+        if (objProprietaryState(_entityIDs, context) == null) {
             var bodyEnter = selection
                 .append('div')
                 .attr('class', 'simple-proprietary-dialogue inspector-body');
@@ -188,11 +186,8 @@ export function uiPresetList(context) {
 
         s.select('h4').style('display','none');
         
-        var listWrap = s
-                .append('div')
-                .attr('class', 'inspector-body');
-            
-        var list = listWrap
+        s.append('div')
+            .attr('class', 'inspector-body')
             .append('div')
             .attr('class', 'preset-list')
             .call(drawList, presetManager.defaults(entityGeometries()[0], 36, !context.inIntro()));
@@ -210,11 +205,8 @@ export function uiPresetList(context) {
 
         s.select('h4').style('display','none');
 
-        var listWrap = s
-                .append('div')
-                .attr('class', 'inspector-body');
-            
-        var list = listWrap
+        s.append('div')
+            .attr('class', 'inspector-body')
             .append('div')
             .attr('class', 'preset-list')
             .call(drawList, presetManager.defaults(entityGeometries()[0], 36, !context.inIntro()));

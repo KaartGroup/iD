@@ -392,12 +392,13 @@ export function coreContext() {
   context.layers = () => _map.layers();
   context.surface = () => _map.surface;
   context.editableDataEnabled = () => _map.editableDataEnabled();
+  context.editablePropDataEnabled = () => _map.editablePropDataEnabled();
   context.surfaceRect = () => _map.surface.node().getBoundingClientRect();
   context.editable = () => {
     // don't allow editing during save
     const mode = context.mode();
     if (!mode || mode.id === 'save') return false;
-    return _map.editableDataEnabled();
+    return _map.editableDataEnabled() || _map.editablePropDataEnabled();
   };
 
 
