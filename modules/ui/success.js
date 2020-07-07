@@ -76,10 +76,10 @@ export function uiSuccess(context) {
 
     if (!getPropDataExistence(context) && getNonPropDataExistence(context)) {
       header
-      .append('button')
-      .attr('class', 'fr')
-      .on('click', () => dispatch.call('cancel'))
-      .call(svgIcon('#iD-icon-close'));
+        .append('button')
+        .attr('class', 'close')
+        .on('click', () => dispatch.call('cancel'))
+        .call(svgIcon('#iD-icon-close'));
     }
 
     header
