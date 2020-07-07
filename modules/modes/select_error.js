@@ -11,7 +11,7 @@ import { behaviorSelect } from '../behavior/select';
 import { t } from '../core/localizer';
 import { services } from '../services';
 import { modeBrowse } from './browse';
-import { modeDragNode } from './drag_node';
+import { modeDragNode, modeDragNodeProp } from './drag_node';
 import { modeDragNote } from './drag_note';
 import { uiImproveOsmEditor } from '../ui/improveOSM_editor';
 import { uiKeepRightEditor } from '../ui/keepRight_editor';
@@ -69,6 +69,7 @@ export function modeSelectError(context, selectedErrorID, selectedErrorService) 
         behaviorSelect(context),
         behaviorLasso(context),
         modeDragNode(context).behavior,
+        modeDragNodeProp(context).behavior,
         modeDragNote(context).behavior
     ];
 

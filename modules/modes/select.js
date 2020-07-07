@@ -16,7 +16,7 @@ import { operationMove } from '../operations/move';
 
 import { geoExtent, geoChooseEdge } from '../geo';
 import { modeBrowse } from './browse';
-import { modeDragNode } from './drag_node';
+import { modeDragNode, modeDragNodeProp } from './drag_node';
 import { modeDragNote } from './drag_note';
 import { osmNode, osmWay } from '../osm';
 import * as Operations from '../operations/index';
@@ -40,6 +40,7 @@ export function modeSelect(context, selectedIDs) {
 
     var _breatheBehavior = behaviorBreathe(context);
     var _modeDragNode = modeDragNode(context);
+    var _modeDragNodeProp = modeDragNodeProp(context);
     var _selectBehavior;
     var _behaviors = [];
 
@@ -211,6 +212,7 @@ export function modeSelect(context, selectedIDs) {
         context.features().forceVisible(selectedIDs);
 
         _modeDragNode.restoreSelectedIDs(selectedIDs);
+        _modeDragNodeProp.restoreSelectedIDs(selectedIDs);
 
         loadOperations();
 
@@ -224,6 +226,7 @@ export function modeSelect(context, selectedIDs) {
                 _selectBehavior,
                 behaviorLasso(context),
                 _modeDragNode.behavior,
+                _modeDragNodeProp.behavior,
                 modeDragNote(context).behavior
             ];
         }
