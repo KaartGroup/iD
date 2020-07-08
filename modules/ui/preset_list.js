@@ -135,7 +135,13 @@ export function uiPresetList(context) {
             search.node().focus();
         }
 
-        if (objProprietaryState(_entityIDs, context) == null) {
+        if (objProprietaryState(_entityIDs, context) === null) {
+            search
+                .style('display', 'none');
+            
+            searchWrap
+                .style('display', 'none');
+            
             var bodyEnter = selection
                 .append('div')
                 .attr('class', 'simple-proprietary-dialogue inspector-body');
@@ -151,14 +157,14 @@ export function uiPresetList(context) {
                 iconName: '#iD-icon-apply',
                 label: ('This is a proprietary feature'),
                 description: ('If this is a proprietary feature, selecting this will add it to your specific database on upload.'),
-                onClick: function() { onPropObj(selection); }
+                onClick: function() { onPropObj(selection, search, searchWrap); }
             }, 'proprietary-features-accept');
 
             presetItem(bodyEnter, {
                 iconName: '#iD-icon-no',
                 label: ('This is not a proprietary feature'),
                 description: ('If this is not a proprietary feature, selecting this will add it to OSM on upload (Like normal).'),
-                onClick: function() { onNonPropObj(selection); }
+                onClick: function() { onNonPropObj(selection, search, searchWrap); }
             }, 'proprietary-features-reject');
         } else {
             var listWrap = selection
@@ -174,38 +180,46 @@ export function uiPresetList(context) {
         context.features().on('change.preset-list', updateForFeatureHiddenState);
     }
 
-    function onNonPropObj(s) {
+    function onNonPropObj(sel, s, sw) {
         var obj = context.entity(_entityIDs);
         setObjAndChildren(obj, false, context);
 
-        s.select('.simple-proprietary-dialogue.inspector-body')
+        s.style('display', 'block');
+    
+        sw.style('display', 'block');
+
+        sel.select('.simple-proprietary-dialogue.inspector-body')
             .style('display','none');
         
-        s.selectAll('.simple-preset-list-item')
+        sel.selectAll('.simple-preset-list-item')
             .style('display','none');
 
-        s.select('h4').style('display','none');
+        sel.select('h4').style('display','none');
         
-        s.append('div')
+        sel.append('div')
             .attr('class', 'inspector-body')
             .append('div')
             .attr('class', 'preset-list')
             .call(drawList, presetManager.defaults(entityGeometries()[0], 36, !context.inIntro()));
     }
 
-    function onPropObj(s) {
+    function onPropObj(sel, s, sw) {
         var obj = context.entity(_entityIDs);
         setObjAndChildren(obj, true, context);
         
-        s.select('.simple-proprietary-dialogue.inspector-body')
+        s.style('display', 'block');
+    
+        sw.style('display', 'block');
+
+        sel.select('.simple-proprietary-dialogue.inspector-body')
             .style('display','none');
         
-        s.selectAll('.simple-preset-list-item')
+        sel.selectAll('.simple-preset-list-item')
             .style('display','none');
 
-        s.select('h4').style('display','none');
+        sel.select('h4').style('display','none');
 
-        s.append('div')
+        sel.append('div')
             .attr('class', 'inspector-body')
             .append('div')
             .attr('class', 'preset-list')
