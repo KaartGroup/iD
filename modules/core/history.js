@@ -94,8 +94,10 @@ export function coreHistory(context) {
 
     // determine difference and dispatch a change event
     function change(previous) {
+        console.log('p', previous.entities, 'h', history.graph().entities);
         var difference = coreDifference(previous, history.graph());
         if (!_pausedGraph) {
+            console.log("GRAPH NOT PAUSED");
             dispatch.call('change', this, difference);
         }
         return difference;
@@ -243,6 +245,7 @@ export function coreHistory(context) {
 
         resumeChangeDispatch: function() {
             if (_pausedGraph) {
+                console.log("GRAPH IS PAUSED");
                 var previous = _pausedGraph;
                 _pausedGraph = null;
                 return change(previous);

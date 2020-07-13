@@ -104,7 +104,7 @@ export function uiToolToggle(context) {
         if (layer) {
             layer.enabled(enabled);
     
-            if (!enabled && (which === 'osm' || which === 'notes')) {
+            if (!enabled && (which === 'osm' || which === 'notes' || which === 'prop-features')) {
                 context.enter(modeBrowse(context));
             }
         }
@@ -112,8 +112,8 @@ export function uiToolToggle(context) {
     
     function toggleLayer(which) {
         setLayer(which, !showsLayer(which));
-        var s = d3_select('.' + which + '.add-button.bar-button')
-            .classed('disabled', !showsLayer(which))
+        d3_select('.' + which + '.add-button.bar-button')
+            .classed('disabled', !showsLayer(which));
     }
 
     return tool;

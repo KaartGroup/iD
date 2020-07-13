@@ -106,8 +106,10 @@ export function uiToolOldDrawModes(context) {
                     if (/^draw/.test(currMode)) return;
 
                     if (d.id === currMode) {
+                        console.log('context is entering mode', d.id);
                         context.enter(modeBrowse(context));
                     } else {
+                        console.log('context is entering mode', d.id);
                         context.enter(d);
                     }
                 })

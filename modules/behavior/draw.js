@@ -181,6 +181,7 @@ export function behaviorDraw(context) {
             }
         } else if (mode.id !== 'add-point' || mode.preset.matchGeometry('point')) {
             var locLatLng = context.projection.invert(loc);
+            console.log('click!');
             dispatch.call('click', this, locLatLng, d);
         }
 

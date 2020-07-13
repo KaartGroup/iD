@@ -20,8 +20,10 @@ export function coreDifference(base, head) {
     function checkEntityID(id) {
         var h = head.entities[id];
         var b = base.entities[id];
+        console.log('h: ', h);
+        console.log('b: ', b);
 
-        if (h === b) return;
+        if (h === b && h != undefined) return;
         if (_changes[id]) return;
 
         if (!h && b) {

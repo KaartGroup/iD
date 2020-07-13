@@ -18,8 +18,8 @@ var dispatch = d3_dispatch('apiStatusChange', 'authLoading', 'authDone', 'change
 var urlroot = /* 'http://161.35.57.219';*/'https://map.simple.kaart.com';
 var oauth = osmAuth({
     url: urlroot,
-    oauth_consumer_key: '0fOsXTrJQ9a9DxOO3Li68FHWSP0qwSLhVUx2J2iq',
-    oauth_secret: 'WyZaj4W1RXjTX0B9OzjqUhLuVD8Ha9YiQgJTYso5',
+    oauth_consumer_key: 'GvvYIeQ3tUJJurhlsaqYy855VWJwJetqJ2oqznQd',
+    oauth_secret: 'OJ88LNdDcmVIVXK35CEztfRx5SwlyCtPoCMeGbjU',
     loading: authLoading,
     done: authDone
 });

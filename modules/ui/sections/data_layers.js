@@ -66,6 +66,8 @@ export function uiSectionDataLayers(context) {
 
     function toggleLayer(which) {
         setLayer(which, !showsLayer(which));
+        d3_select('.' + which + '.add-button.bar-button')
+            .classed('disabled', !showsLayer(which));
     }
 
     function drawOsmItems(selection) {

@@ -382,6 +382,24 @@ export function uiInit(context) {
                 var layer = context.layers().layer('osm');
                 if (layer) {
                     layer.enabled(!layer.enabled());
+                    d3_select('.osm.add-button.bar-button').classed('disabled', !layer.enabled());
+                    if (!layer.enabled()) {
+                        context.enter(modeBrowse(context));
+                    }
+                }
+            })
+            .on(uiCmd('⌥Q'), function togglePropData() {
+                d3_event.preventDefault();
+                d3_event.stopPropagation();
+
+                // Don't allow layer changes while drawing - #6584
+                var mode = context.mode();
+                if (mode && /^draw/.test(mode.id)) return;
+
+                var layer = context.layers().layer('prop-features');
+                if (layer) {
+                    layer.enabled(!layer.enabled());
+                    d3_select('.prop-features.add-button.bar-button').classed('disabled', !layer.enabled());
                     if (!layer.enabled()) {
                         context.enter(modeBrowse(context));
                     }

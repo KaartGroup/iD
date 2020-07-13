@@ -154,7 +154,7 @@ export function coreContext() {
         const cid = _connection.getConnectionId();
         _connection.loadTiles(projection, afterLoad(cid, callback));
       }
-      if (_connectionProp && context.editableDataEnabled()) {
+      if (_connectionProp && context.editablePropDataEnabled()) {
         const cid = _connectionProp.getConnectionId();
         _connectionProp.loadTiles(projection, afterLoad(cid, callback));
       }
@@ -169,7 +169,7 @@ export function coreContext() {
         const cid = _connection.getConnectionId();
         _connection.loadTileAtLoc(loc, afterLoad(cid, callback));
       }
-      if (_connectionProp && context.editableDataEnabled()) {
+      if (_connectionProp && context.editablePropDataEnabled()) {
         const cid = _connectionProp.getConnectionId();
         _connectionProp.loadTileAtLoc(loc, afterLoad(cid, callback));
       }
@@ -313,11 +313,15 @@ export function coreContext() {
   context.mode = () => _mode;
   context.enter = (newMode) => {
     if (_mode) {
+      if(_mode.id === 'draw-line')
+        console.log('exiting mode',_mode.id);
       _mode.exit();
       dispatch.call('exit', this, _mode);
     }
 
     _mode = newMode;
+    if(_mode.id === 'draw-line')
+      console.log('entering mode',_mode.id);
     _mode.enter();
     dispatch.call('enter', this, _mode);
   };
