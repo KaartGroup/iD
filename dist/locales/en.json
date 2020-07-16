@@ -994,9 +994,14 @@
             }
         },
         "area_fill": {
-            "wireframe": {
-                "description": "No Fill (Wireframe)",
-                "tooltip": "Enabling wireframe mode makes it easy to see the background imagery.",
+            "wireframe-prop": {
+                "description": "No Fill (Wireframe prop)",
+                "tooltip": "Enabling wireframe mode for prop layer makes it easy to see the background imagery and osm objects.",
+                "key": "Y"
+            },
+            "wireframe-osm": {
+                "description": "No Fill (Wireframe osm)",
+                "tooltip": "Enabling wireframe mode for the OSM layer makes it easy to see the background imagery and prop objects.",
                 "key": "W"
             },
             "partial": {
@@ -2569,6 +2574,7 @@
                     "sidebar": "Toggle sidebar",
                     "wireframe": "Toggle wireframe mode",
                     "osm_data": "Toggle OpenStreetMap data",
+                    "prop_data": "Toggle Proprietary data",
                     "minimap": "Toggle minimap",
                     "highlight_edits": "Highlight unsaved edits"
                 },

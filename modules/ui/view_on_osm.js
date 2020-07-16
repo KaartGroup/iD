@@ -10,9 +10,9 @@ export function uiViewOnOSM(context) {
     function viewOnOSM(selection) {
         var url;
         if (_what instanceof osmEntity) {
-            url = context.connection().entityURL(_what);
+            url = _what.proprietary ? context.connectionProp().entityURL(_what) : context.connection().entityURL(_what);
         } else if (_what instanceof osmNote) {
-            url = context.connection().noteURL(_what);
+            url = _what.proprietary ? context.connectionProp().noteURL(_what) : context.connection().noteURL(_what);
         }
 
         var data = ((!_what || _what.isNew()) ? [] : [_what]);
@@ -33,7 +33,7 @@ export function uiViewOnOSM(context) {
 
         linkEnter
             .append('span')
-            .text(t('inspector.view_on_osm'));
+            .text(_what.proprietary ? 'View on map.simple.kaart.com' : t('inspector.view_on_osm'));
     }
 
 
