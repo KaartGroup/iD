@@ -53,7 +53,7 @@ export function uiSectionMapStyleOptions(context) {
                 .keys(function(d) {
                     var key = (d === 'wireframe-osm' ? t('area_fill.wireframe-osm.key') : null);
                     if (d === 'highlight_edits') key = t('map_data.highlight_edits.key');
-                    return [key];
+                    return key ? [key] : null;
                 })
                 .placement('top')
             );
