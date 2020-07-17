@@ -313,15 +313,11 @@ export function coreContext() {
   context.mode = () => _mode;
   context.enter = (newMode) => {
     if (_mode) {
-      if(_mode.id === 'draw-line')
-        console.log('exiting mode',_mode.id);
       _mode.exit();
       dispatch.call('exit', this, _mode);
     }
 
     _mode = newMode;
-    if(_mode.id === 'draw-line')
-      console.log('entering mode',_mode.id);
     _mode.enter();
     dispatch.call('enter', this, _mode);
   };

@@ -53,7 +53,6 @@ export function behaviorDrawWay(context, wayID, mode, startGraph) {
                 .replace(way.addNode(_drawNode.id, _nodeIndex));
         }, _annotation);
         context.resumeChangeDispatch();
-        console.log('create draw node..');
         setActiveElements();
     }
 
@@ -231,13 +230,11 @@ export function behaviorDrawWay(context, wayID, mode, startGraph) {
     function resetToStartGraph() {
         while (context.graph() !== startGraph) {
             context.pop();
-            console.log("POP");
         }
     }
 
 
     var drawWay = function(surface) {
-        console.log('drawWay', surface);
         _drawNode = undefined;
         _didResolveTempEdit = false;
         _origWay = context.entity(wayID);
@@ -295,7 +292,6 @@ export function behaviorDrawWay(context, wayID, mode, startGraph) {
 
 
     drawWay.off = function(surface) {
-        console.log('drawWay Off', !_didResolveTempEdit);
 
         if (!_didResolveTempEdit) {
             // Drawing was interrupted unexpectedly.
@@ -332,7 +328,6 @@ export function behaviorDrawWay(context, wayID, mode, startGraph) {
 
 
     function attemptAdd(d, loc, doAdd) {
-        console.log('attemptAdd', _drawNode);
         if (_drawNode) {
             // move the node to the final loc in case move wasn't called
             // consistently (e.g. on touch devices)
@@ -364,7 +359,6 @@ export function behaviorDrawWay(context, wayID, mode, startGraph) {
 
     // Accept the current position of the drawing node
     drawWay.add = function(loc, d) {
-        console.log('Accept the current position of the drawing node')
         attemptAdd(d, loc, function() {
             // don't need to do anything extra
         });
@@ -373,7 +367,6 @@ export function behaviorDrawWay(context, wayID, mode, startGraph) {
 
     // Connect the way to an existing way
     drawWay.addWay = function(loc, edge, d) {
-        console.log('Connect the way to an existing way');
         attemptAdd(d, loc, function() {
             context.replace(
                 actionAddMidpoint({ loc: loc, edge: edge }, _drawNode),
@@ -385,18 +378,15 @@ export function behaviorDrawWay(context, wayID, mode, startGraph) {
 
     // Connect the way to an existing node
     drawWay.addNode = function(node, d) {
-        console.log('Connect the way to an existing node');
         // finish drawing if the mapper targets the prior node
         if (node.id === _headNodeID ||
             // or the first node when drawing an area
             (_origWay.isClosed() && node.id === _origWay.first())) {
-            console.log('finish drawing if the mappter targets the prior node or the first node when drawing an area');
             drawWay.finish();
             return;
         }
 
         attemptAdd(d, node.loc, function() {
-            console.log('attempting to add node..');
             context.replace(
                 function actionReplaceDrawNode(graph) {
                     // remove the temporary draw node and insert the existing node
@@ -418,7 +408,6 @@ export function behaviorDrawWay(context, wayID, mode, startGraph) {
     // If the way has enough nodes to be valid, it's selected.
     // Otherwise, delete everything and return to browse mode.
     drawWay.finish = function() {
-        console.log('finished, checkingGeometry');
         checkGeometry(false /* includeDrawNode */);
         if (context.surface().classed('nope')) {
             dispatch.call('rejectedSelfIntersection', this);
@@ -448,7 +437,6 @@ export function behaviorDrawWay(context, wayID, mode, startGraph) {
 
     // Cancel the draw operation, delete everything, and return to browse mode.
     drawWay.cancel = function() {
-        console.log('cancel drawWay');
         context.pauseChangeDispatch();
         resetToStartGraph();
         context.resumeChangeDispatch();
@@ -469,7 +457,6 @@ export function behaviorDrawWay(context, wayID, mode, startGraph) {
     drawWay.nodeIndex = function(val) {
         if (!arguments.length) return _nodeIndex;
         _nodeIndex = val;
-        console.log('_nodeIndex', _nodeIndex);
         return drawWay;
     };
 
