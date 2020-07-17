@@ -246,7 +246,8 @@ export function svgLabels(projection, context, isProp=false) {
 
 
     function drawLabels(selection, graph, entities, filter, dimensions, fullRedraw) {
-        var wireframe = context.surface().classed('fill-wireframe');
+        var wireframe_osm = context.surface().classed('fill-wireframe-osm');
+        var wireframe_prop = context.surface().classed('fill-wireframe-prop');
         var zoom = geoScaleToZoom(projection.scale());
 
         var labelable = [];
@@ -286,7 +287,7 @@ export function svgLabels(projection, context, isProp=false) {
                 var hasDirections = entity.directions(graph, projection).length;
                 var markerPadding;
 
-                if (!wireframe && geometry === 'point' && !(zoom >= 18 && hasDirections)) {
+                if ((!wireframe_osm || !wireframe_prop) && geometry === 'point' && !(zoom >= 18 && hasDirections)) {
                     renderNodeAs[entity.id] = 'point';
                     markerPadding = 20;   // extra y for marker height
                 } else {
@@ -359,7 +360,7 @@ export function svgLabels(projection, context, isProp=false) {
                 if (geometry === 'point' || geometry === 'vertex') {
                     // no point or vertex labels in wireframe mode
                     // no vertex labels at low zooms (vertices have no icons)
-                    if (wireframe) continue;
+                    if (wireframe_osm || wireframe_prop) continue;
                     var renderAs = renderNodeAs[entity.id];
                     if (renderAs === 'vertex' && zoom < 17) continue;
 

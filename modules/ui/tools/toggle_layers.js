@@ -23,15 +23,15 @@ export function uiToolToggle(context) {
             title: 'OSM Layers',
             id: 'osm',
             button: 'line',
-            description: 'Toggle OSM Features On/Off',
-            key: '⌥W'
+            description: t('shortcuts.browsing.display_options.osm_data'),
+            key: '⌥' + t('area_fill.wireframe-osm.key')
         },
         {
             title: 'Prop Layers',
             id: 'prop-features',
             button: 'line',
-            description: 'Toggle Proprietary Features On/Off',
-            key: '⌥Q'
+            description: t('shortcuts.browsing.display_options.prop_data'),
+            key: '⌥' + t('area_fill.wireframe-prop.key')
         }
     ];
 

@@ -70,7 +70,8 @@ export function svgPoints(projection, context, isProp=false) {
 
 
     function drawPoints(selection, graph, entities, filter) {
-        var wireframe = context.surface().classed('fill-wireframe');
+        var wireframe_osm = context.surface().classed('fill-wireframe-osm');
+        var wireframe_prop = context.surface().classed('fill-wireframe-prop');
         var zoom = geoScaleToZoom(projection.scale());
         var base = context.history().base();
 
@@ -81,7 +82,7 @@ export function svgPoints(projection, context, isProp=false) {
         }
 
         // All points will render as vertices in wireframe mode too..
-        var points = wireframe ? [] : entities.filter(renderAsPoint);
+        var points = (wireframe_osm || wireframe_prop) ? [] : entities.filter(renderAsPoint);
         points.sort(sortY);
 
 

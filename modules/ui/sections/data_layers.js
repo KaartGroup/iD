@@ -100,7 +100,7 @@ export function uiSectionDataLayers(context) {
                     d3_select(this)
                         .call(uiTooltip()
                             .title(t('map_data.layers.' + d.id + '.tooltip'))
-                            .keys([uiCmd('⌥' + t('area_fill.wireframe.key'))])
+                            .keys([uiCmd('⌥' + t('area_fill.wireframe-osm.key'))])
                             .placement('bottom')
                         );
                 } else {
@@ -160,7 +160,7 @@ export function uiSectionDataLayers(context) {
                     d3_select(this)
                         .call(uiTooltip()
                             .title('Map data from our private server')//t('map_data.layers.' + d.id + '.tooltip'))
-                            .keys([uiCmd('⌥Q')])// + t('area_fill.wireframe.key'))])
+                            .keys([uiCmd('⌥' + t('area_fill.wireframe-prop.key'))])
                             .placement('bottom')
                         );
                 } else {

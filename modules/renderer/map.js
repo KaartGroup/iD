@@ -17,6 +17,9 @@ import { utilGetDimensions } from '../util/dimensions';
 import { utilRebind } from '../util/rebind';
 import { utilZoomPan } from '../util/zoom_pan';
 import { utilDoubleUp } from '../util/double_up';
+import { presetCategory } from '../presets';
+import { partial } from 'lodash-es';
+import { active } from 'd3';
 
 // constants
 var TILESIZE = 256;
@@ -206,14 +209,16 @@ export function rendererMap(context) {
             .on(_pointerPrefix + 'over.vertices', function() {
                 if ((map.editableDataEnabled() || map.editablePropDataEnabled()) && !_isTransformed) {
                     var hover = d3_event.target.__data__;
-                    surface.call(drawVertices.drawHover, context.graph(), hover, map.extent());
+                    var doesExistAndHasPropVal = hover && hover.properties && hover.properties.entity && hover.properties.entity.proprietary;
+                    doesExistAndHasPropVal ? surface.call(drawPropVertices.drawHover, context.graph(), hover, map.extent()) : surface.call(drawVertices.drawHover, context.graph(), hover, map.extent());
                     dispatch.call('drawn', this, { full: false });
                 }
             })
             .on(_pointerPrefix + 'out.vertices', function() {
                 if ((map.editableDataEnabled() || map.editablePropDataEnabled()) && !_isTransformed) {
                     var hover = d3_event.relatedTarget && d3_event.relatedTarget.__data__;
-                    surface.call(drawVertices.drawHover, context.graph(), hover, map.extent());
+                    var doesExistAndHasPropVal = hover && hover.properties && hover.properties.entity && hover.properties.entity.proprietary;
+                    doesExistAndHasPropVal ? surface.call(drawPropVertices.drawHover, context.graph(), hover, map.extent()) : surface.call(drawVertices.drawHover, context.graph(), hover, map.extent()); //surface.call(drawVertices.drawHover, context.graph(), hover, map.extent());
                     dispatch.call('drawn', this, { full: false });
                 }
             });
@@ -238,6 +243,7 @@ export function rendererMap(context) {
 
         // must call after surface init
         updateAreaFill();
+        updateAreaFill(true);
 
         _doubleUpHandler.on('doubleUp.map', function(p0) {
             if (!_dblClickZoomEnabled) return;
@@ -262,10 +268,8 @@ export function rendererMap(context) {
         });
 
         context.on('enter.map',  function() {
-            if (!map.editableDataEnabled(true /* skip zoom check */) || !map.editablePropDataEnabled(true /* skip zoom check */)) {
-                return;
-            }
-            console.log('enter map');
+            if (!map.editableDataEnabled(true /* skip zoom check */) || !map.editablePropDataEnabled(true /* skip zoom check */)) return;
+
             // redraw immediately any objects affected by a change in selectedIDs.
             var graph = context.graph();
             var selectedAndParents = {};
@@ -1170,13 +1174,13 @@ export function rendererMap(context) {
     };
 
 
-    map.areaFillOptions = ['wireframe', 'partial', 'full'];
+    map.areaFillOptions = [ 'wireframe', 'wireframe-osm', 'wireframe-prop', 'partial', 'full'];
 
     map.activeAreaFill = function(val) {
         if (!arguments.length) return prefs('area-fill') || 'partial';
 
         prefs('area-fill', val);
-        if (val !== 'wireframe') {
+        if (!val.match(/wireframe.*/)) {
             prefs('area-fill-toggle', val);
         }
         updateAreaFill();
@@ -1185,17 +1189,24 @@ export function rendererMap(context) {
         return map;
     };
 
-    map.toggleWireframe = function() {
+    map.toggleWireframe = function(prop=false) {
 
         var activeFill = map.activeAreaFill();
+        var origFill = activeFill;
 
-        if (activeFill === 'wireframe') {
-            activeFill = prefs('area-fill-toggle') || 'partial';
-        } else {
-            activeFill = 'wireframe';
-        }
+        if (activeFill.match(/wireframe.*/)) {
+            if (activeFill === 'wireframe-osm' && prop)
+                activeFill = 'wireframe';
+            else if (activeFill === 'wireframe-prop' && !prop)
+                activeFill = 'wireframe';
+            else 
+                activeFill = prefs('area-fill-toggle') || 'partial';
+        } else activeFill = prop ? 'wireframe-prop' : 'wireframe-osm';
 
-        map.activeAreaFill(activeFill);
+        if (origFill === 'wireframe' && activeFill.match(/partial|full/))
+            activeFill = prop ? 'wireframe-osm' : 'wireframe-prop';
+
+        map.activeAreaFill(activeFill);    
     };
 
     function updateAreaFill() {

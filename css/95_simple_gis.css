@@ -106,31 +106,37 @@
 }
 
 
+/* icons */
+.layer-prop.points .icon {
+    stroke: gold;
+}
+
+
 /* points */
 .layer-prop g.point .stroke {
-    stroke: #f4753c;
-    stroke-width: 1;
-    fill: #fff;
+    stroke: limegreen;
+    stroke-width: 1.75;
+    fill: black;
 }
 .layer-prop g.point ellipse.stroke {
     fill: #444;
     display: block;
     stroke-width: 2;
 }
-.layer-prop g.point .shadow {
+.layer-prop g.qaItem .shadow,
+.layer-prop g.point .shadow,
+.layer-prop g.note .shadow {
     fill: none;
-    stroke: #f4753c;
+    stroke: limegreen;
     stroke-width: 16;
     stroke-opacity: 0;
 }
-
 .layer-prop g.qaItem.hover:not(.selected) .shadow,
 .layer-prop g.note.hover:not(.selected) .shadow,
 .layer-prop g.point.related:not(.selected) .shadow,
 .layer-prop g.point.hover:not(.selected) .shadow {
     stroke-opacity: 0.5;
 }
-
 .layer-prop g.qaItem.selected .shadow,
 .layer-prop g.note.selected .shadow,
 .layer-prop g.point.selected .shadow {
@@ -138,30 +144,35 @@
 }
 
 
-/* vertices and midpoints */
+/* verticies and midpoints */ 
+.layer-prop g.vertex .stroke {
+    stroke:limegreen;
+    stroke-width: 1.75;
+    fill: black;
+}
 .layer-prop g.vertex .shadow,
 .layer-prop g.midpoint .shadow {
     stroke-width: 6;
-    fill: #f4753c;
+    fill: limegreen;/*#f4753c;*/
     fill-opacity: 0;
 }
 
 
 /* lines */
 .layer-prop path.shadow {
-    stroke: #f4753c;
+    stroke: limegreen;
     stroke-width: 16;
     stroke-opacity: 0;
     stroke-linecap: round;
     stroke-linejoin: round;
 }
 .layer-prop path.stroke {
-    stroke: #f4753c;
+    stroke: limegreen;
     stroke-width: 2.5;
 }
 
 .layer-prop path.line.casing.tag-highway {
-    stroke: #f4753c;
+    stroke: limegreen;
 }
 
 .layer-prop path.line.casing.tag-highway {
@@ -186,4 +197,67 @@
 }
 .layer-prop.lines * {
     fill:none;
+}
+
+.layer-prop.areas path.fill {
+    stroke: limegreen;
+    opacity: 0.4;
+}
+
+.layer-prop.areas path.area.stroke {
+    stroke: lime;
+    stroke-width: 1;
+}
+
+/* fills */
+.fill-wireframe-osm .data-layer.osm path.stroke,
+.fill-wireframe-prop .data-layer.prop-features path.stroke {
+    stroke-width: 1 !important;
+    stroke-opacity: 0.5 !important;
+    stroke-dasharray: none !important;
+    fill: none !important;
+}
+.fill-wireframe-osm .data-layer.osm path.shadow,
+.fill-wireframe-prop .data-layer.prop-features path.shadow {
+    stroke-width: 12;
+}
+.fill-wireframe-osm .data-layer.osm path.shadow.related:not(.selected),
+.fill-wireframe-osm .data-layer.osm path.shadow.hover:not(.selected),
+.fill-wireframe-prop .data-layer.prop-features path.shadow.related:not(.selected),
+.fill-wireframe-prop .data-layer.prop-features path.shadow.hover:not(.selected) {
+    stroke-opacity: 0.4;
+}
+.fill-wireframe-osm .data-layer.osm path.shadow.selected,
+.fill-wireframe-prop .data-layer.prop-features path.shadow.selected {
+    stroke-opacity: 0.6;
+}
+
+.fill-wireframe-osm .data-layer.osm .point,
+.fill-wireframe-osm .data-layer.osm .areaicon,
+.fill-wireframe-osm .data-layer.osm .areaicon-halo,
+.fill-wireframe-osm .data-layer.osm path.casing,
+.fill-wireframe-osm .data-layer.osm path.fill,
+.fill-wireframe-osm .data-layer.osm path.oneway,
+.fill-wireframe-prop .data-layer.prop-features .point,
+.fill-wireframe-prop .data-layer.prop-features .areaicon,
+.fill-wireframe-prop .data-layer.prop-features .areaicon-halo,
+.fill-wireframe-prop .data-layer.prop-features path.casing,
+.fill-wireframe-prop .data-layer.prop-features path.fill,
+.fill-wireframe-prop .data-layer.prop-features path.oneway {
+    display: none !important;
+}
+
+.fill-wireframe-osm .data-layer.prop-features path.area.fill,
+.fill-wireframe-prop .data-layer.osm path.area.fill {
+    fill-opacity: 0;
+    stroke-width: 60px;
+    pointer-events: none;
+}
+.fill-wireframe-osm .data-layer.prop-features path.area.fill.tag-building_part,
+.fill-wireframe-prop .data-layer.osm path.area.fill.tag-building_part {
+    stroke-width: 40px;
+}
+.fill-wireframe-osm .data-layer.prop-features path.area.fill.tag-indoor,
+.fill-wireframe-prop .data-layer.osm path.area.fill.tag-indoor {
+    stroke-width: 20px;
 }

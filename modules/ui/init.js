@@ -366,12 +366,17 @@ export function uiInit(context) {
                     context.background().baseLayerSource(previousBackground);
                 }
             })
-            .on(t('area_fill.wireframe.key'), function toggleWireframe() {
+            .on(t('area_fill.wireframe-osm.key'), function toggleWireframe() {
                 d3_event.preventDefault();
                 d3_event.stopPropagation();
                 context.map().toggleWireframe();
             })
-            .on(uiCmd('⌥' + t('area_fill.wireframe.key')), function toggleOsmData() {
+            .on(t('area_fill.wireframe-prop.key'), function toggleWireframeProp() {
+                d3_event.preventDefault();
+                d3_event.stopPropagation();
+                context.map().toggleWireframe(true);
+            })
+            .on(uiCmd('⌥' + t('area_fill.wireframe-osm.key')), function toggleOsmData() {
                 d3_event.preventDefault();
                 d3_event.stopPropagation();
 
@@ -388,7 +393,7 @@ export function uiInit(context) {
                     }
                 }
             })
-            .on(uiCmd('⌥Q'), function togglePropData() {
+            .on(uiCmd('⌥' + t('area_fill.wireframe-prop.key')), function togglePropData() {
                 d3_event.preventDefault();
                 d3_event.stopPropagation();
 

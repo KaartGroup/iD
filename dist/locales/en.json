@@ -1004,6 +1004,10 @@
                 "tooltip": "Enabling wireframe mode for the OSM layer makes it easy to see the background imagery and prop objects.",
                 "key": "W"
             },
+            "wireframe": {
+                "description": "No Fill (Wireframe both)",
+                "tooltip": "Enabling wireframe mode for the OSM and prop layers makes it easy to see the background imagery."
+            },
             "partial": {
                 "description": "Partial Fill",
                 "tooltip": "Areas are drawn with fill only around their inner edges. (Recommended for beginner mappers)"
