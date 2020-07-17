@@ -17,9 +17,6 @@ import { utilGetDimensions } from '../util/dimensions';
 import { utilRebind } from '../util/rebind';
 import { utilZoomPan } from '../util/zoom_pan';
 import { utilDoubleUp } from '../util/double_up';
-import { presetCategory } from '../presets';
-import { partial } from 'lodash-es';
-import { active } from 'd3';
 
 // constants
 var TILESIZE = 256;
