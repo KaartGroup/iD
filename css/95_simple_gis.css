@@ -108,13 +108,13 @@
 
 /* icons */
 .layer-prop.points .icon {
-    stroke: gold;
+    stroke: white;
 }
 
 
 /* points */
 .layer-prop g.point .stroke {
-    stroke: limegreen;
+    stroke: #f4753c;
     stroke-width: 1.75;
     fill: black;
 }
@@ -127,7 +127,7 @@
 .layer-prop g.point .shadow,
 .layer-prop g.note .shadow {
     fill: none;
-    stroke: limegreen;
+    stroke: #f4753c;
     stroke-width: 16;
     stroke-opacity: 0;
 }
@@ -146,33 +146,33 @@
 
 /* verticies and midpoints */ 
 .layer-prop g.vertex .stroke {
-    stroke:limegreen;
+    stroke:#f4753c;
     stroke-width: 1.75;
     fill: black;
 }
 .layer-prop g.vertex .shadow,
 .layer-prop g.midpoint .shadow {
     stroke-width: 6;
-    fill: limegreen;/*#f4753c;*/
+    fill: #f4753c;/*#f4753c;*/
     fill-opacity: 0;
 }
 
 
 /* lines */
 .layer-prop path.shadow {
-    stroke: limegreen;
+    stroke: #f4753c;
     stroke-width: 16;
     stroke-opacity: 0;
     stroke-linecap: round;
     stroke-linejoin: round;
 }
 .layer-prop path.stroke {
-    stroke: limegreen;
+    stroke: #f4753c;
     stroke-width: 2.5;
 }
 
 .layer-prop path.line.casing.tag-highway {
-    stroke: limegreen;
+    stroke: #f4753c;
 }
 
 .layer-prop path.line.casing.tag-highway {
@@ -200,12 +200,12 @@
 }
 
 .layer-prop.areas path.fill {
-    stroke: limegreen;
+    stroke: #f4753c;
     opacity: 0.4;
 }
 
 .layer-prop.areas path.area.stroke {
-    stroke: lime;
+    stroke: #f4753c;
     stroke-width: 1;
 }
 

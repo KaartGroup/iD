@@ -316,6 +316,9 @@ export function svgVertices(projection, context, isProp=false) {
                     for (i = 0; i < entity.nodes.length; i++) {
                         var child = graph.hasEntity(entity.nodes[i]);
                         if (child) {
+                            if (child.proprietary === null) {
+                                child.proprietary = entity.proprietary;
+                            }
                             addChildVertices(child);
                         }
                     }

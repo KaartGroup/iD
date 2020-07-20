@@ -207,7 +207,10 @@ export function rendererMap(context) {
                 if ((map.editableDataEnabled() || map.editablePropDataEnabled()) && !_isTransformed) {
                     var hover = d3_event.target.__data__;
                     var doesExistAndHasPropVal = hover && hover.properties && hover.properties.entity && hover.properties.entity.proprietary;
-                    doesExistAndHasPropVal ? surface.call(drawPropVertices.drawHover, context.graph(), hover, map.extent()) : surface.call(drawVertices.drawHover, context.graph(), hover, map.extent());
+                    if (doesExistAndHasPropVal)
+                        surface.call(drawPropVertices.drawHover, context.graph(), hover, map.extent());
+                    else
+                        surface.call(drawVertices.drawHover, context.graph(), hover, map.extent());
                     dispatch.call('drawn', this, { full: false });
                 }
             })
@@ -215,7 +218,10 @@ export function rendererMap(context) {
                 if ((map.editableDataEnabled() || map.editablePropDataEnabled()) && !_isTransformed) {
                     var hover = d3_event.relatedTarget && d3_event.relatedTarget.__data__;
                     var doesExistAndHasPropVal = hover && hover.properties && hover.properties.entity && hover.properties.entity.proprietary;
-                    doesExistAndHasPropVal ? surface.call(drawPropVertices.drawHover, context.graph(), hover, map.extent()) : surface.call(drawVertices.drawHover, context.graph(), hover, map.extent()); //surface.call(drawVertices.drawHover, context.graph(), hover, map.extent());
+                    if (doesExistAndHasPropVal)
+                        surface.call(drawPropVertices.drawHover, context.graph(), hover, map.extent());
+                    else
+                        surface.call(drawVertices.drawHover, context.graph(), hover, map.extent());
                     dispatch.call('drawn', this, { full: false });
                 }
             });
@@ -286,11 +292,19 @@ export function rendererMap(context) {
 
             data = context.features().filter(data, graph);
 
-            surface
-                .call(drawVertices.drawSelected, graph, map.extent())
-                .call(drawLines, graph, data, filter)
-                .call(drawAreas, graph, data, filter)
-                .call(drawMidpoints, graph, data, filter, map.trimmedExtent());
+            if (data && data[0] && data[0].proprietary) {
+                surface
+                    .call(drawPropVertices.drawSelected, graph, map.extent())
+                    .call(drawPropLines, graph, data, filter)
+                    .call(drawPropAreas, graph, data, filter)
+                    .call(drawPropMidpoints, graph, data, filter, map.trimmedExtent());
+            } else {
+                surface
+                    .call(drawVertices.drawSelected, graph, map.extent())
+                    .call(drawLines, graph, data, filter)
+                    .call(drawAreas, graph, data, filter)
+                    .call(drawMidpoints, graph, data, filter, map.trimmedExtent());
+            }
 
             dispatch.call('drawn', this, { full: false });
 
@@ -400,6 +414,7 @@ export function rendererMap(context) {
             // creating a new vertex, triggering a partial redraw without a mode change
             surface
                 .call(drawVertices.drawSelected, graph, map.extent());
+                //.call(drawPropVertices.drawSelected, graph, map.extent());
         }
 
         /*// need regex to catch all add-* ids
