@@ -52,5 +52,10 @@ export function uiLoading(context) {
   };
 
 
+  loading.isShown = () => {
+    return _modalSelection && !_modalSelection.empty() && _modalSelection.node().parentNode;
+  };
+
+
   return loading;
 }

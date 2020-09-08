@@ -26,7 +26,7 @@ export function coreContext() {
   let context = utilRebind({}, dispatch, 'on');
   let _deferred = new Set();
 
-  context.version = '2.17.3';
+  context.version = '2.18.5';
   context.privacyVersion = '20200407';
 
   // iD will alter the hash so cache the parameters intended to setup the session
@@ -112,6 +112,14 @@ export function coreContext() {
   context.apiConnections = function(val) {
     if (!arguments.length) return _apiConnections;
     _apiConnections = val;
+    return context;
+  };
+
+
+  // A string or array or locale codes to prefer over the browser's settings
+  context.locale = function(locale) {
+    if (!arguments.length) return localizer.localeCode();
+    localizer.preferredLocaleCodes(locale);
     return context;
   };
 
@@ -548,6 +556,10 @@ export function coreContext() {
 
       if (context.initialHashParams.presets) {
         presetManager.addablePresetIDs(new Set(context.initialHashParams.presets.split(',')));
+      }
+
+      if (context.initialHashParams.locale) {
+        localizer.preferredLocaleCodes(context.initialHashParams.locale);
       }
 
       // kick off some async work
