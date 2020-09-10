@@ -307,7 +307,6 @@ export function rendererMap(context) {
             }
 
             dispatch.call('drawn', this, { full: false });
-
             // redraw everything else later
             scheduleRedraw();
         });
@@ -412,73 +411,33 @@ export function rendererMap(context) {
         if (mode && mode.id === 'select') {
             // update selected vertices - the user might have just double-clicked a way,
             // creating a new vertex, triggering a partial redraw without a mode change
-            surface
-                .call(drawVertices.drawSelected, graph, map.extent());
-                //.call(drawPropVertices.drawSelected, graph, map.extent());
+            if (map.editableDataEnabled() && !map.editablePropDataEnabled()) {
+                surface
+                    .call(drawVertices.drawSelected, graph, map.extent());
+            } else if (!map.editableDataEnabled() && map.editablePropDataEnabled()) {
+                surface
+                    .call(drawPropVertices.drawSelected, graph, map.extent());
+            } else {
+                surface
+                    .call(drawVertices.drawSelected, graph, map.extent());
+            }
         }
 
-        /*// need regex to catch all add-* ids
-        // add-point, add-area, add-line, add-note(?)
-        if (mode && (mode.id === 'add-point' || mode.id === 'add-area' || mode.id === 'add-line')) {
-            if (map.editableDataEnabled() && map.editablePropDataEnabled()) {
-                console.log('adding obj--both enabled, drawing on prop');
-                surface
-                    .call(drawPropVertices, graph, data, filter, map.extent(), fullRedraw)
-                    .call(drawPropLines, graph, data, filter)
-                    .call(drawPropAreas, graph, data, filter)
-                    .call(drawPropMidpoints, graph, data, filter, map.trimmedExtent())
-                    .call(drawPropLabels, graph, data, filter, _dimensions, fullRedraw)
-                    .call(drawPropPoints, graph, data, filter);
-                
-                dispatch.call('drawn', this, {full: true});
-
-                } else if (map.editableDataEnabled() && !map.editablePropDataEnabled()) {
-                console.log('adding obj--only osm enabled, drawing on osm');
-                surface
-                    .call(drawVertices, graph, data, filter, map.extent(), fullRedraw)
-                    .call(drawLines, graph, data, filter)
-                    .call(drawAreas, graph, data, filter)
-                    .call(drawMidpoints, graph, data, filter, map.trimmedExtent())
-                    .call(drawLabels, graph, data, filter, _dimensions, fullRedraw)
-                    .call(drawPoints, graph, data, filter);
-        
-                dispatch.call('drawn', this, {full: true});
-                
-                } else {
-                console.log('adding obj--only prop enabled, drawing on prop');
-                surface
-                    .call(drawPropVertices, graph, data, filter, map.extent(), fullRedraw)
-                    .call(drawPropLines, graph, data, filter)
-                    .call(drawPropAreas, graph, data, filter)
-                    .call(drawPropMidpoints, graph, data, filter, map.trimmedExtent())
-                    .call(drawPropLabels, graph, data, filter, _dimensions, fullRedraw)
-                    .call(drawPropPoints, graph, data, filter);
+        surface
+            .call(drawVertices, graph, data.length > 1 ? data.filter(function(e) { return !e.proprietary; }) : data, filter, map.extent(), fullRedraw)
+            .call(drawPropVertices, graph, data.length > 1 ? data.filter(function(e) { return e.proprietary; }) : data, filter, map.extent(), fullRedraw)
+            .call(drawLines, graph, data.length > 1 ? data.filter(function(e) { return !e.proprietary; }) : data, filter)
+            .call(drawPropLines, graph, data.length > 1 ? data.filter(function(e) { return e.proprietary; }) : data, filter)
+            .call(drawAreas, graph, data.length > 1 ? data.filter(function(e) { return !e.proprietary; }) : data, filter)
+            .call(drawPropAreas, graph, data.length > 1 ? data.filter(function (e) { return e.proprietary; }) : data, filter)
+            .call(drawMidpoints, graph, data.length > 1 ? data.filter(function (e) { return !e.proprietary; }) : data, filter, map.trimmedExtent())
+            .call(drawPropMidpoints, graph, data.length > 1 ? data.filter(function (e) { return e.proprietary; }) : data, filter, map.trimmedExtent())
+            .call(drawLabels, graph, data.length > 1 ? data.filter(function(e) { return !e.proprietary; }) : data, filter, _dimensions, fullRedraw)
+            .call(drawPropLabels, graph, data.length > 1 ? data.filter(function(e) { return e.proprietary; }) : data, filter, _dimensions, fullRedraw)
+            .call(drawPoints, graph, data.length > 1 ? data.filter(function(e) { return !e.proprietary; }) : data, filter)
+            .call(drawPropPoints, graph, data.length > 1 ? data.filter(function(e) { return e.proprietary; }) : data, filter);
             
-                dispatch.call('drawn', this, {full: true});
-            }
-            // see what layer is active, then add the prop=null objs (and their children) to that layer only, if no prop=null objs, then draw normally
-            
-            // if both active, temp add to prop-features layer
-            // if only osm, temp add to osm layer
-            // if only prop, temp add to prop layer
-
-        } else {*/
-            surface
-                .call(drawVertices, graph, data.length > 1 ? data.filter(function(e) { return !e.proprietary; }) : data, filter, map.extent(), fullRedraw)
-                .call(drawPropVertices, graph, data.length > 1 ? data.filter(function(e) { return e.proprietary; }) : data, filter, map.extent(), fullRedraw)
-                .call(drawLines, graph, data.length > 1 ? data.filter(function(e) { return !e.proprietary; }) : data, filter)
-                .call(drawPropLines, graph, data.length > 1 ? data.filter(function(e) { return e.proprietary; }) : data, filter)
-                .call(drawAreas, graph, data.length > 1 ? data.filter(function(e) { return !e.proprietary; }) : data, filter)
-                .call(drawPropAreas, graph, data.length > 1 ? data.filter(function (e) { return e.proprietary; }) : data, filter)
-                .call(drawMidpoints, graph, data.length > 1 ? data.filter(function (e) { return !e.proprietary; }) : data, filter, map.trimmedExtent())
-                .call(drawPropMidpoints, graph, data.length > 1 ? data.filter(function (e) { return e.proprietary; }) : data, filter, map.trimmedExtent())
-                .call(drawLabels, graph, data.length > 1 ? data.filter(function(e) { return !e.proprietary; }) : data, filter, _dimensions, fullRedraw)
-                .call(drawPropLabels, graph, data.length > 1 ? data.filter(function(e) { return e.proprietary; }) : data, filter, _dimensions, fullRedraw)
-                .call(drawPoints, graph, data.length > 1 ? data.filter(function(e) { return !e.proprietary; }) : data, filter)
-                .call(drawPropPoints, graph, data.length > 1 ? data.filter(function(e) { return e.proprietary; }) : data, filter);
-            
-            dispatch.call('drawn', this, {full: true});
-        //} 
+            dispatch.call('drawn', this, {full: true}); 
     }
 
     map.init = function() {

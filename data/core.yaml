@@ -860,6 +860,7 @@ en:
     title: Save
     help: "Review your changes and upload them to OpenStreetMap, making them visible to other users."
     no_changes: No changes to save.
+    prop_not_set: "The proprietary value has not been set."
     error: Errors occurred while trying to save
     status_code: "Server returned status code {code}"
     unknown_error_details: "Please ensure you are connected to the internet."
