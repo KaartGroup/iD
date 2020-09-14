@@ -1,5 +1,4 @@
 import { dispatch as d3_dispatch } from 'd3-dispatch';
-import { event as d3_event } from 'd3-selection';
 import deepEqual from 'fast-deep-equal';
 
 import { presetManager } from '../presets';
@@ -111,24 +110,6 @@ export function uiEntityEditor(context) {
             }
             body.call(section.render);
         });
-
-        body
-            .selectAll('.key-trap-wrap')
-            .data([0])
-            .enter()
-            .append('div')
-            .attr('class', 'key-trap-wrap')
-            .append('input')
-            .attr('type', 'text')
-            .attr('class', 'key-trap')
-            .on('keydown.key-trap', function() {
-                // On tabbing, send focus back to the first field on the inspector-body
-                // (probably the `name` field) #4159
-                if (d3_event.keyCode === 9 && !d3_event.shiftKey) {
-                    d3_event.preventDefault();
-                    body.select('input').node().focus();
-                }
-            });
 
         context.history()
             .on('change.entity-editor', historyChanged);

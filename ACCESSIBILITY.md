@@ -165,10 +165,11 @@ for more info.
 | ✅ | Browser language preference | iD tries to use the language set in the browser |
 | ❌ | Base language fallback | E.g. if `pt_BR` is incomplete, `pt` should be tried before `en` |
 | ❌ | Custom fallback language | If the preferred language is incomplete, a user-specified one should be tried before `en` (e.g. `kk` → `ru`) |
-| ❌ | [`lang` HTML attributes](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/lang) | Helps with text-to-speech, text formatting, and auto-transliteration, particularly when iD mixes strings from different languages |
+| ❌ | [`lang` HTML attributes](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/lang) | Helps with text-to-speech, text formatting, and auto-transliteration, particularly when iD mixes strings from different languages | [#7963](https://github.com/openstreetmap/iD/issues/7963)
 | ✅ | Locale URL parameters | `locale` and `rtl` can be used to manually set iD's locale preferences. See the [API](API.md#url-parameters) |
 | ❌ | Language selection in UI | The mapper should be able to view and change iD's language in the interface at any time. Useful for public computers with fixed browser languages | [#3120](https://github.com/openstreetmap/iD/issues/3120) |
 | 🟩 | Right-to-left layouts | The [`dir` HTML attribute](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/dir) is properly set for languages like Hebrew and Arabic |
+| ❌ | [Language-specific plurals](https://docs.transifex.com/localization-tips-workflows/plurals-and-genders#how-pluralized-strings-are-handled-by-transifex) | English has two plural forms, but some languages need more to be grammatically correct | [#597](https://github.com/openstreetmap/iD/issues/597) |
 | 🟠 | Label icons | Icons should accompany text labels to illustrate the meaning of untranslated terms |
 
 ### Translatability
@@ -209,7 +210,8 @@ are kept close to 100% coverage, while most languages have less than 50% coverag
 |---|---|---|---|
 | 🤷 | [Screen reader support](https://en.wikipedia.org/wiki/Screen_reader) | | |
 | 🟠 | [Browser zoom](https://support.mozilla.org/en-US/kb/accessibility-features-firefox-make-firefox-and-we#w_page-zoom) | Scrolling-to-pan the map may react oddly on some browsers | |
-| 🟠 | [Text-only browser zoom](https://support.mozilla.org/en-US/kb/accessibility-features-firefox-make-firefox-and-we#w_text-zoom) | Enlarged text can overflow containers that have fixed dimensions | |
+| 🟠 | [Text-only browser zoom](https://support.mozilla.org/en-US/kb/accessibility-features-firefox-make-firefox-and-we#w_text-zoom) | Interface elements scale to compensate larger text sizes. Map labels don't scale | [#7965](https://github.com/openstreetmap/iD/issues/7965) |
+| 🟠 | Browser zoom keyboard shortcuts | iD overrides the <kbd>Cmd</kbd><kbd>+</kbd> and <kbd>Cmd</kbd><kbd>–</kbd> shortcuts. Safari's text-only zoom shortcuts are okay | [#7976](https://github.com/openstreetmap/iD/issues/7965) |
 | 🟠 | [Don't rely on color alone](https://www.wuhcag.com/use-of-colour/) | Some classes of map data are indistinguishable except for their colors | |
 | 🤷 | [High-contrast text colors](https://www.wuhcag.com/contrast-enhanced/) | | |
 | ❌ | [Dark mode](https://en.wikipedia.org/wiki/Light-on-dark_color_scheme) | Many people find light-on-dark UIs easier to read under certain conditions | |

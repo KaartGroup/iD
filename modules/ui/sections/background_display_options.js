@@ -18,8 +18,8 @@ export function uiSectionBackgroundDisplayOptions(context) {
 
     var _detected = utilDetect();
     var _storedOpacity = prefs('background-opacity');
-    var _minVal = 0.25;
-    var _maxVal = _detected.cssfilters ? 2 : 1;
+    var _minVal = 0;
+    var _maxVal = _detected.cssfilters ? 3 : 1;
 
     var _sliders = _detected.cssfilters
         ? ['brightness', 'contrast', 'saturation', 'sharpness']
@@ -74,7 +74,11 @@ export function uiSectionBackgroundDisplayOptions(context) {
             .append('span')
             .attr('class', function(d) { return 'display-option-value display-option-value-' + d; });
 
-        slidersEnter
+        var sildersControlEnter = slidersEnter
+            .append('div')
+            .attr('class', 'control-wrap');
+
+        sildersControlEnter
             .append('input')
             .attr('class', function(d) { return 'display-option-input display-option-input-' + d; })
             .attr('type', 'range')
@@ -86,7 +90,7 @@ export function uiSectionBackgroundDisplayOptions(context) {
                 updateValue(d, val);
             });
 
-        slidersEnter
+        sildersControlEnter
             .append('button')
             .attr('title', t('background.reset'))
             .attr('class', function(d) { return 'display-option-reset display-option-reset-' + d; })
