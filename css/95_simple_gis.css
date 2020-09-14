@@ -79,6 +79,12 @@
     /*margin-top: 60px;*/
 }
 
+button.not_active {
+    background-color: #ececec;
+    text-decoration: line-through;
+    color: red;
+}
+
 /* Chrome only: */
 @media all and (-webkit-min-device-pixel-ratio:0) and (min-resolution: .001dpcm) { 
     .simple-preset-list-button {

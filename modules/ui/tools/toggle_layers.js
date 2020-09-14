@@ -113,7 +113,7 @@ export function uiToolToggle(context) {
     function toggleLayer(which) {
         setLayer(which, !showsLayer(which));
         d3_select('.' + which + '.add-button.bar-button')
-            .classed('disabled', !showsLayer(which));
+            .classed('not_active', !showsLayer(which));
     }
 
     return tool;
