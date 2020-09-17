@@ -16,7 +16,6 @@ import { geoExtent } from '../geo/extent';
 import { uiPresetIcon } from './preset_icon';
 import { uiTagReference } from './tag_reference';
 import { utilKeybinding, utilNoAuto, utilRebind } from '../util';
-import { setObjAndChildren, objProprietaryState } from '../services/simple_internal_fcns';
 
 
 export function uiPresetList(context) {
@@ -133,6 +132,12 @@ export function uiPresetList(context) {
 
         if (_autofocus) {
             search.node().focus();
+
+            // Safari 14 doesn't always like to focus immediately,
+            // so try again on the next pass
+            setTimeout(function() {
+                search.node().focus();
+            }, 0);
         }
 
         var listWrap = selection
@@ -144,134 +149,9 @@ export function uiPresetList(context) {
             .attr('class', 'preset-list')
             .call(drawList, presetManager.defaults(entityGeometries()[0], 36, !context.inIntro()));
 
-        if (objProprietaryState(_entityIDs, context) === null || context.mode().newFeature()) {
-            listWrap.style('display', 'none');
-            list.style('display', 'none');
-            search.style('display', 'none');
-            searchWrap.style('display', 'none');
-            
-            var bodyEnter = selection
-                .append('div')
-                .attr('class', 'simple-proprietary-dialogue inspector-body');
-
-            bodyEnter
-                .append('h4')
-                .text('Is this feature proprietary?')
-                .style('text-align','center')
-                .style('font-weight','normal')
-                .style('padding-top', '10px');
-            
-            presetItem(bodyEnter, {
-                iconName: '#iD-icon-apply',
-                label: ('This is a proprietary feature'),
-                description: ('If this is a proprietary feature, selecting this will add it to your specific database on upload.'),
-                onClick: function() { onPropObj(listWrap, list, selection, search, searchWrap); }
-            }, 'proprietary-features-accept');
-
-            presetItem(bodyEnter, {
-                iconName: '#iD-icon-no',
-                label: ('This is not a proprietary feature'),
-                description: ('If this is not a proprietary feature, selecting this will add it to OSM on upload. (Like normal)'),
-                onClick: function() { onNonPropObj(listWrap, list, selection, search, searchWrap); }
-            }, 'proprietary-features-reject');
-        }
-
         context.features().on('change.preset-list', updateForFeatureHiddenState);
     }
 
-    function onNonPropObj(lw, l, sel, s, sw) {
-        var obj = context.entity(_entityIDs);
-        setObjAndChildren(obj, false, context);
-
-        l.style('display', 'block');
-        lw.style('display', 'block');
-        s.style('display', 'block');
-        sw.style('display', 'block');
-
-        sel.select('.simple-proprietary-dialogue.inspector-body')
-            .style('display','none');
-        
-        sel.selectAll('.simple-preset-list-item')
-            .style('display','none');
-
-        sel.select('h4').style('display','none');        
-    }
-
-    function onPropObj(lw, l, sel, s, sw) {
-        var obj = context.entity(_entityIDs);
-        setObjAndChildren(obj, true, context);
-
-        l.style('display', 'block');
-        lw.style('display', 'block');
-        s.style('display', 'block');
-        sw.style('display', 'block');
-
-        sel.select('.simple-proprietary-dialogue.inspector-body')
-            .style('display','none');
-        
-        sel.selectAll('.simple-preset-list-item')
-            .style('display','none');
-
-        sel.select('h4').style('display','none');
-    }
-
-    function presetItem(selection, p, presetButtonClasses) {
-        var presetItem = selection
-            .append('div')
-            .attr('class', 'simple-preset-list-item');
-
-        var presetWrap = presetItem
-            .append('div')
-            .attr('class', 'simple-preset-list-button-wrap');
-
-        var presetReference = presetItem
-            .append('div')
-            .attr('class', 'simple-tag-reference-body');
-
-        presetReference
-            .text(p.description);
-
-        var presetButton = presetWrap
-            .append('button')
-            .attr('class', 'simple-preset-list-button ' + presetButtonClasses)
-            .on('click', p.onClick);
-
-        if (p.disabledFunction) {
-            presetButton = presetButton.classed('disabled', p.disabledFunction);
-        }
-
-        presetButton
-            .append('div')
-            .attr('class', 'simple-preset-icon-container medium')
-            .append('svg')
-            .attr('class', 'icon')
-            .style('height','34px')
-            .style('width','34px')
-            .append('use')
-            .style('fill','none')
-            .style('color','#4c4c4c')
-            .attr('xlink:href', p.iconName);
-
-        presetButton
-            .append('div')
-            .attr('class', 'simple-label')
-            .append('div')
-            .attr('class', 'simple-label-inner')
-            .append('div')
-            .attr('class', 'simple-namepart')
-            .text(p.label);
-
-        presetWrap
-            .append('button')
-            .attr('class', 'simple-tag-reference-button')
-            .attr('title', 'info')
-            .attr('tabindex', '-1')
-            .on('click', function() {
-                presetReference
-                    .classed('shown', !presetReference.classed('shown'));
-            })
-            .call(svgIcon('#iD-icon-inspect'));
-    }
 
     function drawList(list, presets) {
         presets = presets.matchAllGeometry(entityGeometries());

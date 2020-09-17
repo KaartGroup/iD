@@ -75,8 +75,7 @@
 .simple-proprietary-dialogue.inspector-body {
     text-align: center;
     align-items: center;
-    top: 80px;
-    /*margin-top: 60px;*/
+    margin-top: 30px;
 }
 
 button.not_active {
@@ -298,4 +297,8 @@ button.not_active {
 }
 .layer-osm path.prop-missing.shadow.selected {
     stroke-opacity: 0.7;
+}
+
+.pane:nth-child(2) {
+    left: 0;
 }

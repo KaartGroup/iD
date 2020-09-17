@@ -3,18 +3,21 @@ import { select as d3_select } from 'd3-selection';
 
 import { uiEntityEditor } from './entity_editor';
 import { uiPresetList } from './preset_list';
+import { uiPropDialogue } from './proprietary-dialogue';
 import { uiViewOnOSM } from './view_on_osm';
 
 
 export function uiInspector(context) {
     var presetList = uiPresetList(context);
     var entityEditor = uiEntityEditor(context);
+    var propDialogue = uiPropDialogue(context);
     var wrap = d3_select(null),
         presetPane = d3_select(null),
         editorPane = d3_select(null);
     var _state = 'select';
     var _entityIDs;
     var _newFeature = false;
+    var _propChosen = false;
 
 
     function inspector(selection) {
@@ -31,24 +34,39 @@ export function uiInspector(context) {
             .entityIDs(_entityIDs)
             .on('choose', inspector.showList);
 
+        propDialogue
+            .entityIDs(_entityIDs)
+            .autofocus(_newFeature)
+            .propChosen(_propChosen)
+            .on('choose', inspector.setPreset)
+            .on('cancel', function() {
+                inspector.setPreset();
+        });
+
         wrap = selection.selectAll('.panewrap')
             .data([0]);
 
         var enter = wrap.enter()
             .append('div')
             .attr('class', 'panewrap');
-
+        
         enter
             .append('div')
             .attr('class', 'preset-list-pane pane');
 
         enter
             .append('div')
+            .attr('class', 'proprietary-dialogue-pane pane');
+        
+            enter
+            .append('div')
             .attr('class', 'entity-editor-pane pane');
+
 
         wrap = wrap.merge(enter);
         presetPane = wrap.selectAll('.preset-list-pane');
         editorPane = wrap.selectAll('.entity-editor-pane');
+        propPane = wrap.selectAll('.proprietary-dialogue-pane');
 
         function shouldDefaultToPresetList() {
             // always show the inspector on hover
@@ -60,6 +78,9 @@ export function uiInspector(context) {
             var entityID = _entityIDs[0];
             var entity = context.hasEntity(entityID);
             if (!entity) return false;
+
+            // prompt to select preset if feature's prop val has been determined
+            if (_propChosen) return true; 
 
             // default to inspector if there are already tags
             if (entity.hasNonGeometryTags()) return false;
@@ -83,14 +104,33 @@ export function uiInspector(context) {
             return true;
         }
 
-        if (shouldDefaultToPresetList()) {
+        function shouldShowPropDialogue() {
+            var entityID = _entityIDs[0];
+            var entity = context.hasEntity(entityID);
+            if (!entity) return false;
+            else return entity.proprietary == null;
+        }
+
+        if (shouldDefaultToPresetList() && !shouldShowPropDialogue()) {
+            console.log('ShouldDefaultPresetList && !shouldShowPropDialogue()', shouldDefaultToPresetList() && !shouldShowPropDialogue());
             wrap.style('right', '-100%');
             editorPane.classed('hide', true);
+            propPane.classed('hide', true);
             presetPane.classed('hide', false)
                 .call(presetList);
+        } else if (shouldShowPropDialogue()) {
+            console.log('shouldShowProp', shouldShowPropDialogue());
+            wrap.style('right', '-100%');
+            editorPane.classed('hide', true);
+            presetPane.classed('hide', true);
+            _propChosen = true;
+            propPane.classed('hide', false)
+                .call(propDialogue);
         } else {
+            console.log('showing editorPane');
             wrap.style('right', '0%');
             presetPane.classed('hide', true);
+            propPane.classed('hide', true);
             editorPane.classed('hide', false)
                 .call(entityEditor);
         }
@@ -177,6 +217,12 @@ export function uiInspector(context) {
     inspector.newFeature = function(val) {
         if (!arguments.length) return _newFeature;
         _newFeature = val;
+        return inspector;
+    };
+
+    inspector.propChosen = function(val) {
+        if (!arguments.length) return _propChosen;
+        propChosen = val;
         return inspector;
     };
 
