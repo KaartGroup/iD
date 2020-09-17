@@ -29,9 +29,8 @@ export function uiSectionChanges(context) {
     var section = uiSection('changes-list', context)
         .title(function() {
             var history = context.history();
-            //var summary = history.difference().summary();
-            var summary = fixUiSummary(history, context);
-            return t('commit.changes', { count: summary.length });
+            var summary = fixUiSummary(history, context);;
+            return t('inspector.title_count', { title: t('commit.changes'), count: summary.length });
         })
         .disclosureContent(renderDisclosureContent);
 

@@ -1,6 +1,7 @@
 import { fileFetcher } from './file_fetcher';
 import { utilDetect } from '../util/detect';
 import { utilStringQs } from '../util';
+import { utilArrayUniq } from '../util/array';
 
 let _mainLocalizer = coreLocalizer(); // singleton
 let _t = _mainLocalizer.t;
@@ -20,10 +21,13 @@ export function coreLocalizer() {
 
     let _dataLanguages = {};
 
-    // `localeData` is an object containing all _supported_ locale codes -> language info.
+    // `_dataLocales` is an object containing all _supported_ locale codes -> language info.
+    // * `rtl` - right-to-left or left-to-right text direction
+    // * `pct` - the percent of strings translated; 1 = 100%, full coverage
+    //
     // {
-    // en: { rtl: false, languageNames: {…}, scriptNames: {…} },
-    // de: { rtl: false, languageNames: {…}, scriptNames: {…} },
+    // en: { rtl: false, pct: {…} },
+    // de: { rtl: false, pct: {…} },
     // …
     // }
     let _dataLocales = {};
@@ -36,8 +40,10 @@ export function coreLocalizer() {
     // }
     let _localeStrings = {};
 
-    // the current locale parameters
+    // the current locale
     let _localeCode = 'en-US';
+    // `_localeCodes` must contain `_localeCode` first, optionally followed by fallbacks
+    let _localeCodes = ['en-US', 'en'];
     let _languageCode = 'en';
     let _textDirection = 'ltr';
     let _usesMetric = false;
@@ -46,6 +52,7 @@ export function coreLocalizer() {
 
     // getters for the current locale parameters
     localizer.localeCode = () => _localeCode;
+    localizer.localeCodes = () => _localeCodes;
     localizer.languageCode = () => _languageCode;
     localizer.textDirection = () => _textDirection;
     localizer.usesMetric = () => _usesMetric;
@@ -86,16 +93,18 @@ export function coreLocalizer() {
             })
             .then(() => {
                 let requestedLocales = (_preferredLocaleCodes || [])
-                    // list of locales preferred by the browser in priority order
+                    // List of locales preferred by the browser in priority order.
+                    // This always includes an `en` fallback, so we know at least one is valid.
                     .concat(utilDetect().browserLocales);
-                _localeCode = bestSupportedLocale(requestedLocales);
 
-                return Promise.all([
-                    // always load the English locale strings as fallbacks
-                    localizer.loadLocale('en'),
-                    // load the preferred locale
-                    localizer.loadLocale(_localeCode)
-                ]);
+                _localeCodes = localesToUseFrom(requestedLocales);
+                // run iD in the highest-priority locale; the rest are fallbacks
+                _localeCode = _localeCodes[0];
+
+                const loadStringsPromises = _localeCodes.map(function(code) {
+                    return localizer.loadLocale(code);
+                });
+                return Promise.all(loadStringsPromises);
             })
             .then(() => {
                 updateForCurrentLocale();
@@ -103,36 +112,36 @@ export function coreLocalizer() {
             .catch(err => console.error(err));  // eslint-disable-line
     };
 
-    // Returns the best locale from `locales` supported by iD, if any
-    function bestSupportedLocale(locales) {
+    // Returns the locales from `requestedLocales` supported by iD that we should use
+    function localesToUseFrom(requestedLocales) {
         let supportedLocales = _dataLocales;
 
-        for (let i in locales) {
-            let locale = locales[i];
-            if (locale.includes('-')) { // full locale ('es-ES')
+        let toLoad = [];
 
-                if (supportedLocales[locale]) return locale;
+        for (let i in requestedLocales) {
+            let locale = requestedLocales[i];
+            if (supportedLocales[locale]) {
+                toLoad.push(locale);
+            }
 
-                // If full locale not supported ('es-FAKE'), fallback to the base ('es')
+            if (locale.includes('-')) {
+                // Full locale ('es-ES'), add fallback to the base ('es')
                 let langPart = locale.split('-')[0];
-                if (supportedLocales[langPart]) return langPart;
-
-            } else { // base locale ('es')
-
-                // prefer a lower-priority full locale with this base ('es' < 'es-ES')
-                let fullLocale = locales.find((locale2, index) => {
-                    return index > i &&
-                        locale2 !== locale &&
-                        locale2.split('-')[0] === locale &&
-                        supportedLocales[locale2];
-                });
-                if (fullLocale) return fullLocale;
-
-                if (supportedLocales[locale]) return locale;
+                if (supportedLocales[langPart]) {
+                    toLoad.push(langPart);
+                }
             }
         }
 
-        return null;
+        toLoad = utilArrayUniq(toLoad);
+
+        // this is guaranteed to always return an index since `en` is always listed
+        // and `en` always has full coverage
+        let fullCoverageIndex = toLoad.findIndex(function(locale) {
+            return supportedLocales[locale].pct === 1;
+        });
+        // we only need to load locales up until we find one with full coverage
+        return toLoad.slice(0, fullCoverageIndex + 1);
     }
 
     function updateForCurrentLocale() {
@@ -152,8 +161,10 @@ export function coreLocalizer() {
             _textDirection = currentData && currentData.rtl ? 'rtl' : 'ltr';
         }
 
-        _languageNames = currentData && currentData.languageNames;
-        _scriptNames = currentData && currentData.scriptNames;
+        let locale = _localeCode;
+        if (locale.toLowerCase() === 'en-us') locale = 'en';
+        _languageNames = _localeStrings[locale].languageNames;
+        _scriptNames = _localeStrings[locale].scriptNames;
 
         _usesMetric = _localeCode.slice(-3).toLowerCase() !== '-us';
     }
@@ -191,23 +202,42 @@ export function coreLocalizer() {
             });
     };
 
+    localizer.pluralRule = function(number) {
+      return pluralRule(number, _localeCode);
+    };
+
+    // Returns the plural rule for the given `number` with the given `localeCode`.
+    // One of: `zero`, `one`, `two`, `few`, `many`, `other`
+    function pluralRule(number, localeCode) {
+
+      // modern browsers have this functionality built-in
+      const rules = 'Intl' in window && Intl.PluralRules && new Intl.PluralRules(localeCode);
+      if (rules) {
+        return rules.select(number);
+      }
+
+      // fallback to basic one/other, as in English
+      if (number === 1) return 'one';
+      return 'other';
+    }
+
     /**
     * Given a string identifier, try to find that string in the current
     * language, and return it.  This function will be called recursively
     * with locale `en` if a string can not be found in the requested language.
     *
-    * @param  {string}   s             string identifier
+    * @param  {string}   stringId      string identifier
     * @param  {object?}  replacements  token replacements and default string
     * @param  {string?}  locale        locale to use (defaults to currentLocale)
     * @return {string?}  localized string
     */
-    localizer.t = function(s, replacements, locale) {
+    localizer.t = function(stringId, replacements, locale) {
         locale = locale || _localeCode;
 
         // US English is the default
         if (locale.toLowerCase() === 'en-us') locale = 'en';
 
-        let path = s
+        let path = stringId
           .split('.')
           .map(s => s.replace(/<TX_DOT>/g, '.'))
           .reverse();
@@ -220,24 +250,62 @@ export function coreLocalizer() {
 
         if (result !== undefined) {
           if (replacements) {
-            for (let k in replacements) {
-              const token = `{${k}}`;
-              const regex = new RegExp(token, 'g');
-              result = result.replace(regex, replacements[k]);
+            if (typeof result === 'object' && Object.keys(result).length) {
+                // If plural forms are provided, dig one level deeper based on the
+                // first numeric token replacement provided.
+                const number = Object.values(replacements).find(function(value) {
+                  return typeof value === 'number';
+                });
+                if (number !== undefined) {
+                  const rule = pluralRule(number, locale);
+                  if (result[rule]) {
+                    result = result[rule];
+                  } else {
+                    // We're pretty sure this should be a plural but no string
+                    // could be found for the given rule. Just pick the first
+                    // string and hope it makes sense.
+                    result = Object.values(result)[0];
+                  }
+                }
+            }
+            if (typeof result === 'string') {
+              for (let key in replacements) {
+                let value = replacements[key];
+                if (typeof value === 'number' && value.toLocaleString) {
+                  // format numbers for the locale
+                  value = value.toLocaleString(locale, {
+                    style: 'decimal',
+                    useGrouping: true,
+                    minimumFractionDigits: 0
+                  });
+                }
+                const token = `{${key}}`;
+                const regex = new RegExp(token, 'g');
+                result = result.replace(regex, value);
+              }
             }
           }
-          return result;
+          if (typeof result === 'string') {
+            // found a localized string!
+            return result;
+          }
         }
+        // no localized string found...
 
-        if (locale !== 'en') {
-          return localizer.t(s, replacements, 'en');  // fallback - recurse with 'en'
+        // attempt to fallback to a lower-priority langauge
+        let index = _localeCodes.indexOf(locale);
+        if (index >= 0 && index < _localeCodes.length - 1) {
+            // eventually this will be 'en' or another locale with 100% coverage
+            let fallback = _localeCodes[index + 1];
+            return localizer.t(stringId, replacements, fallback);
         }
 
         if (replacements && 'default' in replacements) {
-          return replacements.default;      // fallback - replacements.default
+          // Fallback to a default value if one is specified in `replacements`
+          return replacements.default;
         }
 
-        const missing = `Missing ${locale} translation: ${s}`;
+        const missing = `Missing ${locale} translation: ${stringId}`;
         if (typeof console !== 'undefined') console.error(missing);  // eslint-disable-line
 
         return missing;
