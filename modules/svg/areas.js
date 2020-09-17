@@ -194,6 +194,9 @@ export function svgAreas(projection, context, isProp=false) {
             .classed('added', function(d) {
                 return !base.entities[d.id];
             })
+            .classed('prop-missing', function(d) {
+                return d.proprietary==null;
+            })
             .classed('geometry-edited', function(d) {
                 return graph.entities[d.id] &&
                     base.entities[d.id] &&

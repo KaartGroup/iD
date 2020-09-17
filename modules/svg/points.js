@@ -131,6 +131,9 @@ export function svgPoints(projection, context, isProp=false) {
             .classed('added', function(d) {
                 return !base.entities[d.id]; // if it doesn't exist in the base graph, it's new
             })
+            .classed('prop-missing', function(d) {
+                return d.proprietary==null;
+            })
             .classed('moved', function(d) {
                 return base.entities[d.id] && !deepEqual(graph.entities[d.id].loc, base.entities[d.id].loc);
             })

@@ -159,7 +159,7 @@ button.not_active {
 .layer-prop g.vertex .shadow,
 .layer-prop g.midpoint .shadow {
     stroke-width: 6;
-    fill: #f4753c;/*#f4753c;*/
+    fill: #f4753c;
     fill-opacity: 0;
 }
 
@@ -266,4 +266,36 @@ button.not_active {
 .fill-wireframe-osm .data-layer.prop-features path.area.fill.tag-indoor,
 .fill-wireframe-prop .data-layer.osm path.area.fill.tag-indoor {
     stroke-width: 20px;
+}
+
+/* Prop = null style */
+
+/* Points */
+.layer-osm .prop-missing .stroke,
+.layer-osm .prop-missing .shadow {
+    fill: red;
+    opacity: 0.8;
+    stroke: white;
+} 
+
+/* Lines */
+.layer-osm path.prop-missing.line.shadow {
+    stroke: white;
+    stroke-width: 16;
+    stroke-opacity: 0;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.layer-osm path.prop-missing.stroke {
+    stroke: red;
+    stroke-width: 2.5;
+}
+
+.layer-osm path.prop-missing.shadow.related:not(.selected),
+.layer-osm path.prop-missing.shadow.hover:not(.selected) {
+    stroke-opacity: 0.4;
+}
+.layer-osm path.prop-missing.shadow.selected {
+    stroke-opacity: 0.7;
 }
