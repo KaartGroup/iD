@@ -112,14 +112,12 @@ export function uiInspector(context) {
         }
 
         if (shouldDefaultToPresetList() && !shouldShowPropDialogue()) {
-            console.log('ShouldDefaultPresetList && !shouldShowPropDialogue()', shouldDefaultToPresetList() && !shouldShowPropDialogue());
             wrap.style('right', '-100%');
             editorPane.classed('hide', true);
             propPane.classed('hide', true);
             presetPane.classed('hide', false)
                 .call(presetList);
         } else if (shouldShowPropDialogue()) {
-            console.log('shouldShowProp', shouldShowPropDialogue());
             wrap.style('right', '-100%');
             editorPane.classed('hide', true);
             presetPane.classed('hide', true);
@@ -127,7 +125,6 @@ export function uiInspector(context) {
             propPane.classed('hide', false)
                 .call(propDialogue);
         } else {
-            console.log('showing editorPane');
             wrap.style('right', '0%');
             presetPane.classed('hide', true);
             propPane.classed('hide', true);

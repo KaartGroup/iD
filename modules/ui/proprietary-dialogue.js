@@ -42,20 +42,22 @@ export function uiPropDialogue(context) {
             iconName: '#iD-icon-apply',
             label: ('This is a proprietary feature'),
             description: ('If this is a proprietary feature, selecting this will add it to your specific database on upload.'),
-            onClick: function() { propObj(true); }
+            onClick: function() { propObj(true, bodyEnter); }
         }, 'proprietary-features-accept');
 
         presetItem(bodyEnter, {
             iconName: '#iD-icon-no',
             label: ('This is not a proprietary feature'),
             description: ('If this is not a proprietary feature, selecting this will add it to OSM on upload. (Like normal)'),
-            onClick: function() { propObj(false); }
+            onClick: function() { propObj(false, bodyEnter); }
         }, 'proprietary-features-reject');
     }
 
-    function propObj(propVal) {
+    function propObj(propVal, be) {
         var obj = context.entity(_entityIDs);
         setObjAndChildren(obj, propVal, context);
+        propChosen = true;
+        be.style('display', 'none');
     }
 
     function presetItem(selection, p, presetButtonClasses) {
