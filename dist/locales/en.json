@@ -28,6 +28,17 @@
             },
             "labeled_and_more": "{labeled} and {count} more"
         },
+        "proprietary": {
+            "title": "Is this feature proprietary?",
+            "prop_obj": {
+                "label": "This is a proprietary feature",
+                "description": "If this is a proprietary feature, selecting this will add it to your specific database on upload."
+            },
+            "osm_obj": {
+                "label": "This is not a proprietary feature",
+                "description": "If this is not a proprietary feature, selecting this will add it to OSM on upload. (Like normal)"
+            }
+        },
         "modes": {
             "add_area": {
                 "title": "Area",
@@ -671,6 +682,7 @@
             "title": "Upload to OpenStreetMap",
             "upload_explanation": "The changes you upload will be visible on all maps that use OpenStreetMap data.",
             "upload_explanation_with_user": "The changes you upload as {user} will be visible on all maps that use OpenStreetMap data.",
+            "upload_explanation_with_user_prop": "The changes you upload as  {user} will be visible only to you and those in your organization.",
             "request_review": "I would like someone to review my edits.",
             "save": "Upload",
             "cancel": "Cancel",
@@ -905,6 +917,10 @@
                     "tooltip": "Drag and drop a data file onto the page, or click the button to setup",
                     "title": "Custom Map Data",
                     "zoom": "Zoom to data"
+                },
+                "prop-features": {
+                    "tooltip": "Map data from our private servers",
+                    "title": "Private Data"
                 }
             },
             "history_panel": {
@@ -1108,6 +1124,7 @@
             "status_code": "Server returned status code {code}",
             "unknown_error_details": "Please ensure you are connected to the internet.",
             "uploading": "Uploading changes to OpenStreetMap...",
+            "uploading_prop": "Uploading changes to our Private servers...",
             "conflict_progress": "Checking for conflicts: {num} of {total}",
             "unsaved_changes": "You have unsaved changes",
             "conflict": {

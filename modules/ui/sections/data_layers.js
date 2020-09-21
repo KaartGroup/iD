@@ -67,7 +67,7 @@ export function uiSectionDataLayers(context) {
     function toggleLayer(which) {
         setLayer(which, !showsLayer(which));
         d3_select('.' + which + '.add-button.bar-button')
-            .classed('disabled', !showsLayer(which));
+            .classed('not_active', !showsLayer(which));
     }
 
     function drawOsmItems(selection) {
@@ -159,14 +159,14 @@ export function uiSectionDataLayers(context) {
                 if (d.id === 'prop-features') {
                     d3_select(this)
                         .call(uiTooltip()
-                            .title('Map data from our private server')//t('map_data.layers.' + d.id + '.tooltip'))
+                            .title(t('map_data.layers.' + d.id + '.tooltip'))
                             .keys([uiCmd('⌥' + t('area_fill.wireframe-prop.key'))])
                             .placement('bottom')
                         );
                 } else {
                     d3_select(this)
                         .call(uiTooltip()
-                            .title('Map data from our private server')//t('map_data.layers.' + d.id + '.tooltip'))
+                            .title(t('map_data.layers.' + d.id + '.tooltip'))
                             .placement('bottom')
                         );
                 }
@@ -179,7 +179,7 @@ export function uiSectionDataLayers(context) {
 
         labelEnter
             .append('span')
-            .text(function(d) { return 'Proprietary data'; });//t('map_data.layers.' + d.id + '.title'); });
+            .text(function(d) { return t('map_data.layers.' + d.id + '.title'); });
 
 
         // Update

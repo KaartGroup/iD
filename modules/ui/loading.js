@@ -24,7 +24,7 @@ export function uiLoading(context) {
 
     loadertext
       .append('h3')
-      .text((getPropDataExistence(context) && !getNonPropDataExistence(context)) ? 'Uploading changes to Proprietary' : _message);
+      .text((getPropDataExistence(context) && !getNonPropDataExistence(context)) ? t('save.uploading_prop') : _message);
 
     _modalSelection.select('button.close')
       .attr('class', 'hide');

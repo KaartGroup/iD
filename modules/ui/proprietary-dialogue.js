@@ -33,22 +33,22 @@ export function uiPropDialogue(context) {
 
         bodyEnter
             .append('h4')
-            .text('Is this feature proprietary?')
+            .text(t('proprietary.title'))
             .style('text-align','center')
             .style('font-weight','normal')
             .style('padding-top', '10px');
         
         presetItem(bodyEnter, {
             iconName: '#iD-icon-apply',
-            label: ('This is a proprietary feature'),
-            description: ('If this is a proprietary feature, selecting this will add it to your specific database on upload.'),
+            label: t('proprietary.prop_obj.label'),
+            description: t('proprietary.prop_obj.description'),
             onClick: function() { propObj(true, bodyEnter); }
         }, 'proprietary-features-accept');
 
         presetItem(bodyEnter, {
             iconName: '#iD-icon-no',
-            label: ('This is not a proprietary feature'),
-            description: ('If this is not a proprietary feature, selecting this will add it to OSM on upload. (Like normal)'),
+            label: t('proprietary.osm_obj.label'),
+            description: t('proprietary.osm_obj.description'),
             onClick: function() { propObj(false, bodyEnter); }
         }, 'proprietary-features-reject');
     }

@@ -20,14 +20,14 @@ export function uiToolToggle(context) {
 
     var layers = [
         {
-            title: 'OSM Layers',
+            title: 'OSM Layer',
             id: 'osm',
             button: 'line',
             description: t('shortcuts.browsing.display_options.osm_data'),
             key: '⌥' + t('area_fill.wireframe-osm.key')
         },
         {
-            title: 'Prop Layers',
+            title: 'Private Layer',
             id: 'prop-features',
             button: 'line',
             description: t('shortcuts.browsing.display_options.prop_data'),
