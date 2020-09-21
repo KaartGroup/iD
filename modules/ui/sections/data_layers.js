@@ -292,7 +292,6 @@ export function uiSectionDataLayers(context) {
             .attr('class', 'vectortile-footer')
             .append('a')
             .attr('target', '_blank')
-            .attr('tabindex', -1)
             .call(svgIcon('#iD-icon-out-link', 'inline'))
             .attr('href', 'https://github.com/osmus/detroit-mapping-challenge')
             .append('span')
@@ -393,6 +392,7 @@ export function uiSectionDataLayers(context) {
 
         liEnter
             .append('button')
+            .attr('class', 'open-data-options')
             .call(uiTooltip()
                 .title(t('settings.custom_data.tooltip'))
                 .placement((localizer.textDirection() === 'rtl') ? 'right' : 'left')
@@ -402,16 +402,19 @@ export function uiSectionDataLayers(context) {
 
         liEnter
             .append('button')
+            .attr('class', 'zoom-to-data')
             .call(uiTooltip()
                 .title(t('map_data.layers.custom.zoom'))
                 .placement((localizer.textDirection() === 'rtl') ? 'right' : 'left')
             )
             .on('click', function() {
+                if (d3_select(this).classed('disabled')) return;
+
                 d3_event.preventDefault();
                 d3_event.stopPropagation();
                 dataLayer.fitZoom();
             })
-            .call(svgIcon('#iD-icon-framed-dot'));
+            .call(svgIcon('#iD-icon-framed-dot', 'monochrome'));
 
         // Update
         ul = ul
@@ -424,6 +427,9 @@ export function uiSectionDataLayers(context) {
             .selectAll('input')
             .property('disabled', !hasData)
             .property('checked', showsData);
+
+        ul.selectAll('button.zoom-to-data')
+            .classed('disabled', !hasData);
     }
 
     function editCustom() {
