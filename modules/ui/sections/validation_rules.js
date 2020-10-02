@@ -17,7 +17,7 @@ export function uiSectionValidationRules(context) {
 
     var section = uiSection('issues-rules', context)
         .disclosureContent(renderDisclosureContent)
-        .title(t('issues.rules.title'));
+        .label(t.html('issues.rules.title'));
 
     var _ruleKeys = context.validator().getRuleKeys()
         .filter(function(key) { return key !== 'maprules'; })
@@ -46,7 +46,7 @@ export function uiSectionValidationRules(context) {
             .append('a')
             .attr('class', 'issue-rules-link')
             .attr('href', '#')
-            .text(t('issues.disable_all'))
+            .html(t.html('issues.disable_all'))
             .on('click', function() {
                 context.validator().disableRules(_ruleKeys);
             });
@@ -55,7 +55,7 @@ export function uiSectionValidationRules(context) {
             .append('a')
             .attr('class', 'issue-rules-link')
             .attr('href', '#')
-            .text(t('issues.enable_all'))
+            .html(t.html('issues.enable_all'))
             .on('click', function() {
                 context.validator().disableRules([]);
             });
@@ -84,7 +84,7 @@ export function uiSectionValidationRules(context) {
         if (name === 'rule') {
             enter
                 .call(uiTooltip()
-                    .title(function(d) { return t('issues.' + d + '.tip'); })
+                    .title(function(d) { return t.html('issues.' + d + '.tip'); })
                     .placement('top')
                 );
         }
@@ -105,7 +105,7 @@ export function uiSectionValidationRules(context) {
                 if (d === 'unsquare_way') {
                     params.val = '<span class="square-degrees"></span>';
                 }
-                return t('issues.' + d + '.title', params);
+                return t.html('issues.' + d + '.title', params);
             });
 
         // Update

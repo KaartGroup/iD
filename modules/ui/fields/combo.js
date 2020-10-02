@@ -11,6 +11,7 @@ import { uiCombobox } from '../combobox';
 import { utilArrayUniq, utilGetSetValue, utilNoAuto, utilRebind, utilTotalExtent, utilUnicodeCharsCount } from '../../util';
 
 export {
+    uiFieldCombo as uiFieldManyCombo,
     uiFieldCombo as uiFieldMultiCombo,
     uiFieldCombo as uiFieldNetworkCombo,
     uiFieldCombo as uiFieldSemiCombo,
@@ -20,7 +21,7 @@ export {
 
 export function uiFieldCombo(field, context) {
     var dispatch = d3_dispatch('change');
-    var _isMulti = (field.type === 'multiCombo');
+    var _isMulti = (field.type === 'multiCombo' || field.type === 'manyCombo');
     var _isNetwork = (field.type === 'networkCombo');
     var _isSemi = (field.type === 'semiCombo');
     var _optstrings = field.strings && field.strings.options;
@@ -151,7 +152,8 @@ export function uiFieldCombo(field, context) {
                 return {
                     key: k,
                     value: v,
-                    title: v
+                    title: v,
+                    display: field.t.html('options.' + k, { 'default': _optstrings[k] })
                 };
             });
 
@@ -315,6 +317,7 @@ export function uiFieldCombo(field, context) {
 
 
     function removeMultikey(d) {
+        d3_event.preventDefault();
         d3_event.stopPropagation();
         var t = {};
         if (_isMulti) {
@@ -538,12 +541,13 @@ export function uiFieldCombo(field, context) {
             }
 
             chips.select('span')
-                .text(function(d) { return d.value; });
+                .html(function(d) { return d.value; });
 
             chips.select('a')
+                .attr('href', '#')
                 .on('click', removeMultikey)
                 .attr('class', 'remove')
-                .text('×');
+                .html('×');
 
         } else {
             var isMixed = Array.isArray(tags[field.key]);

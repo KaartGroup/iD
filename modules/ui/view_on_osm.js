@@ -33,7 +33,7 @@ export function uiViewOnOSM(context) {
 
         linkEnter
             .append('span')
-            .text(_what.proprietary ? 'View on map.simple.kaart.com' : t('inspector.view_on_osm'));
+            .html(_what.proprietary ? 'View on map.simple.kaart.com' : t.html('inspector.view_on_osm'));
     }
 
 

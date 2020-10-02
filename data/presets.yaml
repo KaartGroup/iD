@@ -3203,10 +3203,20 @@ en:
         name: Biergarten
         # 'terms: beer,bier,booze'
         terms: '<translate with synonyms or related terms for ''Biergarten'', separated by commas>'
+      amenity/binoculars:
+        # amenity=binoculars
+        name: Mounted Binoculars
+        # 'terms: observation viewer,optical ranger,spotting scope,sight,spyglass,telescope,tower viewer,viewfinder,viewing stand'
+        terms: '<translate with synonyms or related terms for ''Mounted Binoculars'', separated by commas>'
       amenity/boat_rental:
         # amenity=boat_rental
         name: Boat Rental
         terms: '<translate with synonyms or related terms for ''Boat Rental'', separated by commas>'
+      amenity/boat_storage:
+        # amenity=boat_storage
+        name: Boat Storage
+        # 'terms: boathouse,dry dock,marina'
+        terms: '<translate with synonyms or related terms for ''Boat Storage'', separated by commas>'
       amenity/bureau_de_change:
         # amenity=bureau_de_change
         name: Currency Exchange
@@ -3533,6 +3543,11 @@ en:
         name: Loading Dock
         # 'terms: door,loading bay,shipping,unloading,warehouse'
         terms: '<translate with synonyms or related terms for ''Loading Dock'', separated by commas>'
+      amenity/lounger:
+        # amenity=lounger
+        name: Lounger
+        # 'terms: seat,chair,bench'
+        terms: '<translate with synonyms or related terms for ''Lounger'', separated by commas>'
       amenity/love_hotel:
         # amenity=love_hotel
         name: Love Hotel
@@ -6788,6 +6803,11 @@ en:
         # natural=heath
         name: Heath
         terms: '<translate with synonyms or related terms for ''Heath'', separated by commas>'
+      natural/hot_spring:
+        # natural=hot_spring
+        name: Hot Spring
+        # 'terms: geothermal spring,thermal pool'
+        terms: '<translate with synonyms or related terms for ''Hot Spring'', separated by commas>'
       natural/mud:
         # natural=mud
         name: Mud
@@ -8354,7 +8374,7 @@ en:
       shop/music:
         # shop=music
         name: Music Store
-        # 'terms: tape cassettes,CDs,compact discs,vinyl records'
+        # 'terms: tape cassettes,CDs,compact discs,vinyl records,CD store,casette,casette store'
         terms: '<translate with synonyms or related terms for ''Music Store'', separated by commas>'
       shop/musical_instrument:
         # shop=musical_instrument
@@ -9005,8 +9025,8 @@ en:
         terms: '<translate with synonyms or related terms for ''Ferry Route'', separated by commas>'
       type/route/foot:
         # 'type=route, route=foot'
-        name: Foot Route
-        terms: '<translate with synonyms or related terms for ''Foot Route'', separated by commas>'
+        name: Walking Route
+        terms: '<translate with synonyms or related terms for ''Walking Route'', separated by commas>'
       type/route/hiking:
         # 'type=route, route=hiking'
         name: Hiking Route

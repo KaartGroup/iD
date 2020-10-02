@@ -31,11 +31,11 @@ export function uiFeatureList(context) {
     function featureList(selection) {
         var header = selection
             .append('div')
-            .attr('class', 'header fillL cf');
+            .attr('class', 'header fillL');
 
         header
             .append('h3')
-            .text(t('inspector.feature_list'));
+            .html(t.html('inspector.feature_list'));
 
         var searchWrap = selection
             .append('div')
@@ -59,7 +59,7 @@ export function uiFeatureList(context) {
 
         var list = listWrap
             .append('div')
-            .attr('class', 'feature-list cf');
+            .attr('class', 'feature-list');
 
         context
             .on('exit.feature-list', clearSearch);
@@ -256,20 +256,20 @@ export function uiFeatureList(context) {
                 .attr('class', 'entity-name');
 
             list.selectAll('.no-results-item .entity-name')
-                .text(t('geocoder.no_results_worldwide'));
+                .html(t.html('geocoder.no_results_worldwide'));
 
             if (services.geocoder) {
               list.selectAll('.geocode-item')
                   .data([0])
                   .enter()
                   .append('button')
-                  .attr('class', 'geocode-item')
+                  .attr('class', 'geocode-item secondary-action')
                   .on('click', geocoderSearch)
                   .append('div')
                   .attr('class', 'label')
                   .append('span')
                   .attr('class', 'entity-name')
-                  .text(t('geocoder.search'));
+                  .html(t.html('geocoder.search'));
             }
 
             list.selectAll('.no-results-item')
@@ -305,12 +305,12 @@ export function uiFeatureList(context) {
             label
                 .append('span')
                 .attr('class', 'entity-type')
-                .text(function(d) { return d.type; });
+                .html(function(d) { return d.type; });
 
             label
                 .append('span')
                 .attr('class', 'entity-name')
-                .text(function(d) { return d.name; });
+                .html(function(d) { return d.name; });
 
             enter
                 .style('opacity', 0)

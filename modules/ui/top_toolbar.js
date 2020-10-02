@@ -90,7 +90,7 @@ export function uiTopToolbar(context) {
             actionableItems
                 .append('div')
                 .attr('class', 'item-label')
-                .text(function(d) {
+                .html(function(d) {
                     return d.label;
                 });
         }

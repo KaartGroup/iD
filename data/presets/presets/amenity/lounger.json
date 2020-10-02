@@ -1,13 +1,14 @@
 {
-    "icon": "maki-picnic-site",
+    "icon": "temaki-bench",
     "fields": [
         "material",
-        "lit",
-        "bench",
-        "colour"
+        "colour",
+        "access_simple",
+        "lit"
     ],
     "moreFields": [
         "height",
+        "inscription",
         "level",
         "manufacturer",
         "operator"
@@ -16,10 +17,12 @@
         "point"
     ],
     "tags": {
-        "leisure": "picnic_table"
+        "amenity": "lounger"
     },
     "terms": [
+        "seat",
+        "chair",
         "bench"
     ],
-    "name": "Picnic Table"
+    "name": "Lounger"
 }

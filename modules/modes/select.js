@@ -178,19 +178,15 @@ export function modeSelect(context, selectedIDs) {
 
         _operations = Object.values(Operations)
             .map(function(o) { return o(context, selectedIDs); })
-            .filter(function(o) { return o.available() && o.id !== 'delete' && o.id !== 'downgrade' && o.id !== 'copy'; });
-
-        var copyOperation = Operations.operationCopy(context, selectedIDs);
-        if (copyOperation.available()) {
-            // group copy operation with delete/downgrade
-            _operations.push(copyOperation);
-        }
-
-        var downgradeOperation = Operations.operationDowngrade(context, selectedIDs);
-        // don't allow delete if downgrade is available
-        var lastOperation = !context.inIntro() && downgradeOperation.available() ? downgradeOperation : Operations.operationDelete(context, selectedIDs);
-
-        _operations.push(lastOperation);
+            .filter(function(o) { return o.id !== 'delete' && o.id !== 'downgrade' && o.id !== 'copy'; })
+            .concat([
+                // group copy/downgrade/delete operation together at the end of the list
+                Operations.operationCopy(context, selectedIDs),
+                Operations.operationDowngrade(context, selectedIDs),
+                Operations.operationDelete(context, selectedIDs)
+            ]).filter(function(operation) {
+                return operation.available();
+            });
 
         _operations.forEach(function(operation) {
             if (operation.behavior) {
@@ -308,7 +304,7 @@ export function modeSelect(context, selectedIDs) {
                         .duration(4000)
                         .iconName('#iD-operation-' + moveOp.id)
                         .iconClass('operation disabled')
-                        .text(moveOp.tooltip)();
+                        .label(moveOp.tooltip)();
                 } else {
                     context.perform(actionMove(selectedIDs, delta, context.projection), moveOp.annotation());
                     context.validator().validate();
@@ -381,7 +377,7 @@ export function modeSelect(context, selectedIDs) {
                         .duration(4000)
                         .iconName('#iD-icon-no')
                         .iconClass('operation disabled')
-                        .text(t('operations.scale.' + disabled + '.' + multi))();
+                        .label(t('operations.scale.' + disabled + '.' + multi))();
                 } else {
                     const pivot = context.projection(extent.center());
                     const annotation = t('operations.scale.annotation.' + (isUp ? 'up' : 'down') + '.feature', { n: selectedIDs.length });

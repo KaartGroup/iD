@@ -115,6 +115,7 @@ export function uiInit(context) {
         }
 
         container
+            .attr('lang', localizer.localeCode())
             .attr('dir', localizer.textDirection());
 
         // setup fullscreen keybindings (no button shown at this time)
@@ -126,7 +127,9 @@ export function uiInit(context) {
 
         map
             .on('hitMinZoom.ui', function() {
-                ui.flash.text(t('cannot_zoom'))();
+                ui.flash
+                    .iconName('#iD-icon-no')
+                    .label(t.html('cannot_zoom'))();
             });
 
         container
@@ -301,14 +304,14 @@ export function uiInit(context) {
             .attr('target', '_blank')
             .attr('href', 'https://github.com/openstreetmap/iD/issues')
             .call(svgIcon('#iD-icon-bug', 'light'))
-            .call(uiTooltip().title(t('report_a_bug')).placement('top'));
+            .call(uiTooltip().title(t.html('report_a_bug')).placement('top'));
 
         issueLinks
             .append('a')
             .attr('target', '_blank')
             .attr('href', 'https://github.com/openstreetmap/iD/blob/develop/CONTRIBUTING.md#translating')
             .call(svgIcon('#iD-icon-translate', 'light'))
-            .call(uiTooltip().title(t('help_translate')).placement('top'));
+            .call(uiTooltip().title(t.html('help_translate')).placement('top'));
 
         aboutList
             .append('li')
@@ -442,7 +445,7 @@ export function uiInit(context) {
         }
 
         var osm = context.connection();
-        var auth = uiLoading(context).message(t('loading_auth')).blocking(true);
+        var auth = uiLoading(context).message(t.html('loading_auth')).blocking(true);
 
         if (osm && auth) {
             osm
@@ -671,7 +674,7 @@ export function uiInit(context) {
     context.uploader()
         .on('saveStarted.ui', function() {
             _saveLoading = uiLoading(context)
-                .message(t('save.uploading'))
+                .message(t.html('save.uploading'))
                 .blocking(true);
             context.container().call(_saveLoading);  // block input during upload
         })

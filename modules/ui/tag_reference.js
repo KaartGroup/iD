@@ -3,7 +3,7 @@ import {
     select as d3_select
 } from 'd3-selection';
 
-import { t } from '../core/localizer';
+import { t, localizer } from '../core/localizer';
 import { services } from '../services';
 import { svgIcon } from '../svg/icon';
 
@@ -45,7 +45,7 @@ export function uiTagReference(what) {
             _body
                 .append('p')
                 .attr('class', 'tag-reference-description')
-                .text(t('inspector.no_documentation_key'));
+                .html(t.html('inspector.no_documentation_key'));
             done();
             return;
         }
@@ -64,7 +64,7 @@ export function uiTagReference(what) {
         _body
             .append('p')
             .attr('class', 'tag-reference-description')
-            .text(docs.description || t('inspector.no_documentation_key'))
+            .html(docs.description ? localizer.htmlForLocalizedText(docs.description, docs.descriptionLocaleCode) : t.html('inspector.no_documentation_key'))
             .append('a')
             .attr('class', 'tag-reference-edit')
             .attr('target', '_blank')
@@ -80,7 +80,7 @@ export function uiTagReference(what) {
               .attr('href', docs.wiki.url)
               .call(svgIcon('#iD-icon-out-link', 'inline'))
               .append('span')
-              .text(t(docs.wiki.text));
+              .html(t.html(docs.wiki.text));
         }
 
         // Add link to info about "good changeset comments" - #2923
@@ -92,7 +92,7 @@ export function uiTagReference(what) {
                 .call(svgIcon('#iD-icon-out-link', 'inline'))
                 .attr('href', t('commit.about_changeset_comments_link'))
                 .append('span')
-                .text(t('commit.about_changeset_comments'));
+                .html(t.html('commit.about_changeset_comments'));
         }
     }
 

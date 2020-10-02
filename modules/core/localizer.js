@@ -94,14 +94,20 @@ export function coreLocalizer() {
             .then(() => {
                 let requestedLocales = (_preferredLocaleCodes || [])
                     // List of locales preferred by the browser in priority order.
-                    // This always includes an `en` fallback, so we know at least one is valid.
-                    .concat(utilDetect().browserLocales);
+                    .concat(utilDetect().browserLocales)
+                    // fallback to English since it's the only guaranteed complete language
+                    .concat(['en']);
 
                 _localeCodes = localesToUseFrom(requestedLocales);
-                // run iD in the highest-priority locale; the rest are fallbacks
+                // Run iD in the highest-priority locale; the rest are fallbacks
                 _localeCode = _localeCodes[0];
 
-                const loadStringsPromises = _localeCodes.map(function(code) {
+                // Will always return the index for `en` if nothing else
+                const fullCoverageIndex = _localeCodes.findIndex(function(locale) {
+                    return _dataLocales[locale].pct === 1;
+                });
+                // We only need to load locales up until we find one with full coverage
+                const loadStringsPromises = _localeCodes.slice(0, fullCoverageIndex + 1).map(function(code) {
                     return localizer.loadLocale(code);
                 });
                 return Promise.all(loadStringsPromises);
@@ -116,32 +122,19 @@ export function coreLocalizer() {
     function localesToUseFrom(requestedLocales) {
         let supportedLocales = _dataLocales;
 
-        let toLoad = [];
-
+        let toUse = [];
         for (let i in requestedLocales) {
             let locale = requestedLocales[i];
-            if (supportedLocales[locale]) {
-                toLoad.push(locale);
-            }
+            if (supportedLocales[locale]) toUse.push(locale);
 
             if (locale.includes('-')) {
                 // Full locale ('es-ES'), add fallback to the base ('es')
                 let langPart = locale.split('-')[0];
-                if (supportedLocales[langPart]) {
-                    toLoad.push(langPart);
-                }
+                if (supportedLocales[langPart]) toUse.push(langPart);
             }
         }
-
-        toLoad = utilArrayUniq(toLoad);
-
-        // this is guaranteed to always return an index since `en` is always listed
-        // and `en` always has full coverage
-        let fullCoverageIndex = toLoad.findIndex(function(locale) {
-            return supportedLocales[locale].pct === 1;
-        });
-        // we only need to load locales up until we find one with full coverage
-        return toLoad.slice(0, fullCoverageIndex + 1);
+        // remove duplicates
+        return utilArrayUniq(toUse);
     }
 
     function updateForCurrentLocale() {
@@ -222,27 +215,28 @@ export function coreLocalizer() {
     }
 
     /**
-    * Given a string identifier, try to find that string in the current
-    * language, and return it.  This function will be called recursively
-    * with locale `en` if a string can not be found in the requested language.
+    * Try to find that string in `locale` or the current `_localeCode` matching
+    * the given `stringId`. If no string can be found in the requested locale,
+    * we'll recurse down all the `_localeCodes` until one is found.
     *
     * @param  {string}   stringId      string identifier
     * @param  {object?}  replacements  token replacements and default string
     * @param  {string?}  locale        locale to use (defaults to currentLocale)
     * @return {string?}  localized string
     */
-    localizer.t = function(stringId, replacements, locale) {
-        locale = locale || _localeCode;
+    localizer.tInfo = function(stringId, replacements, locale) {
 
-        // US English is the default
-        if (locale.toLowerCase() === 'en-us') locale = 'en';
+        locale = locale || _localeCode;
 
         let path = stringId
           .split('.')
           .map(s => s.replace(/<TX_DOT>/g, '.'))
           .reverse();
 
-        let result = _localeStrings[locale];
+        let stringsKey = locale;
+        // US English is the default
+        if (stringsKey.toLowerCase() === 'en-us') stringsKey = 'en';
+        let result = _localeStrings[stringsKey];
 
         while (result !== undefined && path.length) {
           result = result[path.pop()];
@@ -287,7 +281,10 @@ export function coreLocalizer() {
           }
           if (typeof result === 'string') {
             // found a localized string!
-            return result;
+            return {
+                text: result,
+                locale: locale
+            };
           }
         }
         // no localized string found...
@@ -297,18 +294,40 @@ export function coreLocalizer() {
         if (index >= 0 && index < _localeCodes.length - 1) {
             // eventually this will be 'en' or another locale with 100% coverage
             let fallback = _localeCodes[index + 1];
-            return localizer.t(stringId, replacements, fallback);
+            return localizer.tInfo(stringId, replacements, fallback);
         }
 
         if (replacements && 'default' in replacements) {
           // Fallback to a default value if one is specified in `replacements`
-          return replacements.default;
+          return {
+              text: replacements.default,
+              locale: null
+          };
         }
 
         const missing = `Missing ${locale} translation: ${stringId}`;
         if (typeof console !== 'undefined') console.error(missing);  // eslint-disable-line
 
-        return missing;
+        return {
+            text: missing,
+            locale: 'en'
+        };
+    };
+
+    // Returns only the localized text, discarding the locale info
+    localizer.t = function(stringId, replacements, locale) {
+        return localizer.tInfo(stringId, replacements, locale).text;
+    };
+
+    // Returns the localized text wrapped in an HTML element encoding the locale info
+    localizer.t.html = function(stringId, replacements, locale) {
+        const info = localizer.tInfo(stringId, replacements, locale);
+        // text may be empty or undefined if `replacements.default` is 
+        return info.text ? localizer.htmlForLocalizedText(info.text, info.locale) : '';
+    };
+
+    localizer.htmlForLocalizedText = function(text, localeCode) {
+        return `<span class="localized-text" lang="${localeCode || 'unknown'}">${text}</span>`;
     };
 
     localizer.languageName = (code, options) => {

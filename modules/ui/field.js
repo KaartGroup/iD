@@ -30,7 +30,7 @@ export function uiField(context, presetField, entityIDs, options) {
 
     var _locked = false;
     var _lockedTip = uiTooltip()
-        .title(t('inspector.lock.suggestion', { label: field.label }))
+        .title(t.html('inspector.lock.suggestion', { label: field.label }))
         .placement('bottom');
 
 
@@ -132,7 +132,7 @@ export function uiField(context, presetField, entityIDs, options) {
             textEnter
                 .append('span')
                 .attr('class', 'label-textvalue')
-                .text(function(d) { return d.label(); });
+                .html(function(d) { return d.label(); });
 
             textEnter
                 .append('span')

@@ -27,10 +27,10 @@ export function uiSectionChanges(context) {
         .catch(function() { /* ignore */ });
 
     var section = uiSection('changes-list', context)
-        .title(function() {
+        .label(function() {
             var history = context.history();
             var summary = fixUiSummary(history, context);;
-            return t('inspector.title_count', { title: t('commit.changes'), count: summary.length });
+            return t('inspector.title_count', { title: t.html('commit.changes'), count: summary.length });
         })
         .disclosureContent(renderDisclosureContent);
 
@@ -76,12 +76,12 @@ export function uiSectionChanges(context) {
         buttons
             .append('span')
             .attr('class', 'change-type')
-            .text(function(d) { return t('commit.' + d.changeType) + ' '; });
+            .html(function(d) { return t.html('commit.' + d.changeType) + ' '; });
 
         buttons
             .append('strong')
             .attr('class', 'entity-type')
-            .text(function(d) {
+            .html(function(d) {
                 var matched = presetManager.match(d.entity, d.graph);
                 return (matched && matched.name()) || utilDisplayType(d.entity.id);
             });
@@ -89,7 +89,7 @@ export function uiSectionChanges(context) {
         buttons
             .append('span')
             .attr('class', 'entity-name')
-            .text(function(d) {
+            .html(function(d) {
                 var name = utilDisplayName(d.entity) || '',
                     string = '';
                 if (name !== '') {
@@ -134,7 +134,7 @@ export function uiSectionChanges(context) {
         linkEnter
             .call(svgIcon('#iD-icon-load', 'inline'))
             .append('span')
-            .text(t('commit.download_changes'));
+            .html(t.html('commit.download_changes'));
 
 
         function mouseover(d) {

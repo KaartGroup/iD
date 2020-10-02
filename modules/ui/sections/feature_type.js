@@ -23,7 +23,7 @@ export function uiSectionFeatureType(context) {
     var _tagReference;
 
     var section = uiSection('feature-type', context)
-        .title(t('inspector.feature_type'))
+        .label(t.html('inspector.feature_type'))
         .disclosureContent(renderDisclosureContent);
 
     function renderDisclosureContent(selection) {
@@ -42,7 +42,7 @@ export function uiSectionFeatureType(context) {
             .append('button')
             .attr('class', 'preset-list-button preset-reset')
             .call(uiTooltip()
-                .title(t('inspector.back_tooltip'))
+                .title(t.html('inspector.back_tooltip'))
                 .placement('bottom')
             );
 
@@ -95,8 +95,10 @@ export function uiSectionFeatureType(context) {
                 .preset(_presets.length === 1 ? _presets[0] : presetManager.item('point'))
             );
 
-        // NOTE: split on en-dash, not a hyphen (to avoid conflict with hyphenated names)
-        var names = _presets.length === 1 ? _presets[0].name().split(' – ') : [t('inspector.multiple_types')];
+        var names = _presets.length === 1 ? [
+            _presets[0].nameLabel(),
+            _presets[0].subtitleLabel()
+        ].filter(Boolean) : [t('inspector.multiple_types')];
 
         var label = selection.select('.label-inner');
         var nameparts = label.selectAll('.namepart')
@@ -109,7 +111,7 @@ export function uiSectionFeatureType(context) {
             .enter()
             .append('div')
             .attr('class', 'namepart')
-            .text(function(d) { return d; });
+            .html(function(d) { return d; });
     }
 
     section.entityIDs = function(val) {

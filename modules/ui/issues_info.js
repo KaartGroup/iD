@@ -62,7 +62,7 @@ export function uiIssuesInfo(context) {
 
                 var tooltipBehavior = uiTooltip()
                     .placement('top')
-                    .title(t(d.descriptionID));
+                    .title(t.html(d.descriptionID));
 
                 chipSelection
                     .call(tooltipBehavior)
@@ -83,7 +83,7 @@ export function uiIssuesInfo(context) {
 
         enter.merge(chips)
             .selectAll('span.count')
-            .text(function(d) {
+            .html(function(d) {
                 return d.count.toString();
             });
     }

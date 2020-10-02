@@ -27,14 +27,14 @@ export function uiSectionRawMembershipEditor(context) {
         .shouldDisplay(function() {
             return _entityIDs && _entityIDs.length === 1;
         })
-        .title(function() {
+        .label(function() {
             var entity = context.hasEntity(_entityIDs[0]);
             if (!entity) return '';
 
             var parents = context.graph().parentRelations(entity);
             var gt = parents.length > _maxMemberships ? '>' : '';
             var count = gt + parents.slice(0, _maxMemberships).length;
-            return t('inspector.title_count', { title: t('inspector.relations'), count: count });
+            return t('inspector.title_count', { title: t.html('inspector.relations'), count: count });
         })
         .disclosureContent(renderDisclosureContent);
 
@@ -134,7 +134,11 @@ export function uiSectionRawMembershipEditor(context) {
 
 
     function fetchNearbyRelations(q, callback) {
-        var newRelation = { relation: null, value: t('inspector.new_relation') };
+        var newRelation = {
+            relation: null,
+            value: t('inspector.new_relation'),
+            display: t.html('inspector.new_relation')
+        };
 
         var entityID = _entityIDs[0];
 
@@ -262,7 +266,7 @@ export function uiSectionRawMembershipEditor(context) {
         labelLink
             .append('span')
             .attr('class', 'member-entity-type')
-            .text(function(d) {
+            .html(function(d) {
                 var matched = presetManager.match(d.relation, context.graph());
                 return (matched && matched.name()) || t('inspector.relation');
             });
@@ -270,7 +274,7 @@ export function uiSectionRawMembershipEditor(context) {
         labelLink
             .append('span')
             .attr('class', 'member-entity-name')
-            .text(function(d) { return utilDisplayName(d.relation); });
+            .html(function(d) { return utilDisplayName(d.relation); });
 
         labelEnter
             .append('button')
@@ -378,7 +382,7 @@ export function uiSectionRawMembershipEditor(context) {
         addRelationButton
             .call(svgIcon('#iD-icon-plus', 'light'));
         addRelationButton
-            .call(uiTooltip().title(t('inspector.add_to_relation')).placement(localizer.textDirection() === 'ltr' ? 'right' : 'left'));
+            .call(uiTooltip().title(t.html('inspector.add_to_relation')).placement(localizer.textDirection() === 'ltr' ? 'right' : 'left'));
 
         addRowEnter
             .append('div')
