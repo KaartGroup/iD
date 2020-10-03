@@ -42,22 +42,22 @@ export function uiPropDialogue(context) {
             iconName: '#iD-icon-apply',
             label: t('proprietary.prop_obj.label'),
             description: t('proprietary.prop_obj.description'),
-            onClick: function() { propObj(true, bodyEnter); }
+            onClick: function() { propObj(true); }
         }, 'proprietary-features-accept');
 
         presetItem(bodyEnter, {
             iconName: '#iD-icon-no',
             label: t('proprietary.osm_obj.label'),
             description: t('proprietary.osm_obj.description'),
-            onClick: function() { propObj(false, bodyEnter); }
+            onClick: function() { propObj(false); }
         }, 'proprietary-features-reject');
     }
 
-    function propObj(propVal, be) {
+    function propObj(propVal) {
         var obj = context.entity(_entityIDs);
         setObjAndChildren(obj, propVal, context);
         propChosen = true;
-        be.style('display', 'none');
+        dispatch.call('cancel', this);
     }
 
     function presetItem(selection, p, presetButtonClasses) {
