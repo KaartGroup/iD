@@ -799,6 +799,9 @@ en:
         label: Distance
         # 'terms: length,mileage'
         terms: '[translate with synonyms or related terms for ''Distance'', separated by commas]'
+      disused/amenity:
+        # 'disused:amenity=*'
+        label: Type
       disused/railway:
         # 'disused:railway=*'
         label: Type
@@ -3566,6 +3569,11 @@ en:
         name: Money Transfer Station
         # 'terms: money order,check,bill,currency,finance,wire transfer,cable,person to person,cash to cash,exchange'
         terms: '<translate with synonyms or related terms for ''Money Transfer Station'', separated by commas>'
+      amenity/mortuary:
+        # amenity=mortuary
+        name: Morgue
+        # 'terms: crematorium,funeral home,memorial home,morgue,mortuary,undertaker'
+        terms: '<translate with synonyms or related terms for ''Morgue'', separated by commas>'
       amenity/motorcycle_parking:
         # amenity=motorcycle_parking
         name: Motorcycle Parking
@@ -4982,6 +4990,9 @@ en:
       demolished/building:
         # 'demolished:building=*'
         name: Recently Demolished Building
+      disused/amenity:
+        # 'disused:amenity=*'
+        name: Disused Amenity
       disused/railway:
         # 'disused:railway=*'
         name: Disused Railway Feature

@@ -441,7 +441,7 @@ export function uiInit(context) {
             }
 
             context.container()
-                .call(uiShortcuts(context));
+                .call(ui.shortcuts);
         }
 
         var osm = context.connection();
@@ -521,6 +521,8 @@ export function uiInit(context) {
     ui.sidebar = uiSidebar(context);
 
     ui.photoviewer = uiPhotoviewer(context);
+
+    ui.shortcuts = uiShortcuts(context);
 
     ui.onResize = function(withPan) {
         var map = context.map();
