@@ -5936,7 +5936,7 @@
                 },
                 "amenity/kindergarten": {
                     "name": "Preschool / Kindergarten Grounds",
-                    "terms": "kindergarden,pre-school"
+                    "terms": "kindergarten,kindergarden,pre-school"
                 },
                 "amenity/kneipp_water_cure": {
                     "name": "Kneipp Water Cure",
@@ -6824,7 +6824,7 @@
                 },
                 "building/farm_auxiliary": {
                     "name": "Farm Building",
-                    "terms": "agriculture,auxilary,chicken coop,farm auxiliary,pigsty,sty"
+                    "terms": "agriculture,auxiliary,auxilary,chicken coop,farm auxiliary,pigsty,sty"
                 },
                 "building/farm": {
                     "name": "Farm House",
@@ -6876,7 +6876,7 @@
                 },
                 "building/kindergarten": {
                     "name": "Preschool / Kindergarten Building",
-                    "terms": "kindergarden,pre-school"
+                    "terms": "kindergarten,kindergarden,pre-school"
                 },
                 "building/mosque": {
                     "name": "Mosque Building",
@@ -10231,7 +10231,7 @@
                 },
                 "shop/video": {
                     "name": "Video Store",
-                    "terms": "DVD,VHS,video casette"
+                    "terms": "DVD,VHS,video cassette,video casette"
                 },
                 "shop/watches": {
                     "name": "Watches Shop",
@@ -10295,7 +10295,7 @@
                 },
                 "tourism/artwork/graffiti": {
                     "name": "Graffiti",
-                    "terms": "Street Artwork,Guerilla Artwork,Graffiti Artwork"
+                    "terms": "Street Artwork,Guerrilla Artwork,Guerilla Artwork,Graffiti Artwork"
                 },
                 "tourism/artwork/installation": {
                     "name": "Art Installation",
