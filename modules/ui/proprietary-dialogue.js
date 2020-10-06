@@ -1,6 +1,5 @@
 import { dispatch as d3_dispatch } from 'd3-dispatch';
 
-import { presetManager } from '../presets';
 import { t } from '../core/localizer';
 import { svgIcon } from '../svg/index';
 import { utilRebind } from '../util';
@@ -8,13 +7,12 @@ import { setObjAndChildren } from '../services/simple_internal_fcns';
 
 
 export function uiPropDialogue(context) {
-    var dispatch = d3_dispatch('cancel', 'choose');
+    var dispatch = d3_dispatch('picked_prop_val');
     var _entityIDs;
-    var _currentPresets;
     var _autofocus = false;
     var _propChosen = false;
 
-    function presetList(selection) {
+    function propDialogue(selection) {
         if (!_entityIDs) return;
 
         selection.html('');
@@ -56,8 +54,8 @@ export function uiPropDialogue(context) {
     function propObj(propVal) {
         var obj = context.entity(_entityIDs);
         setObjAndChildren(obj, propVal, context);
-        propChosen = true;
-        dispatch.call('cancel', this);
+        _propChosen = true;
+        dispatch.call('picked_prop_val', this);
     }
 
     function presetItem(selection, p, presetButtonClasses) {
@@ -118,35 +116,23 @@ export function uiPropDialogue(context) {
             .call(svgIcon('#iD-icon-inspect'));
     }
 
-    presetList.autofocus = function(val) {
+    propDialogue.autofocus = function(val) {
         if (!arguments.length) return _autofocus;
         _autofocus = val;
-        return presetList;
+        return propDialogue;
     };
 
-    presetList.propChosen = function(val) {
+    propDialogue.propChosen = function(val) {
         if (!arguments.length) return _propChosen;
         _propChosen = val;
-        return presetList;
+        return propDialogue;
     };
 
-    presetList.entityIDs = function(val) {
+    propDialogue.entityIDs = function(val) {
         if (!arguments.length) return _entityIDs;
         _entityIDs = val;
-        if (_entityIDs && _entityIDs.length) {
-            var presets = _entityIDs.map(function(entityID) {
-                return presetManager.match(context.entity(entityID), context.graph());
-            });
-            presetList.presets(presets);
-        }
-        return presetList;
+        return propDialogue;
     };
 
-    presetList.presets = function(val) {
-        if (!arguments.length) return _currentPresets;
-        _currentPresets = val;
-        return presetList;
-    };
-
-    return utilRebind(presetList, dispatch, 'on');
+    return utilRebind(propDialogue, dispatch, 'on');
 }

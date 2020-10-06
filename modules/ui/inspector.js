@@ -38,9 +38,8 @@ export function uiInspector(context) {
             .entityIDs(_entityIDs)
             .autofocus(_newFeature)
             .propChosen(_propChosen)
-            .on('choose', inspector.setPreset)
-            .on('cancel', function() {
-                inspector.setPreset();
+            .on('picked_prop_val', function() {
+                inspector.hideProp();
         });
 
         wrap = selection.selectAll('.panewrap')
@@ -121,7 +120,6 @@ export function uiInspector(context) {
             wrap.style('right', '-100%');
             editorPane.classed('hide', true);
             presetPane.classed('hide', true);
-            _propChosen = true;
             propPane.classed('hide', false)
                 .call(propDialogue);
         } else {
@@ -144,6 +142,27 @@ export function uiInspector(context) {
             .call(uiViewOnOSM(context)
                 .what(context.hasEntity(_entityIDs.length === 1 && _entityIDs[0]))
             );
+    }
+
+    inspector.hideProp = function(preset) {
+
+        _propChosen = true;
+        editorPane.classed('hide', false);
+
+        wrap.transition()
+            .styleTween('right', function() {
+                return d3_interpolate('-100%', '0%');
+            })
+            .on('end', function () {
+                propPane.classed('hide', true);
+            });
+        
+        if (preset) {
+            entityEditor.presets([preset]);
+        }
+
+        editorPane
+            .call(entityEditor);
     }
 
     inspector.showList = function(presets) {
@@ -219,7 +238,7 @@ export function uiInspector(context) {
 
     inspector.propChosen = function(val) {
         if (!arguments.length) return _propChosen;
-        propChosen = val;
+        _propChosen = val;
         return inspector;
     };
 
