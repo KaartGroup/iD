@@ -14,7 +14,6 @@ export function actionAddMidpoint(midpoint, node) {
         // inherit prop val from parent(s)
         if (parents.length > 0) {
             node.proprietary = (parents[0] && parents[1]) ? parents[0].proprietary && parents[1].proprietary : parents[0].proprietary;
-            console.log(node);
         } 
 
         parents.forEach(function(way) {
