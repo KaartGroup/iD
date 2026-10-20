@@ -13,6 +13,7 @@ import serviceWikidata from './wikidata';
 import serviceWikipedia from './wikipedia';
 import serviceMapilio from './mapilio';
 import servicePanoramax from './panoramax';
+import serviceMaprizon from './maprizon';
 
 
 export let services = {
@@ -30,7 +31,8 @@ export let services = {
   wikidata: serviceWikidata,
   wikipedia: serviceWikipedia,
   mapilio: serviceMapilio,
-  panoramax: servicePanoramax
+  panoramax: servicePanoramax,
+  maprizon: serviceMaprizon
 };
 
 export {
@@ -48,5 +50,6 @@ export {
   serviceWikidata,
   serviceWikipedia,
   serviceMapilio,
-  servicePanoramax
+  servicePanoramax,
+  serviceMaprizon
 };

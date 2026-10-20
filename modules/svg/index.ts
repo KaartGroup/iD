@@ -29,3 +29,4 @@ export { svgTurns } from './turns.js';
 export { svgVertices } from './vertices.js';
 export { svgMapilioImages } from './mapilio_images.js';
 export { svgPanoramaxImages } from './panoramax_images.js';
+export { svgMaprizonImages } from './maprizon_images.js';

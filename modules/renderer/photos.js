@@ -8,7 +8,7 @@ import { patchHash } from '../behavior';
 
 export function rendererPhotos(context) {
     var dispatch = d3_dispatch('change');
-    var _layerIDs = ['streetside', 'mapillary', 'mapillary-map-features', 'mapillary-signs', 'kartaview', 'mapilio', 'vegbilder', 'panoramax'];
+    var _layerIDs = ['streetside', 'mapillary', 'mapillary-map-features', 'mapillary-signs', 'kartaview', 'mapilio', 'vegbilder', 'panoramax', 'maprizon'];
     var _allPhotoTypes = ['flat', 'panoramic'];
     var _shownPhotoTypes = _allPhotoTypes.slice();   // shallow copy
     var _dateFilters = ['fromDate', 'toDate'];
@@ -156,7 +156,8 @@ export function rendererPhotos(context) {
      */
     photos.shouldFilterDateBySlider = function(){
         return showsLayer('mapillary') || showsLayer('kartaview') || showsLayer('mapilio')
-        || showsLayer('streetside') || showsLayer('vegbilder') || showsLayer('panoramax');
+        || showsLayer('streetside') || showsLayer('vegbilder') || showsLayer('panoramax')
+        || showsLayer('maprizon');
     };
 
     /**
@@ -164,7 +165,8 @@ export function rendererPhotos(context) {
      */
     photos.shouldFilterByPhotoType = function() {
         return showsLayer('mapillary') ||
-            (showsLayer('streetside') && showsLayer('kartaview')) || showsLayer('vegbilder') || showsLayer('panoramax');
+            (showsLayer('streetside') && showsLayer('kartaview')) || showsLayer('vegbilder') || showsLayer('panoramax') ||
+            showsLayer('maprizon');
     };
 
     /**

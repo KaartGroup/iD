@@ -390,6 +390,33 @@ label.panoramax-hd {
     margin: 0 2px;
 }
 
+/* Maprizon Image Layer */
+li.list-item-photos.list-item-maprizon.active:after {
+    background-color: #b026ff;
+}
+.layer-maprizon {
+    pointer-events: none;
+}
+.layer-maprizon .viewfield-group * {
+    fill: #b026ff;
+    stroke: #ffffff;
+    stroke-opacity: .6;
+    fill-opacity: .6;
+}
+.layer-maprizon .sequence {
+    stroke: #b026ff;
+}
+.photo-controls-maprizon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+.photo-controls-maprizon button {
+    padding:0 6px;
+    pointer-events: initial;
+}
+
 .slider-wrap {
     display: inline-block;
     width: 100%;
@@ -447,7 +474,8 @@ label.panoramax-hd {
 
 .ms-wrapper .pnlm-compass.pnlm-control,
 .vegbilder-wrapper  .pnlm-compass.pnlm-control,
-.panoramax-wrapper  .pnlm-compass.pnlm-control {
+.panoramax-wrapper  .pnlm-compass.pnlm-control,
+.maprizon-wrapper  .pnlm-compass.pnlm-control {
     width: 26px;
     height: 26px;
     left: 4px;
@@ -543,6 +571,16 @@ label.streetside-hires {
 @media (hover: hover) {
     .panoramax-wrapper .photo-attribution a:hover {
         color: #ff6f00;
+    }
+}
+
+.maprizon-wrapper .photo-attribution a:active {
+    color: #b026ff;
+}
+
+@media (hover: hover) {
+    .maprizon-wrapper .photo-attribution a:hover {
+        color: #b026ff;
     }
 }
 

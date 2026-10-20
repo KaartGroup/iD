@@ -243,7 +243,8 @@ export function rendererBackground(context) {
       kartaview: 'KartaView Images',
       vegbilder: 'Norwegian Road Administration Images',
       mapilio: 'Mapilio Images',
-      panoramax: 'Panoramax Images'
+      panoramax: 'Panoramax Images',
+      maprizon: 'Maprizon Images'
     };
 
     for (let layerID in photoOverlayLayers) {
