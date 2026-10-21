@@ -361,20 +361,20 @@ describe('iD.serviceMaprizon', function() {
         });
     });
 
-    describe('#neighbourImage', function() {
+    describe('#neighborImage', function() {
         it('finds the next and previous picture by sequence_index', async function() {
             await loadZ15();
-            expect(maprizon.neighbourImage('pic-1', 1).id).toBe('pic-2');
-            expect(maprizon.neighbourImage('pic-1', -1).id).toBe('pic-0');
+            expect(maprizon.neighborImage('pic-1', 1).id).toBe('pic-2');
+            expect(maprizon.neighborImage('pic-1', -1).id).toBe('pic-0');
         });
 
-        it('returns nothing when the neighbour is not in the cache', async function() {
+        it('returns nothing when the neighbor is not in the cache', async function() {
             await loadZ15();
-            expect(maprizon.neighbourImage('pic-0', -1)).toBeUndefined();
-            expect(maprizon.neighbourImage('pic-2', 1)).toBeUndefined();   // picture 3 is missing
-            expect(maprizon.neighbourImage('pic-4', -1)).toBeUndefined();
-            expect(maprizon.neighbourImage('still-1', 1)).toBeUndefined();
-            expect(maprizon.neighbourImage('still-1', -1)).toBeUndefined();
+            expect(maprizon.neighborImage('pic-0', -1)).toBeUndefined();
+            expect(maprizon.neighborImage('pic-2', 1)).toBeUndefined();   // picture 3 is missing
+            expect(maprizon.neighborImage('pic-4', -1)).toBeUndefined();
+            expect(maprizon.neighborImage('still-1', 1)).toBeUndefined();
+            expect(maprizon.neighborImage('still-1', -1)).toBeUndefined();
         });
     });
 
@@ -412,10 +412,13 @@ describe('iD.serviceMaprizon', function() {
 
             const attribution = container.select('.photo-attribution');
             expect(attribution.select('.captured_at').empty()).toBe(false);
-            expect(attribution.select('a.report-photo').attr('href')).toBe('https://app.maprizon.com/report');
-            expect(attribution.select('a.image-link').attr('href')).toBe('https://app.maprizon.com');
+            const image = maprizon.cachedImage('still-1');
+            expect(attribution.select('a.report-photo').attr('href'))
+                .toBe('https://app.maprizon.com/removal-request?image=' + encodeURIComponent(image.image_path));
+            expect(attribution.select('a.image-link').attr('href')).toBe('https://maprizon.com');
             expect(attribution.select('a.image-link').text()).toBe('Maprizon');
-            expect(attribution.select('.license').text()).toBe('Licence: TBD');
+            expect(attribution.select('a.license').attr('href')).toBe('https://app.maprizon.com/terms');
+            expect(attribution.select('a.license').text()).toBe('CC BY-SA 4.0');
 
             // the image itself is the only other resource: no API call is made
             expect(fetchMock.calls().length).toBe(requestCount);

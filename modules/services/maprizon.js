@@ -20,12 +20,11 @@ import { patchHash } from '../behavior';
 const baseUrl = 'https://maprizon-id.sfo3.cdn.digitaloceanspaces.com';
 const tileUrl = baseUrl + '/{z}/{x}/{y}.mvt';
 
-// PLACEHOLDER(maprizon): replace with the real page for reporting a photo
-const REPORT_URL = 'https://app.maprizon.com/report';
-// PLACEHOLDER(maprizon): replace with the real public Maprizon website
-const SITE_URL = 'https://app.maprizon.com';
-// PLACEHOLDER(maprizon): the licence label is the `maprizon.license` string in data/core.yaml
-const LICENSE_STRING_ID = 'maprizon.license';
+// the public removal form, prefilled with the photo's URL
+const REPORT_URL = 'https://app.maprizon.com/removal-request';
+const SITE_URL = 'https://maprizon.com';
+// published imagery is CC BY-SA 4.0 under section 5 of the terms
+const TERMS_URL = 'https://app.maprizon.com/terms';
 
 const pictureLayer = 'pictures';
 const sequenceLayer = 'sequences';
@@ -159,7 +158,7 @@ function loadTileDataToCache(data, tile) {
             const loc = feature.geometry.coordinates;
             const id = String(props.id);
 
-            // a picture can be repeated in the buffer of a neighbouring tile
+            // a picture can be repeated in the buffer of a neighboring tile
             if (cache.forImageId[id]) continue;
 
             const heading = Number(props.heading);
@@ -209,9 +208,9 @@ function loadTileDataToCache(data, tile) {
  * Returns the cached picture next to `image` in its sequence
  * @param {*} image The picture to step from
  * @param {number} stepBy `-1` for the previous picture or `1` for the next one
- * @returns the neighbouring picture, or `undefined` if it is not loaded
+ * @returns the neighboring picture, or `undefined` if it is not loaded
  */
-function neighbour(image, stepBy) {
+function neighbor(image, stepBy) {
     if (!image || image.sequence_id === undefined || image.sequence_index === undefined) return undefined;
     const sequence = _cache.images.forSequence[image.sequence_id];
     return sequence && sequence[image.sequence_index + stepBy];
@@ -336,8 +335,8 @@ export default {
      * @param {number} stepBy `-1` for the previous picture or `1` for the next one
      * @returns the picture, or `undefined` if it is not in the cache
      */
-    neighbourImage: function(imageKey, stepBy) {
-        return neighbour(this.cachedImage(imageKey), stepBy);
+    neighborImage: function(imageKey, stepBy) {
+        return neighbor(this.cachedImage(imageKey), stepBy);
     },
 
     /**
@@ -426,7 +425,9 @@ export default {
             .append('a')
             .attr('class', 'report-photo')
             .attr('target', '_blank')
-            .attr('href', REPORT_URL)
+            .attr('href', d.image_path
+                ? REPORT_URL + '?image=' + encodeURIComponent(d.image_path)
+                : REPORT_URL)
             .call(t.append('maprizon.report'));
 
         attribution
@@ -445,16 +446,18 @@ export default {
             .text('|');
 
         attribution
-            .append('span')
+            .append('a')
             .attr('class', 'license')
-            .call(t.append(LICENSE_STRING_ID));
+            .attr('target', '_blank')
+            .attr('href', TERMS_URL)
+            .call(t.append('maprizon.license'));
 
         wrap
             .selectAll('button.back')
-            .classed('hide', !neighbour(d, -1));
+            .classed('hide', !neighbor(d, -1));
         wrap
             .selectAll('button.forward')
-            .classed('hide', !neighbour(d, 1));
+            .classed('hide', !neighbor(d, 1));
 
         _currentFrame = d.isPano ? _pannellumFrame : _planeFrame;
 
@@ -528,7 +531,7 @@ export default {
             return function() {
                 if (!_activeImage) return;
 
-                const nextImage = that.neighbourImage(_activeImage.id, stepBy);
+                const nextImage = that.neighborImage(_activeImage.id, stepBy);
                 if (!nextImage) return;
 
                 context.map().centerEase(nextImage.loc);
