@@ -1,17 +1,20 @@
 import { throttle } from 'es-toolkit';
-
+import type { Dispatch } from 'd3-dispatch';
 import { select as d3_select } from 'd3-selection';
 import { services } from '../services';
 import { svgPath, svgPointTransform } from './helpers';
+import type { Projection } from '../geo/raw_mercator';
+import type { MaprizonImage, MaprizonSequence } from '../services/maprizon';
+import type { coreContext } from '../core';
 
 
-export function svgMaprizonImages(projection, context, dispatch) {
+export function svgMaprizonImages(projection: Projection, context: coreContext, dispatch: Dispatch<object>) {
     const throttledRedraw = throttle(function() { dispatch.call('change'); }, 1000);
     const imageMinZoom = 15;
     const lineMinZoom = 10;
     const viewFieldZoomLevel = 18;
-    let layer = d3_select(null);
-    let _maprizon;
+    let layer: d3.Selection<SVGGElement> = d3_select(null!);
+    let _maprizon: typeof services.maprizon | null;
     let _viewerYaw = 0;
 
     function init() {
@@ -38,10 +41,9 @@ export function svgMaprizonImages(projection, context, dispatch) {
      * Whether a capture date (`YYYY-MM-DD…`) is inside the date filter of the
      * right panel. The filter values are `YYYY-MM-DD` strings and both ends are
      * inclusive, so comparing the date part of the strings is enough.
-     * @param {string} date a date or an ISO timestamp
-     * @returns {boolean}
+     * @param date a date or an ISO timestamp
      */
-    function inDateRange(date) {
+    function inDateRange(date: string | undefined) {
         const fromDate = context.photos().fromDate();
         const toDate = context.photos().toDate();
         if (!fromDate && !toDate) return true;
@@ -54,11 +56,9 @@ export function svgMaprizonImages(projection, context, dispatch) {
 
     /**
      * Filters the images given the filters on the right panel
-     * @param {*} images
-     * @param {Boolean} skipDateFilter if true, the set date filters will be ignored
-     * @returns array of filtered images
+     * @param skipDateFilter if true, the set date filters will be ignored
      */
-    function filterImages(images, skipDateFilter = false) {
+    function filterImages(images: MaprizonImage[], skipDateFilter = false) {
         const showsPano = context.photos().showsPanoramic();
         const showsFlat = context.photos().showsFlat();
 
@@ -77,11 +77,9 @@ export function svgMaprizonImages(projection, context, dispatch) {
 
     /**
      * Filters the sequences given the filters on the right panel
-     * @param {*} sequences
-     * @param {Boolean} skipDateFilter if true, the set date filters will be ignored
-     * @returns array of filtered sequences
+     * @param skipDateFilter if true, the set date filters will be ignored
      */
-    function filterSequences(sequences, skipDateFilter = false) {
+    function filterSequences(sequences: MaprizonSequence[], skipDateFilter = false) {
         const showsPano = context.photos().showsPanoramic();
         const showsFlat = context.photos().showsFlat();
 
@@ -130,10 +128,10 @@ export function svgMaprizonImages(projection, context, dispatch) {
 
     /**
      * Updates the viewfinder for the selected image bubble based on the frame's yaw
-     * @param {*} d Current Active image Data
-     * @param {*} selectedImageId  The selected bubble image ID
+     * @param d Current Active image Data
+     * @param selectedImageId  The selected bubble image ID
      */
-    function transform(d, selectedImageId) {
+    function transform(d: MaprizonImage, selectedImageId: string | undefined) {
         let t = svgPointTransform(projection)(d);
         let rot = d.heading;
         if (d.id === selectedImageId) {
@@ -154,11 +152,8 @@ export function svgMaprizonImages(projection, context, dispatch) {
         layer.style('display', 'none');
     }
 
-    /**
-     * Updates the current selected image
-     * @param {*} image The selected image bubble data
-     */
-    function click(d3_event, image) {
+    /** Updates the current selected image */
+    function click(d3_event: MouseEvent, image: MaprizonImage) {
         const service = getService();
         if (!service) return;
 
@@ -173,7 +168,7 @@ export function svgMaprizonImages(projection, context, dispatch) {
         context.map().centerEase(image.loc);
     }
 
-    function mouseover(d3_event, image) {
+    function mouseover(d3_event: MouseEvent, image: MaprizonImage) {
         const service = getService();
         if (service) service.setStyles(context, image);
     }
@@ -186,7 +181,7 @@ export function svgMaprizonImages(projection, context, dispatch) {
     /**
      * Updates the current view, rearranging lines and bubbles.
      */
-    function update() {
+    function update(this: any) {
         const zoom = ~~context.map().zoom();
         const showViewfields = (zoom >= viewFieldZoomLevel);
 
@@ -201,7 +196,7 @@ export function svgMaprizonImages(projection, context, dispatch) {
         images = filterImages(images);
         sequences = filterSequences(sequences);
 
-        let traces = layer.selectAll('.sequences').selectAll('.sequence')
+        const traces = layer.selectAll('.sequences').selectAll<SVGPathElement, MaprizonSequence>('.sequence')
             .data(sequences, function(d) { return d.properties.id; });
 
         // exit
@@ -215,7 +210,7 @@ export function svgMaprizonImages(projection, context, dispatch) {
             .attr('d', svgPath(projection).geojson);
 
 
-        const groups = layer.selectAll('.markers').selectAll('.viewfield-group')
+        const groups = layer.selectAll('.markers').selectAll<SVGGElement, MaprizonImage>('.viewfield-group')
             .data(images, function(d) { return d.id; });
 
         // exit
@@ -243,7 +238,7 @@ export function svgMaprizonImages(projection, context, dispatch) {
                 if (a.id === activeImageId) return  1;
                 if (b.id === activeImageId) return -1;
                 // else: sort by capture time (newest on top)
-                return a.capture_time_parsed - b.capture_time_parsed;
+                return a.capture_time_parsed.getTime() - b.capture_time_parsed.getTime();
             })
             .attr('transform', d => transform(d, activeImageId))
             .select('.viewfield-scale');
@@ -271,8 +266,8 @@ export function svgMaprizonImages(projection, context, dispatch) {
 
         if (service) service.setStyles(context, null);
 
-        function viewfieldPath() {
-            if (this.parentNode.__data__.isPano) {
+        function viewfieldPath(this: SVGPathElement) {
+            if (this.parentNode!.__data__.isPano) {
                 return 'M 8,13 m -10,0 a 10,10 0 1,0 20,0 a 10,10 0 1,0 -20,0';
             } else {
                 return 'M 6,9 C 8,8.4 8,8.4 10,9 L 16,-2 C 12,-5 4,-5 0,-2 z';
@@ -294,21 +289,18 @@ export function svgMaprizonImages(projection, context, dispatch) {
         // e.g. during drags or easing.
         if (context.map().isTransformed()) return;
 
-        layer.selectAll('.viewfield-group.currentView')
+        layer.selectAll<SVGGElement, MaprizonImage>('.viewfield-group.currentView')
             .attr('transform', d => transform(d, d.id));
     }
 
 
-    /**
-     * Draws bubbles and lines on the current view
-     * @param {*} selection Current HTML Selection
-     */
-    function drawImages(selection) {
+    /** Draws bubbles and lines on the current view */
+    function drawImages(this: any, selection: d3.Selection<SVGGElement>) {
 
         const enabled = svgMaprizonImages.enabled;
         const service = getService();
 
-        layer = selection.selectAll('.layer-maprizon')
+        layer = selection.selectAll<SVGGElement, 0>('.layer-maprizon')
             .data(service ? [0] : []);
 
         layer.exit()
@@ -331,7 +323,7 @@ export function svgMaprizonImages(projection, context, dispatch) {
             .merge(layer);
 
         if (enabled) {
-            let zoom = ~~context.map().zoom();
+            const zoom = ~~context.map().zoom();
             if (service) {
                 if (zoom >= imageMinZoom) {
                     editOn();
@@ -353,10 +345,8 @@ export function svgMaprizonImages(projection, context, dispatch) {
         }
     }
 
-    /**
-     * @returns if layer is active
-     */
-    drawImages.enabled = function(_) {
+    /** @returns if layer is active */
+    drawImages.enabled = function(_: boolean) {
         if (!arguments.length) return svgMaprizonImages.enabled;
         svgMaprizonImages.enabled = _;
         if (svgMaprizonImages.enabled) {
@@ -375,10 +365,8 @@ export function svgMaprizonImages(projection, context, dispatch) {
         return !!getService();
     };
 
-    /**
-     * @returns if layer is drawn
-     */
-    drawImages.rendered = function(zoom) {
+    /** @returns if layer is drawn */
+    drawImages.rendered = function(zoom: number) {
         return zoom >= lineMinZoom;
     };
 
@@ -386,3 +374,5 @@ export function svgMaprizonImages(projection, context, dispatch) {
     init();
     return drawImages;
 }
+svgMaprizonImages.enabled = false;
+svgMaprizonImages.initialized = false;

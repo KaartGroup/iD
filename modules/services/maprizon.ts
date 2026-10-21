@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-this-alias */
 import { dispatch as d3_dispatch } from 'd3-dispatch';
 
 import { PbfReader } from 'pbf';
@@ -6,12 +7,17 @@ import { VectorTile } from '@mapbox/vector-tile';
 import { utilRebind, utilTiler } from '../util';
 import { geoExtent } from '../geo';
 import { t } from '../core/localizer';
-import { pannellumPhotoFrame } from './pannellum_photo';
+import { pannellumPhotoFrame, type PhotoFrame } from './pannellum_photo';
 import { planePhotoFrame } from './plane_photo';
-import { services } from './';
-import { partitionViewport } from '../util/partition';
+import { services } from '.';
+import { partitionViewport, type WithBbox } from '../util/partition';
 import { localeDateString } from '../util/date';
 import { patchHash } from '../behavior';
+import type { Projection } from '../geo/raw_mercator';
+import type { Tile } from '../util/tiler';
+import type { Vec2 } from '../geo/vector';
+import type { Feature, LineString, Point } from 'geojson';
+import type { coreContext } from '../core';
 
 
 // Maprizon only publishes static vector tiles: there is no API. Each picture
@@ -33,34 +39,84 @@ const sequenceLayer = 'sequences';
 // z10 has `sequences` only, z15 has `sequences` and `pictures`
 const imageMinZoom = 15;
 const lineMinZoom = 10;
-const dispatch = d3_dispatch('loadedImages', 'loadedLines', 'viewerChanged');
+const dispatch = d3_dispatch<object, {
+    loadedImages: [];
+    loadedLines: [];
+    viewerChanged: [];
+}>('loadedImages', 'loadedLines', 'viewerChanged');
 
-let _cache;
-let _loadViewerPromise;
+export interface MaprizonImage {
+    service: 'photo';
+    loc: Vec2;
+    id: string;
+    capture_time: string;
+    capture_time_parsed: Date;
+    sequence_id?: string;
+    sequence_index?: number;
+    heading: number;
+    image_path: string;
+    isPano: boolean;
+}
 
-let _planeFrame;
-let _pannellumFrame;
-let _currentFrame;
+export type MaprizonSequence = Feature<LineString, {
+    id: string;
+    type: 'equirectangular' | 'flat';
+    date: string;
+}>;
 
-let _activeImage;
+type RawPicture = Feature<Point, {
+    id: string | number;
+    ts: string;
+    first_sequence?: string | number;
+    sequence_index?: string | number;
+    heading?: string | number;
+    type: 'equirectangular' | 'flat';
+    url: string;
+}>;
+
+type Which = 'images' | 'lines';
+
+interface ActiveImage {
+    id: string;
+    sequence_id?: string;
+    loc: Vec2;
+}
+
+let _cache: {
+    images: {
+        rtree: RBush<WithBbox<MaprizonImage>>;
+        forImageId: { [imageId: string]: MaprizonImage };
+        forSequence: { [sequenceId: string]: { [sequenceIndex: number]: MaprizonImage } };
+    };
+    sequences: { lineString: { [sequenceId: string]: MaprizonSequence[] } };
+    mockSequences: { lineString: { [sequenceId: string]: MaprizonSequence[] } };
+    requests: {
+        loaded: { [tileId: string]: boolean };
+        inflight: { [tileId: string]: AbortController };
+    };
+};
+let _loadViewerPromise: Promise<void> | undefined;
+
+let _planeFrame: PhotoFrame;
+let _pannellumFrame: PhotoFrame;
+let _currentFrame: PhotoFrame | undefined;
+
+let _activeImage: ActiveImage | null;
 let _isViewerOpen = false;
 
 
 /**
- * Return no more than `limit` results per partition.
- * @param {number} limit Number of maximum objects to return
- * @param {*} projection Current projection
- * @param {*} rtree The cache
- * @returns Data found
+ * Return no more than `limit` results per partition, evenly spaced through
+ * each partition and always including the active image.
  */
-function searchLimited(limit, projection, rtree) {
-    limit = limit || 5;
+function searchLimited(limit: number | undefined, projection: Projection, rtree: RBush<WithBbox<MaprizonImage>>) {
+    limit ||= 5;
 
     return partitionViewport(projection)
-        .reduce(function(result, extent) {
-            let found = rtree.search(extent.bbox());
+        .reduce<MaprizonImage[]>(function(result, extent) {
+            const found = rtree.search(extent.bbox());
             const spacing = Math.max(1, Math.floor(found.length / limit));
-            found = found
+            const picked = found
                 .filter((d, idx) => idx % spacing === 0 ||
                                     d.data.id === _activeImage?.id)
                 .sort((a, b) => {
@@ -71,17 +127,12 @@ function searchLimited(limit, projection, rtree) {
                 .slice(0, limit)
                 .map(d => d.data);
 
-            return (found.length ? result.concat(found) : result);
+            return (picked.length ? result.concat(picked) : result);
         }, []);
 }
 
-/**
- * Load all data for the specified type from Maprizon vector tiles
- * @param {string} which Either 'images' or 'lines'
- * @param {number} tileZoom The (only) zoom level of the tiles to load
- * @param {*} projection Current projection
- */
-function loadTiles(which, tileZoom, projection) {
+/** Load all data for the specified type from the Maprizon tiles of one zoom level */
+function loadTiles(which: Which, tileZoom: number, projection: Projection) {
     const tiler = utilTiler().zoomExtent([tileZoom, tileZoom]).skipNullIsland(true);
     const tiles = tiler.getTiles(projection);
 
@@ -93,18 +144,17 @@ function loadTiles(which, tileZoom, projection) {
 /**
  * Load all data for the specified type from one vector tile.
  * A missing tile (Spaces answers 403 or 404) means there is no data there.
- * @param {string} which Either 'images' or 'lines'
- * @param {*} tile Current tile
  */
-function loadTile(which, tile) {
+function loadTile(which: Which, tile: Tile) {
     const cache = _cache.requests;
     const tileId = `${tile.id}-${which}`;
     if (cache.loaded[tileId] || cache.inflight[tileId]) return;
     const controller = new AbortController();
     cache.inflight[tileId] = controller;
-    const requestUrl = tileUrl.replace('{x}', tile.xyz[0])
-        .replace('{y}', tile.xyz[1])
-        .replace('{z}', tile.xyz[2]);
+    const requestUrl = tileUrl
+        .replace('{x}', String(tile.xyz[0]))
+        .replace('{y}', String(tile.xyz[1]))
+        .replace('{z}', String(tile.xyz[2]));
 
     fetch(requestUrl, { signal: controller.signal })
         .then(function(response) {
@@ -138,32 +188,28 @@ function loadTile(which, tile) {
         });
 }
 
-/**
- * Parses one vector tile and adds its pictures and sequences to the cache
- * @param {ArrayBuffer} data Tile data
- * @param {*} tile Current tile
- */
-function loadTileDataToCache(data, tile) {
+/** Parses one vector tile and adds its pictures and sequences to the cache */
+function loadTileDataToCache(data: ArrayBuffer, tile: Tile) {
     const vectorTile = new VectorTile(new PbfReader(data));
     const [x, y, z] = tile.xyz;
 
     if (Object.hasOwnProperty.call(vectorTile.layers, pictureLayer)) {
-        const features = [];
+        const features: WithBbox<MaprizonImage>[] = [];
         const cache = _cache.images;
         const layer = vectorTile.layers[pictureLayer];
 
         for (let i = 0; i < layer.length; i++) {
-            const feature = layer.feature(i).toGeoJSON(x, y, z);
+            const feature = layer.feature(i).toGeoJSON(x, y, z) as RawPicture;
             const props = feature.properties;
-            const loc = feature.geometry.coordinates;
+            const loc = feature.geometry.coordinates as Vec2;
             const id = String(props.id);
 
             // a picture can be repeated in the buffer of a neighboring tile
             if (cache.forImageId[id]) continue;
 
             const heading = Number(props.heading);
-            const sequenceIndex = parseInt(props.sequence_index, 10);
-            const d = {
+            const sequenceIndex = parseInt(String(props.sequence_index), 10);
+            const d: MaprizonImage = {
                 service: 'photo',
                 loc: loc,
                 capture_time: props.ts,
@@ -193,7 +239,7 @@ function loadTileDataToCache(data, tile) {
         const layer = vectorTile.layers[sequenceLayer];
 
         for (let i = 0; i < layer.length; i++) {
-            const feature = layer.feature(i).toGeoJSON(x, y, z);
+            const feature = layer.feature(i).toGeoJSON(x, y, z) as MaprizonSequence;
             const id = feature.properties.id;
             if (cache.lineString[id]) {
                 cache.lineString[id].push(feature);
@@ -206,26 +252,28 @@ function loadTileDataToCache(data, tile) {
 
 /**
  * Returns the cached picture next to `image` in its sequence
- * @param {*} image The picture to step from
- * @param {number} stepBy `-1` for the previous picture or `1` for the next one
+ * @param image The picture to step from
+ * @param stepBy `-1` for the previous picture or `1` for the next one
  * @returns the neighboring picture, or `undefined` if it is not loaded
  */
-function neighbor(image, stepBy) {
+function neighbor(image: MaprizonImage | undefined, stepBy: number): MaprizonImage | undefined {
     if (!image || image.sequence_id === undefined || image.sequence_index === undefined) return undefined;
     const sequence = _cache.images.forSequence[image.sequence_id];
     return sequence && sequence[image.sequence_index + stepBy];
 }
 
-export default {
-    init: function() {
+export default new class {
+    event!: Pick<typeof dispatch, 'on'>;
+
+    init() {
         if (!_cache) {
             this.reset();
         }
 
         this.event = utilRebind(this, dispatch, 'on');
-    },
+    }
 
-    reset: function() {
+    reset() {
         if (_cache) {
             Object.values(_cache.requests.inflight).forEach(function(request) { request.abort(); });
         }
@@ -237,56 +285,40 @@ export default {
             requests: { loaded: {}, inflight: {} }
         };
         _activeImage = null;
-    },
+    }
 
-    /**
-     * Get visible images from cache
-     * @param {*} projection Current Projection
-     * @returns images data for the current projection
-     */
-    images: function(projection) {
+    /** Get visible images from cache */
+    images(projection: Projection) {
         const limit = 5;
         return searchLimited(limit, projection, _cache.images.rtree);
-    },
+    }
 
-    /**
-     * Get a specific image from cache
-     * @param {*} imageKey the image id
-     * @returns
-     */
-    cachedImage: function(imageKey) {
+    /** Get a specific image from cache */
+    cachedImage(imageKey: string): MaprizonImage | undefined {
         return _cache.images.forImageId[imageKey];
-    },
+    }
 
-    /**
-     * Fetches images (and sequences) for the visible area from the z15 tiles
-     * @param {*} projection Current Projection
-     */
-    loadImages: function(projection) {
+    /** Fetches images (and sequences) for the visible area from the z15 tiles */
+    loadImages(projection: Projection) {
         loadTiles('images', imageMinZoom, projection);
-    },
+    }
 
-    /**
-     * Fetches the sequence overview for the visible area from the z10 tiles
-     * @param {*} projection Current Projection
-     */
-    loadLines: function(projection) {
+    /** Fetches the sequence overview for the visible area from the z10 tiles */
+    loadLines(projection: Projection) {
         loadTiles('lines', lineMinZoom, projection);
-    },
+    }
 
     /**
      * Get visible sequences from cache
-     * @param {*} projection Current Projection
-     * @param {number} zoom Current zoom (if zoom < `imageMinZoom` the overview lines from the z10 tiles are drawn)
-     * @returns sequences data for the current projection
+     * @param zoom Current zoom (if zoom < `imageMinZoom` the overview lines from the z10 tiles are drawn)
      */
-    sequences: function(projection, zoom) {
+    sequences(projection: Projection, zoom: number) {
         const viewport = projection.clipExtent();
-        const min = [viewport[0][0], viewport[1][1]];
-        const max = [viewport[1][0], viewport[0][1]];
+        const min: Vec2 = [viewport[0][0], viewport[1][1]];
+        const max: Vec2 = [viewport[1][0], viewport[0][1]];
         const bbox = geoExtent(projection.invert(min), projection.invert(max)).bbox();
-        const sequenceIds = {};
-        let lineStrings = [];
+        const sequenceIds: Record<string, true> = {};
+        let lineStrings: MaprizonSequence[] = [];
 
         if (zoom >= imageMinZoom) {
             _cache.images.rtree.search(bbox).forEach(function(d) {
@@ -307,13 +339,10 @@ export default {
             });
         }
         return lineStrings;
-    },
+    }
 
-    /**
-     * Updates the data for the currently visible image
-     * @param {*} image Image data
-     */
-    setActiveImage: function(image) {
+    /** Updates the data for the currently visible image */
+    setActiveImage(image: MaprizonImage | null | undefined) {
         if (image && image.id) {
             _activeImage = {
                 id: image.id,
@@ -323,39 +352,34 @@ export default {
         } else {
             _activeImage = null;
         }
-    },
+    }
 
-    getActiveImage: function() {
+    getActiveImage() {
         return _activeImage;
-    },
+    }
 
     /**
      * Returns the cached picture before or after `imageKey` in its sequence
-     * @param {string} imageKey the image id
-     * @param {number} stepBy `-1` for the previous picture or `1` for the next one
+     * @param stepBy `-1` for the previous picture or `1` for the next one
      * @returns the picture, or `undefined` if it is not in the cache
      */
-    neighborImage: function(imageKey, stepBy) {
+    neighborImage(imageKey: string, stepBy: number) {
         return neighbor(this.cachedImage(imageKey), stepBy);
-    },
+    }
 
-    /**
-     * Update the currently highlighted sequence and selected bubble
-     * @param {*} context Current HTML context
-     * @param {*} [hovered] The hovered bubble image
-     */
-    setStyles: function(context, hovered) {
+    /** Update the currently highlighted sequence and selected bubble */
+    setStyles(context: coreContext, hovered?: MaprizonImage | null) {
         const hoveredImageId = hovered && hovered.id;
         const hoveredSequenceId = hovered && hovered.sequence_id;
         const selectedSequenceId = _activeImage && _activeImage.sequence_id;
         const selectedImageId = _activeImage && _activeImage.id;
 
-        const markers = context.container().selectAll('.layer-maprizon .viewfield-group');
-        const sequences = context.container().selectAll('.layer-maprizon .sequence');
+        const markers = context.container().selectAll<SVGGElement, MaprizonImage>('.layer-maprizon .viewfield-group');
+        const sequences = context.container().selectAll<SVGPathElement, MaprizonSequence>('.layer-maprizon .sequence');
 
         markers
             .classed('highlighted', function(d) {
-                return (selectedSequenceId && d.sequence_id === selectedSequenceId) || d.id === hoveredImageId;
+                return (!!selectedSequenceId && d.sequence_id === selectedSequenceId) || d.id === hoveredImageId;
             })
             .classed('hovered', function(d) { return d.id === hoveredImageId; })
             .classed('currentView', function(d) { return d.id === selectedImageId; });
@@ -365,11 +389,11 @@ export default {
             .classed('currentView', function(d) { return !!selectedSequenceId && d.properties.id === selectedSequenceId; });
 
         // update viewfields if needed
-        context.container().selectAll('.layer-maprizon .viewfield-group .viewfield')
+        context.container().selectAll<SVGPathElement, unknown>('.layer-maprizon .viewfield-group .viewfield')
             .attr('d', viewfieldPath);
 
-        function viewfieldPath() {
-            let d = this.parentNode.__data__;
+        function viewfieldPath(this: SVGPathElement) {
+            const d = (this.parentNode as Element & { __data__: MaprizonImage }).__data__;
             if (d.isPano && d.id !== selectedImageId) {
                 return 'M 8,13 m -10,0 a 10,10 0 1,0 20,0 a 10,10 0 1,0 -20,0';
             } else {
@@ -377,24 +401,19 @@ export default {
             }
         }
         return this;
-    },
+    }
 
     // Get viewer status
-    isViewerOpen: function() {
+    isViewerOpen() {
         return _isViewerOpen;
-    },
+    }
 
-    /**
-     * Loads the selected image in the frame
-     * @param {*} context Current HTML context
-     * @param {*} id of the selected image
-     * @returns
-     */
-    selectImage: function(context, id) {
+    /** Loads the selected image in the frame */
+    selectImage(context: coreContext, id: string) {
         const d = this.cachedImage(id);
         this.setActiveImage(d);
 
-        let viewer = context.container()
+        const viewer = context.container()
             .select('.photoviewer');
 
         if (!viewer.empty()) viewer.datum(d);
@@ -405,10 +424,10 @@ export default {
 
         patchHash({ photo: 'maprizon/' + d.id });
 
-        let wrap = context.container()
-            .select('.photoviewer .maprizon-wrapper');
+        const wrap = context.container()
+            .select<HTMLElement>('.photoviewer .maprizon-wrapper');
 
-        let attribution = wrap.selectAll('.photo-attribution').text('');
+        const attribution = wrap.selectAll('.photo-attribution').text('');
 
         if (d.capture_time) {
             attribution
@@ -468,23 +487,23 @@ export default {
         }
 
         return this;
-    },
+    }
 
-    photoFrame: function() {
+    photoFrame() {
         return _currentFrame;
-    },
+    }
 
-    ensureViewerLoaded: function(context) {
-        let that = this;
+    ensureViewerLoaded(context: coreContext) {
+        const that = this;
 
         if (_loadViewerPromise) return _loadViewerPromise;
 
-        let wrap = context.container()
+        const wrap = context.container()
             .select('.photoviewer')
             .selectAll('.maprizon-wrapper')
             .data([0]);
 
-        let wrapEnter = wrap.enter()
+        const wrapEnter = wrap.enter()
             .append('div')
             .attr('class', 'photo-wrapper maprizon-wrapper')
             .classed('hide', true)
@@ -524,10 +543,9 @@ export default {
 
         /**
          * Loads the next or previous picture of the sequence, if it is in the cache
-         * @param {number} stepBy '-1' if backwards or '1' if forward
-         * @returns
+         * @param stepBy `-1` if backwards or `1` if forward
          */
-        function step(stepBy) {
+        function step(stepBy: number) {
             return function() {
                 if (!_activeImage) return;
 
@@ -540,19 +558,16 @@ export default {
         }
 
         return _loadViewerPromise;
-    },
+    }
 
-    /**
-     * Shows the current viewer if hidden
-     * @param {*} context
-     */
-    showViewer: function(context) {
+    /** Shows the current viewer if hidden */
+    showViewer(context: coreContext) {
         const wrap = context.container().select('.photoviewer');
         const isHidden = wrap.selectAll('.photo-wrapper.maprizon-wrapper.hide').size();
         if (isHidden) {
             for (const service of Object.values(services)) {
                 if (service === this) continue;
-                if (typeof service.hideViewer === 'function') {
+                if (service && 'hideViewer' in service && typeof service.hideViewer === 'function') {
                     service.hideViewer(context);
                 }
             }
@@ -563,14 +578,11 @@ export default {
 
         _isViewerOpen = true;
         return this;
-    },
+    }
 
-    /**
-     * Hides the current viewer if shown, resets the active image and sequence
-     * @param {*} context
-     */
-    hideViewer: function(context) {
-        let viewer = context.container().select('.photoviewer');
+    /** Hides the current viewer if shown, resets the active image and sequence */
+    hideViewer(context: coreContext) {
+        const viewer = context.container().select('.photoviewer');
         if (!viewer.empty()) viewer.datum(null);
         patchHash({ photo: null });
         viewer
@@ -584,9 +596,9 @@ export default {
         _isViewerOpen = false;
 
         return this.setStyles(context, null);
-    },
+    }
 
-    cache: function() {
+    cache() {
         return _cache;
     }
 };
